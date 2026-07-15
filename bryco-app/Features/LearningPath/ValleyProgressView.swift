@@ -14,7 +14,7 @@ struct ValleyProgressView: View {
             HStack {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                     Text("Vale em construção")
-                        .font(.title2.bold())
+                        .font(.headline.bold())
                         .foregroundStyle(BryqoTheme.textPrimary)
                     Text(progressMessage)
                         .foregroundStyle(BryqoTheme.textSecondary)
@@ -23,7 +23,7 @@ struct ValleyProgressView: View {
                 Spacer()
 
                 Text("\(Int(progress * 100))%")
-                    .font(.title.bold())
+                    .font(.title3.bold())
                     .foregroundStyle(BryqoTheme.river)
             }
 
@@ -42,10 +42,10 @@ struct ValleyProgressView: View {
                 river
                 damBlocks
                 bridge
-                BrixAvatar(size: 54)
+                BrixAvatar(size: 46)
                     .offset(x: -120, y: -38)
             }
-            .frame(height: 260)
+            .frame(height: 220)
             .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous))
             .overlay {
                 RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
@@ -71,7 +71,7 @@ struct ValleyProgressView: View {
     private var moon: some View {
         Circle()
             .fill(BryqoTheme.sun.opacity(0.9))
-            .frame(width: 54, height: 54)
+            .frame(width: 44, height: 44)
             .blur(radius: 0.4)
             .offset(x: 92, y: -168)
     }
@@ -80,11 +80,11 @@ struct ValleyProgressView: View {
         ZStack {
             Capsule()
                 .fill(BryqoTheme.primary.opacity(0.34))
-                .frame(width: 260, height: 120)
+                .frame(width: 220, height: 100)
                 .offset(x: -100, y: -50)
             Capsule()
                 .fill(BryqoTheme.primary.opacity(0.22))
-                .frame(width: 290, height: 140)
+                .frame(width: 250, height: 116)
                 .offset(x: 120, y: -44)
         }
     }
@@ -105,7 +105,7 @@ struct ValleyProgressView: View {
             ForEach(0..<totalLessons, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 5)
                     .fill(index < completedLessons ? BryqoTheme.wood : BryqoTheme.stone.opacity(0.24))
-                    .frame(width: 34, height: CGFloat(48 + (index % 3) * 14))
+                    .frame(width: 28, height: CGFloat(40 + (index % 3) * 12))
             }
         }
         .padding(.bottom, 34)
@@ -114,7 +114,7 @@ struct ValleyProgressView: View {
     private var bridge: some View {
         RoundedRectangle(cornerRadius: 6, style: .continuous)
             .fill(completedLessons >= 3 ? BryqoTheme.sun : BryqoTheme.wood.opacity(0.35))
-            .frame(width: 170, height: 12)
+            .frame(width: 140, height: 10)
             .offset(y: -112)
     }
 }

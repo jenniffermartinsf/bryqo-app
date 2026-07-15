@@ -13,7 +13,7 @@ struct ReviewView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: BryqoTheme.spacing) {
                     Text("Vamos reforçar alguns pontos da barragem?")
-                        .font(.title2.bold())
+                        .font(.headline.bold())
                         .foregroundStyle(BryqoTheme.forest)
 
                     if completedLessons.isEmpty {

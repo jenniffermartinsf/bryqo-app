@@ -12,11 +12,11 @@ struct BackpackView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Mochila")
-                    .font(.system(size: 42, weight: .black))
+                    .font(.system(size: 34, weight: .black))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Text("Materiais, revisões e reforços ficam aqui para você continuar construindo.")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(BryqoTheme.textSecondary)
                     .lineSpacing(4)
 
@@ -38,7 +38,7 @@ struct BackpackView: View {
                     ForEach(Array(appState.progress.earnedMaterials.enumerated()), id: \.offset) { _, material in
                         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
                             Image(systemName: materialIcon(material))
-                                .font(.largeTitle)
+                                .font(.title)
                                 .foregroundStyle(BryqoTheme.sun)
 
                             Text(material)
@@ -63,7 +63,7 @@ struct BackpackView: View {
                 ForEach(completedLessons) { lesson in
                     HStack {
                         Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.title2)
+                            .font(.headline)
                             .foregroundStyle(BryqoTheme.river)
 
                         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
@@ -85,11 +85,11 @@ struct BackpackView: View {
     private var emptyReview: some View {
         VStack(spacing: BryqoTheme.Spacing.md) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 46, weight: .bold))
+                .font(.system(size: 36, weight: .bold))
                 .foregroundStyle(BryqoTheme.success)
 
             Text("Tudo em dia")
-                .font(.title2.bold())
+                .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             Text("Complete lições para acumular conceitos de revisão.")

@@ -33,12 +33,12 @@ struct LessonView: View {
 
                         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
                             Text(currentStep.title)
-                                .font(.system(size: 36, weight: .black))
+                                .font(.system(size: 30, weight: .black))
                                 .foregroundStyle(BryqoTheme.textPrimary)
 
                             if !currentStep.body.isEmpty {
                                 Text(currentStep.body)
-                                    .font(.title3)
+                                    .font(.body)
                                     .lineSpacing(5)
                                     .foregroundStyle(BryqoTheme.textSecondary)
                             }
@@ -109,7 +109,7 @@ struct LessonView: View {
     private func exerciseView(_ exercise: Exercise) -> some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             Text(exercise.prompt)
-                .font(.title3.bold())
+                .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             ForEach(exercise.options) { option in
@@ -120,7 +120,7 @@ struct LessonView: View {
                 } label: {
                     HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
                         Image(systemName: optionIcon(option))
-                            .font(.title3)
+                            .font(.headline)
                             .foregroundStyle(optionColor(option))
 
                         Text(option.text)
@@ -147,7 +147,7 @@ struct LessonView: View {
 
     private func feedbackView(exercise: Exercise) -> some View {
         HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
-            BrixAvatar(size: 48)
+            BrixAvatar(size: 42)
 
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
                 Text(isAnswerCorrect ? "Agora encaixou!" : "Vamos olhar por outro ângulo.")

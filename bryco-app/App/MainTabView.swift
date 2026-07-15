@@ -8,7 +8,7 @@ struct MainTabView: View {
         BryqoScreen {
             ZStack(alignment: .bottom) {
                 selectedView
-                    .padding(.bottom, 112)
+                    .padding(.bottom, 96)
 
                 FloatingTabBar(selectedTab: $selectedTab)
                     .padding(.horizontal, BryqoTheme.Spacing.lg)
@@ -72,16 +72,16 @@ private struct FloatingTabBar: View {
                 } label: {
                     VStack(spacing: 5) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.system(size: 20, weight: .bold))
 
                         Text(tab.rawValue)
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: 10, weight: .bold))
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }
                     .foregroundStyle(selectedTab == tab ? BryqoTheme.river : BryqoTheme.textPrimary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 72)
+                    .frame(height: 62)
                     .background {
                         if selectedTab == tab {
                             Capsule()

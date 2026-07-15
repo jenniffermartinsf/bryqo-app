@@ -27,11 +27,11 @@ struct LearnView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                 Text("Olá, \(appState.profile?.displayName ?? "construtor")")
-                    .font(.system(size: 36, weight: .black))
+                    .font(.system(size: 30, weight: .black))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Text("Vamos empilhar mais um bloco hoje?")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
 
@@ -52,7 +52,7 @@ struct LearnView: View {
                     .foregroundStyle(BryqoTheme.textPrimary)
                 Spacer()
                 Text("0 / \(appState.profile?.dailyGoalMinutes ?? 10) min")
-                    .font(.title3.bold())
+                    .font(.headline.bold())
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
 
@@ -77,7 +77,7 @@ struct LearnView: View {
                         .foregroundStyle(BryqoTheme.river)
 
                     Text(nextLesson?.title ?? "Essa parte ficou sólida!")
-                        .font(.system(size: 28, weight: .black))
+                        .font(.system(size: 24, weight: .black))
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .multilineTextAlignment(.leading)
 
@@ -92,9 +92,9 @@ struct LearnView: View {
                     Image(systemName: "arrow.right")
                     Text("Ir")
                 }
-                .font(.title2.bold())
+                .font(.headline.bold())
                 .foregroundStyle(Color(hex: 0x082235))
-                .frame(width: 116, height: 76)
+                .frame(width: 92, height: 58)
                 .background(BryqoTheme.river)
                 .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
             }
@@ -142,15 +142,15 @@ struct LearnView: View {
     private func trackCard(title: String, subtitle: String, icon: String, tint: Color, isLocked: Bool, progress: Double) -> some View {
         HStack(spacing: BryqoTheme.Spacing.xl) {
             Image(systemName: isLocked ? "lock.fill" : icon)
-                .font(.title)
+                .font(.title2)
                 .foregroundStyle(isLocked ? BryqoTheme.textSecondary : tint)
-                .frame(width: 72, height: 72)
+                .frame(width: 58, height: 58)
                 .background((isLocked ? BryqoTheme.textSecondary : tint).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                 Text(title)
-                    .font(.title2.bold())
+                    .font(.headline.bold())
                     .foregroundStyle(isLocked ? BryqoTheme.textSecondary : BryqoTheme.textPrimary)
 
                 Text(isLocked ? "Conclua a trilha anterior para desbloquear" : subtitle)
@@ -163,7 +163,7 @@ struct LearnView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.title2.bold())
+                .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.textSecondary)
         }
         .bryqoCard(fill: isLocked ? BryqoTheme.surface.opacity(0.58) : BryqoTheme.surface)

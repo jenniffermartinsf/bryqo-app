@@ -30,7 +30,7 @@ struct BryqoProgressView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Sua construção")
-                .font(.title2.bold())
+                .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.forest)
 
             ProgressView(value: unitProgress)
@@ -72,10 +72,10 @@ struct BryqoProgressView: View {
     private func statCard(title: String, value: String, icon: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(.headline)
                 .foregroundStyle(BryqoTheme.forest)
             Text(value)
-                .font(.title.bold())
+                .font(.title3.bold())
             Text(title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)

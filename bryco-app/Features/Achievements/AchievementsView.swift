@@ -13,7 +13,7 @@ struct AchievementsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Conquistas")
-                    .font(.system(size: 42, weight: .black))
+                    .font(.system(size: 34, weight: .black))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 statGrid
@@ -74,10 +74,10 @@ struct AchievementsView: View {
     private func statCard(icon: String, value: String, label: String, tint: Color) -> some View {
         VStack(spacing: BryqoTheme.Spacing.sm) {
             Image(systemName: icon)
-                .font(.title)
+                .font(.title2)
                 .foregroundStyle(tint)
             Text(value)
-                .font(.title2.bold())
+                .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.textPrimary)
                 .minimumScaleFactor(0.7)
             Text(label)
@@ -86,16 +86,16 @@ struct AchievementsView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 132)
+        .frame(height: 112)
         .bryqoCard(padding: BryqoTheme.Spacing.md)
     }
 
     private func masteryRow(title: String, icon: String, tint: Color, percent: Int) -> some View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(.headline)
                 .foregroundStyle(tint)
-                .frame(width: 58, height: 58)
+                .frame(width: 50, height: 50)
                 .background(tint.opacity(0.13))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
@@ -116,7 +116,7 @@ struct AchievementsView: View {
     private func achievement(_ title: String, _ subtitle: String, unlocked: Bool, icon: String) -> some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
             Image(systemName: unlocked ? icon : "lock.fill")
-                .font(.title)
+                .font(.title2)
                 .foregroundStyle(unlocked ? BryqoTheme.sun : BryqoTheme.stone)
 
             Text(title)
@@ -131,7 +131,7 @@ struct AchievementsView: View {
                 .lineLimit(3)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
         .bryqoCard(fill: unlocked ? BryqoTheme.surface : BryqoTheme.surface.opacity(0.55))
     }
 }

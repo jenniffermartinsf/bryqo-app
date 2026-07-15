@@ -62,19 +62,19 @@ struct OnboardingView: View {
 
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
                     Text("Bryqo")
-                        .font(.system(size: 52, weight: .black))
+                        .font(.system(size: 42, weight: .black))
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("Construa seu conhecimento. Um bloco por vez.")
-                        .font(.title.bold())
+                        .font(.title2.bold())
                         .foregroundStyle(BryqoTheme.river)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("Aprenda como computadores, redes e a internet realmente funcionam em lições curtas, práticas e guiadas por Brix.")
-                        .font(.title3)
+                        .font(.body)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(5)
@@ -97,10 +97,10 @@ struct OnboardingView: View {
 
                 Button {} label: {
                     Label("Continue with Apple", systemImage: "apple.logo")
-                        .font(.title2.bold())
+                        .font(.headline.bold())
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 64)
+                        .frame(height: 54)
                         .background(.white)
                         .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
                 }
@@ -115,7 +115,7 @@ struct OnboardingView: View {
                 }
 
                 TextField("Seu nome", text: $displayName)
-                    .font(.title3.weight(.semibold))
+                    .font(.headline.weight(.semibold))
                     .foregroundStyle(BryqoTheme.textPrimary)
                     .textInputAutocapitalization(.words)
                     .padding(BryqoTheme.Spacing.xl)
@@ -146,21 +146,21 @@ struct OnboardingView: View {
                     ForEach(tracks) { track in
                         HStack(spacing: BryqoTheme.Spacing.lg) {
                             Image(systemName: track.icon)
-                                .font(.title)
+                            .font(.title2)
                                 .foregroundStyle(track.tint)
-                                .frame(width: 72, height: 72)
+                            .frame(width: 58, height: 58)
                                 .background(track.tint.opacity(0.14))
                                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                                 .layoutPriority(0)
 
                             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                                 Text(track.title)
-                                    .font(.title3.bold())
+                                    .font(.headline.bold())
                                     .foregroundStyle(BryqoTheme.textPrimary)
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
                                 Text(track.subtitle)
-                                    .font(.body)
+                                    .font(.subheadline)
                                     .foregroundStyle(BryqoTheme.textSecondary)
                                     .lineLimit(3)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -196,10 +196,10 @@ struct OnboardingView: View {
                             HStack(spacing: BryqoTheme.Spacing.lg) {
                                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
                                     Text(goal.title)
-                                        .font(.title3.bold())
+                                        .font(.headline.bold())
                                         .foregroundStyle(BryqoTheme.textPrimary)
                                     Text("\(goal.minutes) minutos por dia")
-                                        .font(.body)
+                                        .font(.subheadline)
                                         .foregroundStyle(BryqoTheme.textSecondary)
                                 }
                                 .layoutPriority(1)
@@ -208,7 +208,7 @@ struct OnboardingView: View {
 
                                 if selectedDailyGoal == goal.minutes {
                                     Image(systemName: "checkmark.circle")
-                                        .font(.largeTitle)
+                                        .font(.title2)
                                         .foregroundStyle(BryqoTheme.river)
                                 }
                             }
@@ -263,9 +263,9 @@ struct OnboardingView: View {
                         .opacity(0.9)
                         .padding(.top, 28)
                 }
-                .frame(height: 340)
+                .frame(height: 300)
 
-            BrixAvatar(size: 86)
+            BrixAvatar(size: 70)
                 .padding(BryqoTheme.Spacing.xl)
         }
         .clipped()
@@ -274,13 +274,13 @@ struct OnboardingView: View {
     private func stepHeader(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             Text(title)
-                .font(.system(size: 42, weight: .black))
+                .font(.system(size: 34, weight: .black))
                 .foregroundStyle(BryqoTheme.textPrimary)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
-                .font(.title3)
+                .font(.body)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(5)

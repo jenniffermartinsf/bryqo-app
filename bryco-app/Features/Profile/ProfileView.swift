@@ -12,7 +12,7 @@ struct ProfileView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Perfil")
-                    .font(.system(size: 42, weight: .black))
+                    .font(.system(size: 34, weight: .black))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 accountCard
@@ -29,15 +29,15 @@ struct ProfileView: View {
             ZStack {
                 Circle()
                     .fill(BryqoTheme.wood.opacity(0.18))
-                    .frame(width: 96, height: 96)
+                    .frame(width: 76, height: 76)
                 Image(systemName: "person")
-                    .font(.system(size: 38, weight: .semibold))
+                    .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(Color(hex: 0xD6A36E))
             }
 
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
                 Text(appState.profile?.displayName ?? "construtor")
-                    .font(.system(size: 30, weight: .black))
+                    .font(.system(size: 24, weight: .black))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Text("Conta local")
@@ -64,7 +64,7 @@ struct ProfileView: View {
                         .font(.headline.bold())
                         .foregroundStyle((appState.profile?.dailyGoalMinutes ?? 10) == minutes ? BryqoTheme.river : BryqoTheme.textSecondary)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 54)
+                        .frame(height: 46)
                         .background((appState.profile?.dailyGoalMinutes ?? 10) == minutes ? BryqoTheme.river.opacity(0.16) : Color.clear)
                         .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
                         .overlay {
@@ -96,7 +96,7 @@ struct ProfileView: View {
 
             HStack(spacing: BryqoTheme.Spacing.lg) {
                 Image(systemName: "moon")
-                    .font(.title2)
+                    .font(.headline)
                     .foregroundStyle(BryqoTheme.textSecondary)
                 Text("A aparência segue automaticamente o tema do seu dispositivo.")
                     .font(.body)
@@ -125,7 +125,7 @@ struct ProfileView: View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                 Text(title)
-                    .font(.title3.bold())
+                    .font(.headline.bold())
                     .foregroundStyle(BryqoTheme.textPrimary)
                 Text(subtitle)
                     .font(.body)

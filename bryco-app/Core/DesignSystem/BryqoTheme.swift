@@ -26,9 +26,9 @@ enum BryqoTheme {
         static let sm: CGFloat = 8
         static let md: CGFloat = 12
         static let lg: CGFloat = 16
-        static let xl: CGFloat = 24
-        static let xxl: CGFloat = 32
-        static let xxxl: CGFloat = 48
+        static let xl: CGFloat = 20
+        static let xxl: CGFloat = 28
+        static let xxxl: CGFloat = 40
     }
 
     enum Radius {
@@ -86,11 +86,11 @@ struct BryqoPrimaryButton: View {
                 }
 
                 Text(title)
-                    .font(.title3.weight(.bold))
+                    .font(.headline.weight(.bold))
             }
             .foregroundStyle(Color(hex: 0x082235))
             .frame(maxWidth: .infinity)
-            .frame(height: 62)
+            .frame(height: 54)
             .background(isDisabled ? BryqoTheme.river.opacity(0.45) : BryqoTheme.river)
             .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
         }
@@ -101,7 +101,7 @@ struct BryqoPrimaryButton: View {
 }
 
 struct BryqoCardModifier: ViewModifier {
-    var padding: CGFloat = BryqoTheme.Spacing.xl
+    var padding: CGFloat = BryqoTheme.Spacing.lg
     var fill: Color = BryqoTheme.surface
     var border: Color = BryqoTheme.border
 
@@ -125,7 +125,7 @@ struct BryqoCard: ViewModifier {
 
 extension View {
     func bryqoCard(
-        padding: CGFloat = BryqoTheme.Spacing.xl,
+        padding: CGFloat = BryqoTheme.Spacing.lg,
         fill: Color = BryqoTheme.surface,
         border: Color = BryqoTheme.border
     ) -> some View {
@@ -140,10 +140,10 @@ struct BryqoStatPill: View {
 
     var body: some View {
         Label(value, systemImage: icon)
-            .font(.headline.weight(.bold))
+            .font(.subheadline.weight(.bold))
             .foregroundStyle(tint)
-            .padding(.horizontal, BryqoTheme.Spacing.lg)
-            .padding(.vertical, BryqoTheme.Spacing.md)
+            .padding(.horizontal, BryqoTheme.Spacing.md)
+            .padding(.vertical, BryqoTheme.Spacing.sm)
             .background(tint.opacity(0.12))
             .clipShape(Capsule())
             .overlay {
@@ -207,7 +207,7 @@ struct BrixSpeechBubble: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
-            BrixAvatar(size: 50)
+            BrixAvatar(size: 42)
 
             Text(text)
                 .font(.body.weight(.semibold))
@@ -231,7 +231,7 @@ struct BryqoSectionTitle: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 28, weight: .bold, design: .default))
+            .font(.system(size: 24, weight: .bold, design: .default))
             .foregroundStyle(BryqoTheme.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

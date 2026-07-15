@@ -9,10 +9,10 @@ struct ValleyView: View {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
                     Text("Vale")
-                        .font(.system(size: 42, weight: .black))
+                        .font(.system(size: 34, weight: .black))
                         .foregroundStyle(BryqoTheme.textPrimary)
                     Text("Cada lição transforma o ambiente. Sua barragem cresce um bloco por vez.")
-                        .font(.title3)
+                        .font(.body)
                         .foregroundStyle(BryqoTheme.textSecondary)
                         .lineSpacing(4)
                 }
@@ -35,9 +35,9 @@ struct ValleyView: View {
     private func constructionRow(_ title: String, icon: String, progress: Int, target: Int) -> some View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             Image(systemName: icon)
-                .font(.title2)
+                .font(.headline)
                 .foregroundStyle(BryqoTheme.river)
-                .frame(width: 52, height: 52)
+                .frame(width: 46, height: 46)
                 .background(BryqoTheme.river.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
