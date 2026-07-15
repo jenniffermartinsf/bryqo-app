@@ -10,10 +10,40 @@ import Testing
 
 struct bryco_appTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-        // Swift Testing Documentation
-        // https://developer.apple.com/documentation/testing
+    @Test func completingLessonAwardsXpOnce() {
+        let state = BryqoAppState()
+        let lesson = BryqoContent.sampleUnit.lessons[0]
+
+        state.completeLesson(lesson)
+        state.completeLesson(lesson)
+
+        #expect(state.progress.completedLessonIds == [lesson.id])
+        #expect(state.progress.xp == lesson.xpReward)
+    }
+
+    @Test func lessonsUnlockSequentially() {
+        let state = BryqoAppState()
+        let unit = BryqoContent.sampleUnit
+
+        #expect(state.canStartLesson(unit.lessons[0], in: unit))
+        #expect(!state.canStartLesson(unit.lessons[1], in: unit))
+
+        state.completeLesson(unit.lessons[0])
+
+        #expect(state.canStartLesson(unit.lessons[1], in: unit))
+    }
+
+    @Test func onboardingStoresProfile() {
+        let state = BryqoAppState()
+
+        state.completeOnboarding(
+            experience: "Estou começando",
+            goal: "Construir uma base",
+            dailyGoalMinutes: 10
+        )
+
+        #expect(state.hasCompletedOnboarding)
+        #expect(state.profile?.dailyGoalMinutes == 10)
     }
 
 }
