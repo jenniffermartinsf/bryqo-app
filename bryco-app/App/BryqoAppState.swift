@@ -14,8 +14,9 @@ final class BryqoAppState {
         progress.completedLessonIds.count
     }
 
-    func completeOnboarding(experience: String, goal: String, dailyGoalMinutes: Int) {
+    func completeOnboarding(displayName: String, experience: String, goal: String, dailyGoalMinutes: Int) {
         profile = OnboardingProfile(
+            displayName: displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "construtor" : displayName,
             experience: experience,
             goal: goal,
             dailyGoalMinutes: dailyGoalMinutes

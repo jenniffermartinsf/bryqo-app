@@ -37,12 +37,14 @@ struct bryco_appTests {
         let state = BryqoAppState()
 
         state.completeOnboarding(
+            displayName: "Jenniffer",
             experience: "Estou começando",
             goal: "Construir uma base",
             dailyGoalMinutes: 10
         )
 
         #expect(state.hasCompletedOnboarding)
+        #expect(state.profile?.displayName == "Jenniffer")
         #expect(state.profile?.dailyGoalMinutes == 10)
     }
 

@@ -47,6 +47,7 @@ struct ExerciseOption: Identifiable, Equatable {
 }
 
 struct OnboardingProfile: Equatable {
+    let displayName: String
     let experience: String
     let goal: String
     let dailyGoalMinutes: Int

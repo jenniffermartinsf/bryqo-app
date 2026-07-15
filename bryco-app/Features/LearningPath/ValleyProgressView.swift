@@ -5,50 +5,52 @@ struct ValleyProgressView: View {
     let totalLessons: Int
 
     private var progress: Double {
-        guard totalLessons > 0 else {
-            return 0
-        }
-
+        guard totalLessons > 0 else { return 0 }
         return Double(completedLessons) / Double(totalLessons)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                     Text("Vale em construção")
-                        .font(.headline)
+                        .font(.title2.bold())
+                        .foregroundStyle(BryqoTheme.textPrimary)
                     Text(progressMessage)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(BryqoTheme.textSecondary)
                 }
 
                 Spacer()
 
                 Text("\(Int(progress * 100))%")
-                    .font(.title3.bold())
-                    .foregroundStyle(BryqoTheme.forest)
+                    .font(.title.bold())
+                    .foregroundStyle(BryqoTheme.river)
             }
 
             ZStack(alignment: .bottom) {
-                RoundedRectangle(cornerRadius: BryqoTheme.cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [BryqoTheme.softBackground, BryqoTheme.leaf.opacity(0.45)],
+                            colors: [Color(hex: 0x2F3D36), Color(hex: 0x1D2A30), BryqoTheme.background],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
 
+                moon
+                hills
                 river
                 damBlocks
                 bridge
-                trees
+                BrixAvatar(size: 54)
+                    .offset(x: -120, y: -38)
             }
-            .frame(height: 190)
-            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.cornerRadius, style: .continuous))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Vale com \(completedLessons) de \(totalLessons) lições concluídas")
+            .frame(height: 260)
+            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
+                    .stroke(BryqoTheme.border, lineWidth: 1.5)
+            }
         }
         .bryqoCard()
     }
@@ -60,52 +62,60 @@ struct ValleyProgressView: View {
         case 1...2:
             return "Os primeiros blocos já estão no lugar."
         case 3...4:
-            return "A passagem pelo rio está tomando forma."
+            return "A ponte começou a cruzar o rio."
         default:
             return "Essa parte da construção ficou pronta."
         }
     }
 
+    private var moon: some View {
+        Circle()
+            .fill(BryqoTheme.sun.opacity(0.9))
+            .frame(width: 54, height: 54)
+            .blur(radius: 0.4)
+            .offset(x: 92, y: -168)
+    }
+
+    private var hills: some View {
+        ZStack {
+            Capsule()
+                .fill(BryqoTheme.primary.opacity(0.34))
+                .frame(width: 260, height: 120)
+                .offset(x: -100, y: -50)
+            Capsule()
+                .fill(BryqoTheme.primary.opacity(0.22))
+                .frame(width: 290, height: 140)
+                .offset(x: 120, y: -44)
+        }
+    }
+
     private var river: some View {
         Path { path in
-            path.move(to: CGPoint(x: 0, y: 150))
-            path.addCurve(to: CGPoint(x: 340, y: 135), control1: CGPoint(x: 90, y: 120), control2: CGPoint(x: 230, y: 175))
-            path.addLine(to: CGPoint(x: 340, y: 190))
-            path.addLine(to: CGPoint(x: 0, y: 190))
+            path.move(to: CGPoint(x: 0, y: 190))
+            path.addCurve(to: CGPoint(x: 380, y: 170), control1: CGPoint(x: 95, y: 135), control2: CGPoint(x: 250, y: 225))
+            path.addLine(to: CGPoint(x: 380, y: 260))
+            path.addLine(to: CGPoint(x: 0, y: 260))
             path.closeSubpath()
         }
-        .fill(BryqoTheme.river.opacity(0.85))
+        .fill(BryqoTheme.river.opacity(0.72))
     }
 
     private var damBlocks: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 5) {
             ForEach(0..<totalLessons, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(index < completedLessons ? BryqoTheme.wood : BryqoTheme.stone.opacity(0.35))
-                    .frame(width: 32, height: CGFloat(26 + min(index, 3) * 8))
-                    .accessibilityHidden(true)
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(index < completedLessons ? BryqoTheme.wood : BryqoTheme.stone.opacity(0.24))
+                    .frame(width: 34, height: CGFloat(48 + (index % 3) * 14))
             }
         }
-        .padding(.bottom, 22)
+        .padding(.bottom, 34)
     }
 
     private var bridge: some View {
-        RoundedRectangle(cornerRadius: 6)
-            .fill(completedLessons >= 3 ? BryqoTheme.sunlight : BryqoTheme.wood.opacity(0.35))
-            .frame(width: 150, height: 12)
-            .offset(y: -80)
-    }
-
-    private var trees: some View {
-        HStack {
-            Image(systemName: "tree.fill")
-            Spacer()
-            Image(systemName: completedLessons >= totalLessons ? "water.waves" : "leaf.fill")
-        }
-        .font(.system(size: 34))
-        .foregroundStyle(BryqoTheme.forest)
-        .padding(.horizontal, 26)
-        .padding(.bottom, 112)
+        RoundedRectangle(cornerRadius: 6, style: .continuous)
+            .fill(completedLessons >= 3 ? BryqoTheme.sun : BryqoTheme.wood.opacity(0.35))
+            .frame(width: 170, height: 12)
+            .offset(y: -112)
     }
 }
 
