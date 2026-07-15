@@ -80,136 +80,147 @@ struct OnboardingView: View {
     }
 
     private var profileStep: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-            stepHeader(
-                title: "Como podemos te chamar?",
-                subtitle: "Seu progresso fica salvo neste dispositivo."
-            )
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepHeader(
+                    title: "Como podemos te chamar?",
+                    subtitle: "Seu progresso fica salvo neste dispositivo."
+                )
 
-            Button {} label: {
-                Label("Continue with Apple", systemImage: "apple.logo")
-                    .font(.title2.bold())
-                    .foregroundStyle(.black)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 64)
-                    .background(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
-            }
-            .buttonStyle(.plain)
+                Button {} label: {
+                    Label("Continue with Apple", systemImage: "apple.logo")
+                        .font(.title2.bold())
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 64)
+                        .background(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
+                }
+                .buttonStyle(.plain)
 
-            HStack(spacing: BryqoTheme.Spacing.xl) {
-                Rectangle().fill(BryqoTheme.border).frame(height: 1)
-                Text("ou")
-                    .font(.headline)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-                Rectangle().fill(BryqoTheme.border).frame(height: 1)
-            }
-
-            TextField("Seu nome", text: $displayName)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(BryqoTheme.textPrimary)
-                .textInputAutocapitalization(.words)
-                .padding(BryqoTheme.Spacing.xl)
-                .background(BryqoTheme.surface)
-                .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                        .stroke(BryqoTheme.border, lineWidth: 1.5)
+                HStack(spacing: BryqoTheme.Spacing.xl) {
+                    Rectangle().fill(BryqoTheme.border).frame(height: 1)
+                    Text("ou")
+                        .font(.headline)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                    Rectangle().fill(BryqoTheme.border).frame(height: 1)
                 }
 
-            selectionGrid(title: "Experiência", options: experiences, selection: $selectedExperience)
-            selectionGrid(title: "Objetivo", options: goals, selection: $selectedGoal)
+                TextField("Seu nome", text: $displayName)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(BryqoTheme.textPrimary)
+                    .textInputAutocapitalization(.words)
+                    .padding(BryqoTheme.Spacing.xl)
+                    .background(BryqoTheme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                            .stroke(BryqoTheme.border, lineWidth: 1.5)
+                    }
 
-            Spacer()
+                selectionGrid(title: "Experiência", options: experiences, selection: $selectedExperience)
+                selectionGrid(title: "Objetivo", options: goals, selection: $selectedGoal)
+            }
+            .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
-        .padding(BryqoTheme.Spacing.xl)
     }
 
     private var tracksStep: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-            stepHeader(
-                title: "O que você vai aprender",
-                subtitle: "Três trilhas, desbloqueadas em ordem, cada uma com lições curtas e exercícios práticos."
-            )
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepHeader(
+                    title: "O que você vai aprender",
+                    subtitle: "Três trilhas, desbloqueadas em ordem, cada uma com lições curtas e exercícios práticos."
+                )
 
-            VStack(spacing: BryqoTheme.Spacing.lg) {
-                ForEach(tracks) { track in
-                    HStack(spacing: BryqoTheme.Spacing.xl) {
-                        Image(systemName: track.icon)
-                            .font(.title)
-                            .foregroundStyle(track.tint)
-                            .frame(width: 72, height: 72)
-                            .background(track.tint.opacity(0.14))
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                VStack(spacing: BryqoTheme.Spacing.lg) {
+                    ForEach(tracks) { track in
+                        HStack(spacing: BryqoTheme.Spacing.lg) {
+                            Image(systemName: track.icon)
+                                .font(.title)
+                                .foregroundStyle(track.tint)
+                                .frame(width: 72, height: 72)
+                                .background(track.tint.opacity(0.14))
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                .layoutPriority(0)
 
-                        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
-                            Text(track.title)
-                                .font(.title3.bold())
-                                .foregroundStyle(BryqoTheme.textPrimary)
-                            Text(track.subtitle)
-                                .font(.body)
-                                .foregroundStyle(BryqoTheme.textSecondary)
-                                .lineSpacing(3)
+                            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
+                                Text(track.title)
+                                    .font(.title3.bold())
+                                    .foregroundStyle(BryqoTheme.textPrimary)
+                                    .lineLimit(2)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text(track.subtitle)
+                                    .font(.body)
+                                    .foregroundStyle(BryqoTheme.textSecondary)
+                                    .lineLimit(3)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineSpacing(3)
+                            }
+                            .layoutPriority(1)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .bryqoCard()
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .bryqoCard()
                 }
             }
-
-            Spacer()
+            .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
-        .padding(BryqoTheme.Spacing.xl)
     }
 
     private var goalStep: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-            stepHeader(
-                title: "Qual é a sua meta diária?",
-                subtitle: "Você pode mudar isso a qualquer momento no seu perfil."
-            )
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepHeader(
+                    title: "Qual é a sua meta diária?",
+                    subtitle: "Você pode mudar isso a qualquer momento no seu perfil."
+                )
 
-            VStack(spacing: BryqoTheme.Spacing.lg) {
-                ForEach(dailyGoals) { goal in
-                    Button {
-                        withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
-                            selectedDailyGoal = goal.minutes
-                        }
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
-                                Text(goal.title)
-                                    .font(.title3.bold())
-                                    .foregroundStyle(BryqoTheme.textPrimary)
-                                Text("\(goal.minutes) minutos por dia")
-                                    .font(.body)
-                                    .foregroundStyle(BryqoTheme.textSecondary)
+                VStack(spacing: BryqoTheme.Spacing.lg) {
+                    ForEach(dailyGoals) { goal in
+                        Button {
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                                selectedDailyGoal = goal.minutes
                             }
+                        } label: {
+                            HStack(spacing: BryqoTheme.Spacing.lg) {
+                                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
+                                    Text(goal.title)
+                                        .font(.title3.bold())
+                                        .foregroundStyle(BryqoTheme.textPrimary)
+                                    Text("\(goal.minutes) minutos por dia")
+                                        .font(.body)
+                                        .foregroundStyle(BryqoTheme.textSecondary)
+                                }
+                                .layoutPriority(1)
 
-                            Spacer()
+                                Spacer()
 
-                            if selectedDailyGoal == goal.minutes {
-                                Image(systemName: "checkmark.circle")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(BryqoTheme.river)
+                                if selectedDailyGoal == goal.minutes {
+                                    Image(systemName: "checkmark.circle")
+                                        .font(.largeTitle)
+                                        .foregroundStyle(BryqoTheme.river)
+                                }
                             }
+                            .frame(maxWidth: .infinity)
+                            .bryqoCard(
+                                padding: BryqoTheme.Spacing.lg,
+                                fill: selectedDailyGoal == goal.minutes ? BryqoTheme.river.opacity(0.18) : BryqoTheme.surface,
+                                border: selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.border
+                            )
                         }
-                        .frame(maxWidth: .infinity)
-                        .bryqoCard(
-                            fill: selectedDailyGoal == goal.minutes ? BryqoTheme.river.opacity(0.18) : BryqoTheme.surface,
-                            border: selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.border
-                        )
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+
+                BrixSpeechBubble(text: "Sem culpa por dias perdidos. O importante é voltar a construir.")
+                    .padding(.top, BryqoTheme.Spacing.sm)
             }
-
-            BrixSpeechBubble(text: "Sem culpa por dias perdidos. O importante é voltar a construir.")
-                .padding(.top, BryqoTheme.Spacing.lg)
-
-            Spacer()
+            .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
-        .padding(BryqoTheme.Spacing.xl)
     }
 
     private var bottomCTA: some View {
@@ -257,10 +268,13 @@ struct OnboardingView: View {
             Text(title)
                 .font(.system(size: 42, weight: .black))
                 .foregroundStyle(BryqoTheme.textPrimary)
+                .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
                 .font(.title3)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(5)
                 .foregroundStyle(BryqoTheme.textSecondary)
         }

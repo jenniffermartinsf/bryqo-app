@@ -22,6 +22,7 @@ struct AchievementsView: View {
                 achievementsSection
             }
             .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xxxl)
         }
     }
 
@@ -102,9 +103,12 @@ struct AchievementsView: View {
                 Text(title)
                     .font(.headline)
                     .foregroundStyle(BryqoTheme.textPrimary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("\(percent)% concluído")
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
+            .layoutPriority(1)
         }
         .bryqoCard()
     }
@@ -118,12 +122,16 @@ struct AchievementsView: View {
             Text(title)
                 .font(.headline)
                 .foregroundStyle(unlocked ? BryqoTheme.textPrimary : BryqoTheme.textSecondary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
                 .font(.caption)
                 .foregroundStyle(BryqoTheme.textSecondary)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 130, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
         .bryqoCard(fill: unlocked ? BryqoTheme.surface : BryqoTheme.surface.opacity(0.55))
     }
 }

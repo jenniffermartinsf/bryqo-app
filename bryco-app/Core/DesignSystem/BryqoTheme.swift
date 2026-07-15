@@ -212,6 +212,8 @@ struct BrixSpeechBubble: View {
             Text(text)
                 .font(.body.weight(.semibold))
                 .foregroundStyle(BryqoTheme.textPrimary)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(BryqoTheme.Spacing.lg)
                 .background(BryqoTheme.river.opacity(0.18))
