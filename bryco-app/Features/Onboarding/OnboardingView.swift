@@ -55,28 +55,36 @@ struct OnboardingView: View {
     }
 
     private var welcomeStep: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-            valleyHero
-                .padding(.horizontal, -BryqoTheme.Spacing.xl)
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                valleyHero
+                    .padding(.horizontal, -BryqoTheme.Spacing.xl)
 
-            Spacer(minLength: BryqoTheme.Spacing.lg)
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+                    Text("Bryqo")
+                        .font(.system(size: 52, weight: .black))
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
-            Text("Bryqo")
-                .font(.system(size: 52, weight: .black))
-                .foregroundStyle(BryqoTheme.textPrimary)
+                    Text("Construa seu conhecimento. Um bloco por vez.")
+                        .font(.title.bold())
+                        .foregroundStyle(BryqoTheme.river)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
-            Text("Construa seu conhecimento. Um bloco por vez.")
-                .font(.title.bold())
-                .foregroundStyle(BryqoTheme.river)
-
-            Text("Aprenda como computadores, redes e a internet realmente funcionam em lições curtas, práticas e guiadas por Brix.")
-                .font(.title3)
-                .lineSpacing(5)
-                .foregroundStyle(BryqoTheme.textSecondary)
-
-            Spacer()
+                    Text("Aprenda como computadores, redes e a internet realmente funcionam em lições curtas, práticas e guiadas por Brix.")
+                        .font(.title3)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(5)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                }
+                .layoutPriority(1)
+            }
+            .padding(.horizontal, BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
-        .padding(.horizontal, BryqoTheme.Spacing.xl)
     }
 
     private var profileStep: some View {
