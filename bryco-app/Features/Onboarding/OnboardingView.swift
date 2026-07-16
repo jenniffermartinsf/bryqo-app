@@ -249,26 +249,12 @@ struct OnboardingView: View {
     }
 
     private var valleyHero: some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 0)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(hex: 0xF7C86A), BryqoTheme.river, BryqoTheme.primary],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay {
-                    ValleyIllustration()
-                        .opacity(0.9)
-                        .padding(.top, 28)
-                }
-                .frame(height: 300)
-
-            BrixAvatar(size: 70)
-                .padding(BryqoTheme.Spacing.xl)
-        }
-        .clipped()
+        Image("OnboardingHero")
+            .resizable()
+            .scaledToFill()
+            .frame(maxWidth: .infinity)
+            .frame(height: 300)
+            .clipped()
     }
 
     private func stepHeader(title: String, subtitle: String) -> some View {
@@ -331,37 +317,6 @@ private struct DailyGoalOption: Identifiable {
     let id = UUID()
     let title: String
     let minutes: Int
-}
-
-private struct ValleyIllustration: View {
-    var body: some View {
-        ZStack {
-            ForEach(0..<5, id: \.self) { index in
-                Circle()
-                    .fill(BryqoTheme.primary.opacity(0.45))
-                    .frame(width: CGFloat(180 + index * 44), height: CGFloat(90 + index * 18))
-                    .offset(x: CGFloat(index * 46 - 70), y: CGFloat(index * 24 + 20))
-            }
-
-            Path { path in
-                path.move(to: CGPoint(x: 0, y: 210))
-                path.addCurve(to: CGPoint(x: 420, y: 190), control1: CGPoint(x: 120, y: 155), control2: CGPoint(x: 260, y: 245))
-                path.addLine(to: CGPoint(x: 420, y: 340))
-                path.addLine(to: CGPoint(x: 0, y: 340))
-                path.closeSubpath()
-            }
-            .fill(BryqoTheme.river.opacity(0.65))
-
-            HStack(spacing: 4) {
-                ForEach(0..<6, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(BryqoTheme.wood)
-                        .frame(width: 24, height: CGFloat(70 + index % 3 * 14))
-                }
-            }
-            .offset(x: 75, y: 92)
-        }
-    }
 }
 
 #Preview {
