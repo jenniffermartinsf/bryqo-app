@@ -171,46 +171,16 @@ struct BrixAvatar: View {
     var size: CGFloat = 56
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.25, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [BryqoTheme.wood, Color(hex: 0x5E3D26)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
-            VStack(spacing: 1) {
-                HStack(spacing: size * 0.12) {
-                    Circle()
-                        .fill(BryqoTheme.textPrimary)
-                        .frame(width: size * 0.10, height: size * 0.10)
-                    Circle()
-                        .fill(BryqoTheme.textPrimary)
-                        .frame(width: size * 0.10, height: size * 0.10)
-                }
-
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(hex: 0xD6A36E))
-                    .frame(width: size * 0.35, height: size * 0.20)
-                    .overlay {
-                        HStack(spacing: 2) {
-                            Rectangle()
-                                .fill(BryqoTheme.textPrimary)
-                                .frame(width: 2)
-                            Rectangle()
-                                .fill(BryqoTheme.textPrimary)
-                                .frame(width: 2)
-                        }
-                    }
+        Image("BrixMascot")
+            .resizable()
+            .scaledToFit()
+            .padding(size * 0.04)
+            .background(BryqoTheme.river.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.25, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: size * 0.25, style: .continuous)
+                    .stroke(BryqoTheme.river.opacity(0.16), lineWidth: 1)
             }
-
-            Circle()
-                .fill(Color(hex: 0xD6A36E))
-                .frame(width: size * 0.20, height: size * 0.20)
-                .offset(y: -size * 0.18)
-        }
         .frame(width: size, height: size)
         .accessibilityLabel("Brix")
     }

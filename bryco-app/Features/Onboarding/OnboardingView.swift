@@ -5,6 +5,7 @@ struct OnboardingView: View {
 
     @State private var step = 0
     @State private var displayName = ""
+    @State private var didAttemptProfileContinue = false
     @State private var selectedExperience = "Estou começando"
     @State private var selectedGoal = "Construir uma base"
     @State private var selectedDailyGoal = 10
@@ -114,19 +115,29 @@ struct OnboardingView: View {
                     Rectangle().fill(BryqoTheme.border).frame(height: 1)
                 }
 
-                TextField("Seu nome", text: $displayName)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(BryqoTheme.textPrimary)
-                    .textInputAutocapitalization(.words)
-                    .padding(BryqoTheme.Spacing.xl)
+            TextField("Seu nome", text: $displayName)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(BryqoTheme.textPrimary)
+                .textInputAutocapitalization(.words)
+                .padding(BryqoTheme.Spacing.xl)
                     .background(BryqoTheme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
                     .overlay {
                         RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                            .stroke(BryqoTheme.border, lineWidth: 1.5)
-                    }
+                        .stroke(BryqoTheme.border, lineWidth: 1.5)
+                }
+                .onChange(of: displayName) { _, _ in
+                    didAttemptProfileContinue = false
+                }
 
-                selectionGrid(title: "Experiência", options: experiences, selection: $selectedExperience)
+            if didAttemptProfileContinue && !isDisplayNameValid {
+                Label("Digite seu nome para continuar.", systemImage: "exclamationmark.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(BryqoTheme.error)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
+            selectionGrid(title: "Experiência", options: experiences, selection: $selectedExperience)
                 selectionGrid(title: "Objetivo", options: goals, selection: $selectedGoal)
             }
             .padding(BryqoTheme.Spacing.xl)
@@ -232,7 +243,16 @@ struct OnboardingView: View {
     }
 
     private var bottomCTA: some View {
-        BryqoPrimaryButton(title: step == 0 ? "Começar" : step == 3 ? "Começar a construir" : "Continuar") {
+        BryqoPrimaryButton(
+            title: step == 0 ? "Começar" : step == 3 ? "Começar a construir" : "Continuar"
+        ) {
+            if step == 1 && !isDisplayNameValid {
+                withAnimation(.easeOut(duration: 0.18)) {
+                    didAttemptProfileContinue = true
+                }
+                return
+            }
+
             if step < 3 {
                 withAnimation(.easeInOut(duration: 0.22)) {
                     step += 1
@@ -246,6 +266,10 @@ struct OnboardingView: View {
                 )
             }
         }
+    }
+
+    private var isDisplayNameValid: Bool {
+        !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var valleyHero: some View {
