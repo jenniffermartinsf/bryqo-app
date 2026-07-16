@@ -12,6 +12,7 @@ struct ContentView: View {
             }
         }
         .tint(BryqoTheme.forest)
+        .preferredColorScheme(appState.preferredColorScheme)
     }
 }
 

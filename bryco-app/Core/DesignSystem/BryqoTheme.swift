@@ -1,9 +1,10 @@
 import SwiftUI
+import UIKit
 
 enum BryqoTheme {
-    static let background = Color(hex: 0x1A1C1E)
-    static let surface = Color(hex: 0x232628)
-    static let elevatedSurface = Color(hex: 0x2B2A25)
+    static let background = Color(light: 0xF8F8F4, dark: 0x1A1C1E)
+    static let surface = Color(light: 0xFFFFFF, dark: 0x232628)
+    static let elevatedSurface = Color(light: 0xF0ECE4, dark: 0x2B2A25)
     static let primary = Color(hex: 0x3F8F5A)
     static let river = Color(hex: 0x4EA9E8)
     static let wood = Color(hex: 0x8C6445)
@@ -12,9 +13,9 @@ enum BryqoTheme {
     static let success = Color(hex: 0x4CAF6A)
     static let warning = Color(hex: 0xFFB545)
     static let error = Color(hex: 0xEF5350)
-    static let textPrimary = Color(hex: 0xF8F3EA)
-    static let textSecondary = Color(hex: 0xB8AE9B)
-    static let border = Color(hex: 0x3A3428)
+    static let textPrimary = Color(light: 0x1F211D, dark: 0xF8F3EA)
+    static let textSecondary = Color(light: 0x6D675C, dark: 0xB8AE9B)
+    static let border = Color(light: 0xDED8CB, dark: 0x3A3428)
 
     static let forest = primary
     static let leaf = success
@@ -52,6 +53,20 @@ extension Color {
             opacity: alpha
         )
     }
+
+    init(light: UInt, dark: UInt) {
+        self.init(
+            UIColor { traits in
+                let hex = traits.userInterfaceStyle == .dark ? dark : light
+                return UIColor(
+                    red: CGFloat((hex >> 16) & 0xff) / 255,
+                    green: CGFloat((hex >> 8) & 0xff) / 255,
+                    blue: CGFloat(hex & 0xff) / 255,
+                    alpha: 1
+                )
+            }
+        )
+    }
 }
 
 struct BryqoScreen<Content: View>: View {
@@ -68,7 +83,6 @@ struct BryqoScreen<Content: View>: View {
 
             content
         }
-        .preferredColorScheme(.dark)
     }
 }
 

@@ -1,10 +1,11 @@
-import Foundation
+import SwiftUI
 import Observation
 
 @Observable
 final class BryqoAppState {
     var profile: OnboardingProfile?
     var progress = UserProgress()
+    var isLightMode = false
 
     var hasCompletedOnboarding: Bool {
         profile != nil
@@ -12,6 +13,10 @@ final class BryqoAppState {
 
     var completedLessonCount: Int {
         progress.completedLessonIds.count
+    }
+
+    var preferredColorScheme: ColorScheme {
+        isLightMode ? .light : .dark
     }
 
     func completeOnboarding(displayName: String, experience: String, goal: String, dailyGoalMinutes: Int) {

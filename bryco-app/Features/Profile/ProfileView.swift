@@ -94,15 +94,14 @@ struct ProfileView: View {
                 isOn: $reduceMotion
             )
 
-            HStack(spacing: BryqoTheme.Spacing.lg) {
-                Image(systemName: "moon")
-                    .font(.headline)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-                Text("A aparência segue automaticamente o tema do seu dispositivo.")
-                    .font(.body)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-            }
-            .bryqoCard()
+            settingToggle(
+                title: "Modo claro",
+                subtitle: appState.isLightMode ? "A interface está usando o tema claro." : "A interface está usando o tema escuro.",
+                isOn: Binding(
+                    get: { appState.isLightMode },
+                    set: { appState.isLightMode = $0 }
+                )
+            )
         }
     }
 

@@ -6,6 +6,7 @@
 //
 
 import Testing
+import SwiftUI
 @testable import bryco_app
 
 struct bryco_appTests {
@@ -46,6 +47,16 @@ struct bryco_appTests {
         #expect(state.hasCompletedOnboarding)
         #expect(state.profile?.displayName == "Jenniffer")
         #expect(state.profile?.dailyGoalMinutes == 10)
+    }
+
+    @Test func themePreferenceSwitchesColorScheme() {
+        let state = BryqoAppState()
+
+        #expect(state.preferredColorScheme == .dark)
+
+        state.isLightMode = true
+
+        #expect(state.preferredColorScheme == .light)
     }
 
 }
