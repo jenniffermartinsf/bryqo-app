@@ -14,9 +14,11 @@ enum LessonStatus {
 struct LessonMapNodeView: View {
     let lesson: Lesson
     let status: LessonStatus
+    var entranceDelay: Double = 0
     let onTap: () -> Void
 
     @State private var pulsing = false
+    @State private var appeared = false
 
     var body: some View {
         Button(action: onTap) {
@@ -35,7 +37,26 @@ struct LessonMapNodeView: View {
             }
         }
         .buttonStyle(PressScaleButtonStyle())
+        .scaleEffect(appeared ? 1.0 : 0.6)
+        .opacity(appeared ? 1.0 : 0)
+        .animation(
+            .spring(response: 0.45, dampingFraction: 0.7).delay(entranceDelay),
+            value: appeared
+        )
+        .overlay(alignment: .topTrailing) {
+            if status == .completed {
+                Text("+\(lesson.xpReward) XP")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .foregroundStyle(BryqoTheme.sun)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(BryqoTheme.sun.opacity(0.18))
+                    .clipShape(Capsule())
+                    .offset(x: 10, y: -2)
+            }
+        }
         .onAppear {
+            appeared = true
             guard status == .current || status == .available else { return }
             pulsing = true
         }

@@ -118,6 +118,24 @@ struct UnitMapSection: View {
                 }
             }
             .frame(height: 8)
+
+            if completedCount == unit.lessons.count, let firstLesson = unit.lessons.first {
+                Button { onSelectLesson(firstLesson) } label: {
+                    Label("PRATICAR NOVAMENTE", systemImage: "arrow.counterclockwise")
+                        .font(.system(size: 13, weight: .black))
+                        .tracking(0.8)
+                        .foregroundStyle(tint)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 42)
+                        .background(tint.opacity(0.14))
+                        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                                .strokeBorder(tint.opacity(0.3), lineWidth: 1.5)
+                        }
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(BryqoTheme.Spacing.lg)
         .background(tint.opacity(0.07))
@@ -131,51 +149,60 @@ struct UnitMapSection: View {
     // MARK: - Lesson Path
 
     private var lessonPath: some View {
-        // Pre-compute flags so Canvas captures values, not live appState calls
         let completed = unit.lessons.map { appState.isLessonCompleted($0) }
 
-        return GeometryReader { geo in
-            let w = geo.size.width
-            ZStack(alignment: .top) {
-                // Path connector drawn behind nodes
-                Canvas { context, size in
-                    for i in 0..<(unit.lessons.count - 1) {
-                        let from = CGPoint(x: nodeX(i, width: size.width), y: nodeY(i))
-                        let to   = CGPoint(x: nodeX(i + 1, width: size.width), y: nodeY(i + 1))
-
-                        var path = Path()
-                        path.move(to: from)
-                        // Smooth S-curve: bend toward destination X before arriving
-                        let control = CGPoint(x: to.x, y: from.y + (to.y - from.y) * 0.42)
-                        path.addQuadCurve(to: to, control: control)
-
-                        if completed[i] {
-                            context.stroke(path, with: .color(BryqoTheme.success), lineWidth: 5)
-                        } else {
-                            context.stroke(
-                                path,
-                                with: .color(BryqoTheme.border),
-                                style: StrokeStyle(lineWidth: 4, dash: [8, 6])
-                            )
-                        }
-                    }
+        return ZStack(alignment: .top) {
+            // Invisible layout anchors — ScrollViewProxy.scrollTo targets these
+            VStack(spacing: 0) {
+                ForEach(Array(unit.lessons.enumerated()), id: \.offset) { _, lesson in
+                    Color.clear
+                        .frame(height: rowHeight)
+                        .id(lesson.id)
                 }
+                Color.clear.frame(height: 50)
+            }
 
-                // Lesson nodes positioned on the zigzag
-                ForEach(Array(unit.lessons.enumerated()), id: \.offset) { index, lesson in
-                    let st = lessonStatus(for: lesson)
-                    LessonMapNodeView(lesson: lesson, status: st) {
-                        if st == .locked {
-                            onLockedTap()
-                        } else {
-                            onSelectLesson(lesson)
+            // Visual path and nodes drawn over the anchors
+            GeometryReader { geo in
+                let w = geo.size.width
+                ZStack(alignment: .top) {
+                    Canvas { context, size in
+                        for i in 0..<(unit.lessons.count - 1) {
+                            let from = CGPoint(x: nodeX(i, width: size.width), y: nodeY(i))
+                            let to   = CGPoint(x: nodeX(i + 1, width: size.width), y: nodeY(i + 1))
+
+                            var path = Path()
+                            path.move(to: from)
+                            let control = CGPoint(x: to.x, y: from.y + (to.y - from.y) * 0.42)
+                            path.addQuadCurve(to: to, control: control)
+
+                            if completed[i] {
+                                context.stroke(path, with: .color(BryqoTheme.success), lineWidth: 5)
+                            } else {
+                                context.stroke(
+                                    path,
+                                    with: .color(BryqoTheme.border),
+                                    style: StrokeStyle(lineWidth: 4, dash: [8, 6])
+                                )
+                            }
                         }
                     }
-                    .position(x: nodeX(index, width: w), y: nodeY(index))
+
+                    ForEach(Array(unit.lessons.enumerated()), id: \.offset) { index, lesson in
+                        let st = lessonStatus(for: lesson)
+                        LessonMapNodeView(
+                            lesson: lesson,
+                            status: st,
+                            entranceDelay: Double(index) * 0.07
+                        ) {
+                            if st == .locked { onLockedTap() } else { onSelectLesson(lesson) }
+                        }
+                        .position(x: nodeX(index, width: w), y: nodeY(index))
+                    }
                 }
             }
+            .frame(height: sectionHeight)
         }
-        .frame(height: sectionHeight)
     }
 }
 

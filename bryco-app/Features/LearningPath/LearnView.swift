@@ -24,16 +24,27 @@ struct LearnView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-                    header
-                    dailyGoalCard
-                    continueCard
-                    LessonMapView(units: units, appState: appState)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                        header
+                        dailyGoalCard
+                        continueCard
+                        LessonMapView(units: units, appState: appState)
+                    }
+                    .padding(BryqoTheme.Spacing.xl)
                 }
-                .padding(BryqoTheme.Spacing.xl)
+                .background(BryqoTheme.background)
+                .onAppear {
+                    guard let id = nextLesson?.id else { return }
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(450))
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            proxy.scrollTo(id, anchor: .center)
+                        }
+                    }
+                }
             }
-            .background(BryqoTheme.background)
         }
     }
 
