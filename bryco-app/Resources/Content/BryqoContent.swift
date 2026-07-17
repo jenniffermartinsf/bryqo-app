@@ -185,6 +185,308 @@ enum BryqoContent {
         ]
     )
 
+    static let sampleCodeUnit = LearningUnit(
+        id: "python-basics",
+        title: "Python: Primeiros Passos",
+        subtitle: "Escreva suas primeiras linhas de código real.",
+        lessons: [
+            Lesson(
+                id: "python-print",
+                title: "A função print()",
+                subtitle: "Seu primeiro código funcionando.",
+                estimatedMinutes: 4,
+                xpReward: 20,
+                materialReward: "Código",
+                steps: [
+                    story(
+                        id: "print-story",
+                        title: "Seu primeiro output",
+                        body: "Todo programador começa pelo mesmo lugar: fazendo o computador exibir uma mensagem. Em Python, você usa print()."
+                    ),
+                    concept(
+                        id: "print-concept",
+                        title: "print() exibe na tela",
+                        body: "Tudo que você colocar entre os parênteses aparece na tela. Texto precisa de aspas. Números não precisam."
+                    ),
+                    singleChoiceWithCode(
+                        id: "print-output-1",
+                        title: "Qual é o output?",
+                        prompt: "O que esse código vai imprimir?",
+                        code: "print(\"Hello, World!\")",
+                        language: .python,
+                        options: [
+                            option("a", "Hello, World!"),
+                            option("b", "\"Hello, World!\""),
+                            option("c", "hello, world!"),
+                            option("d", "SyntaxError")
+                        ],
+                        correctOptionIds: ["a"],
+                        explanation: "print() exibe o texto sem as aspas. As aspas só delimitam a string no código."
+                    ),
+                    singleChoiceWithCode(
+                        id: "print-output-2",
+                        title: "E esse aqui?",
+                        prompt: "Quantas linhas esse código imprime?",
+                        code: "print(\"Linha 1\")\nprint(\"Linha 2\")\nprint(\"Linha 3\")",
+                        language: .python,
+                        options: [
+                            option("a", "1"),
+                            option("b", "2"),
+                            option("c", "3"),
+                            option("d", "0 — gera erro")
+                        ],
+                        correctOptionIds: ["c"],
+                        explanation: "Cada print() imprime uma linha separada. Três chamadas = três linhas."
+                    ),
+                    summary(
+                        id: "print-summary",
+                        title: "Primeiro bloco colocado",
+                        body: "print() é a porta de entrada do Python. Use para ver o que seu código está fazendo."
+                    )
+                ]
+            ),
+            Lesson(
+                id: "python-variables",
+                title: "Variáveis",
+                subtitle: "Guardando valores para usar depois.",
+                estimatedMinutes: 4,
+                xpReward: 20,
+                materialReward: "Caixa",
+                steps: [
+                    story(
+                        id: "var-story",
+                        title: "Uma caixa com nome",
+                        body: "Variáveis são como caixas etiquetadas. Você guarda algo dentro e acessa pelo nome quando precisar."
+                    ),
+                    concept(
+                        id: "var-concept",
+                        title: "nome = valor",
+                        body: "Em Python, você cria uma variável só escrevendo o nome, o sinal de igual e o valor. Sem nenhuma palavra especial antes."
+                    ),
+                    singleChoiceWithCode(
+                        id: "var-output",
+                        title: "O que aparece?",
+                        prompt: "O que esse código imprime?",
+                        code: "nome = \"Ana\"\nidade = 25\nprint(nome)",
+                        language: .python,
+                        options: [
+                            option("a", "Ana"),
+                            option("b", "nome"),
+                            option("c", "\"Ana\""),
+                            option("d", "25")
+                        ],
+                        correctOptionIds: ["a"],
+                        explanation: "print(nome) imprime o valor guardado na variável nome, que é \"Ana\" sem as aspas."
+                    ),
+                    singleChoiceWithCode(
+                        id: "var-update",
+                        title: "Variável atualizada",
+                        prompt: "Qual é o output?",
+                        code: "x = 10\nx = x + 5\nprint(x)",
+                        language: .python,
+                        options: [
+                            option("a", "10"),
+                            option("b", "5"),
+                            option("c", "15"),
+                            option("d", "x + 5")
+                        ],
+                        correctOptionIds: ["c"],
+                        explanation: "x começa em 10. Na segunda linha, x recebe 10 + 5 = 15. print(x) exibe 15."
+                    ),
+                    summary(
+                        id: "var-summary",
+                        title: "Caixa guardada",
+                        body: "Variáveis guardam dados. Você pode ler, sobrescrever e usar o valor quantas vezes quiser."
+                    )
+                ]
+            ),
+            Lesson(
+                id: "python-conditionals",
+                title: "Condicionais",
+                subtitle: "Tomando decisões no código.",
+                estimatedMinutes: 5,
+                xpReward: 25,
+                materialReward: "Bifurcação",
+                steps: [
+                    story(
+                        id: "if-story",
+                        title: "O código decide",
+                        body: "Às vezes o código precisa tomar um caminho ou outro dependendo de uma condição. É aí que entra o if."
+                    ),
+                    concept(
+                        id: "if-concept",
+                        title: "if / else",
+                        body: "Se a condição for verdadeira, o bloco do if executa. Caso contrário, o bloco do else executa. Só um dos dois roda."
+                    ),
+                    singleChoiceWithCode(
+                        id: "if-output",
+                        title: "Qual caminho?",
+                        prompt: "O que esse código imprime?",
+                        code: "x = 10\nif x > 5:\n    print(\"maior\")\nelse:\n    print(\"menor\")",
+                        language: .python,
+                        options: [
+                            option("a", "maior"),
+                            option("b", "menor"),
+                            option("c", "10"),
+                            option("d", "maior e menor")
+                        ],
+                        correctOptionIds: ["a"],
+                        explanation: "x é 10, e 10 > 5 é True. O bloco do if executa e imprime \"maior\"."
+                    ),
+                    singleChoiceWithCode(
+                        id: "if-elif",
+                        title: "Três caminhos",
+                        prompt: "Com nota = 7, o que é impresso?",
+                        code: "nota = 7\nif nota >= 9:\n    print(\"A\")\nelif nota >= 6:\n    print(\"B\")\nelse:\n    print(\"C\")",
+                        language: .python,
+                        options: [
+                            option("a", "A"),
+                            option("b", "B"),
+                            option("c", "C"),
+                            option("d", "A e B")
+                        ],
+                        correctOptionIds: ["b"],
+                        explanation: "7 não é >= 9, mas é >= 6. O elif captura esse caso e imprime \"B\"."
+                    ),
+                    summary(
+                        id: "if-summary",
+                        title: "Desvio construído",
+                        body: "if/elif/else criam bifurcações. Apenas o primeiro bloco verdadeiro é executado."
+                    )
+                ]
+            ),
+            Lesson(
+                id: "python-functions",
+                title: "Funções",
+                subtitle: "Empacotando código para reutilizar.",
+                estimatedMinutes: 5,
+                xpReward: 30,
+                materialReward: "Função",
+                steps: [
+                    story(
+                        id: "func-story",
+                        title: "Código que você usa várias vezes",
+                        body: "Em vez de copiar o mesmo bloco toda vez, você embrulha ele em uma função e chama pelo nome quando precisar."
+                    ),
+                    concept(
+                        id: "func-concept",
+                        title: "def nome(): ...",
+                        body: "Funções são definidas com def, seguido do nome e parênteses. Parâmetros entram nos parênteses. Use return para devolver um valor."
+                    ),
+                    codeCompletion(
+                        id: "func-define",
+                        title: "Complete a função",
+                        prompt: "Complete para definir uma função chamada saudacao:",
+                        code: "___ saudacao():\n    print(\"Olá!\")",
+                        language: .python,
+                        options: [
+                            option("a", "def"),
+                            option("b", "fun"),
+                            option("c", "function"),
+                            option("d", "func")
+                        ],
+                        correctOptionId: "a",
+                        explanation: "Em Python, funções são criadas com def. Outras linguagens usam function ou fun, mas não Python."
+                    ),
+                    trueFalseWithCode(
+                        id: "func-return",
+                        title: "Verdadeiro ou falso",
+                        prompt: "Essa função retorna a soma de dois números?",
+                        code: "def somar(a, b):\n    return a + b",
+                        language: .python,
+                        correctAnswer: true,
+                        explanation: "Sim! return a + b devolve o resultado da soma para quem chamou a função."
+                    ),
+                    summary(
+                        id: "func-summary",
+                        title: "Função criada",
+                        body: "def cria a função, parâmetros permitem entrada, return devolve o resultado. Reutilize sem copiar."
+                    )
+                ]
+            ),
+            Lesson(
+                id: "python-loops",
+                title: "Loops com for",
+                subtitle: "Repetindo sem copiar e colar.",
+                estimatedMinutes: 5,
+                xpReward: 25,
+                materialReward: "Ciclo",
+                steps: [
+                    story(
+                        id: "loop-story",
+                        title: "Repetir é trabalho da máquina",
+                        body: "Em vez de escrever print() dez vezes, você usa um loop. O computador repete o bloco quantas vezes você mandar."
+                    ),
+                    concept(
+                        id: "loop-concept",
+                        title: "for item in coleção",
+                        body: "O for pega cada item de uma coleção e executa o bloco uma vez para cada um. range(n) gera os números de 0 até n-1."
+                    ),
+                    singleChoiceWithCode(
+                        id: "loop-output",
+                        title: "Quantas vezes?",
+                        prompt: "Quantas linhas esse código imprime?",
+                        code: "for i in range(5):\n    print(i)",
+                        language: .python,
+                        options: [
+                            option("a", "4"),
+                            option("b", "5"),
+                            option("c", "6"),
+                            option("d", "Nenhuma — gera erro")
+                        ],
+                        correctOptionIds: ["b"],
+                        explanation: "range(5) gera [0, 1, 2, 3, 4] — cinco números. O loop imprime cada um, totalizando 5 linhas."
+                    ),
+                    singleChoiceWithCode(
+                        id: "loop-sum",
+                        title: "Acumulando",
+                        prompt: "Qual é o valor de total no final?",
+                        code: "total = 0\nfor n in [1, 2, 3, 4]:\n    total = total + n\nprint(total)",
+                        language: .python,
+                        options: [
+                            option("a", "4"),
+                            option("b", "8"),
+                            option("c", "10"),
+                            option("d", "0")
+                        ],
+                        correctOptionIds: ["c"],
+                        explanation: "total acumula 0+1+2+3+4 = 10. O padrão de acumular em uma variável fora do loop é muito comum."
+                    ),
+                    summary(
+                        id: "loop-summary",
+                        title: "Ciclo fechado",
+                        body: "Loops eliminam repetição. for percorre qualquer coleção e range() gera sequências numéricas."
+                    )
+                ]
+            )
+        ]
+    )
+
+    private static func singleChoiceWithCode(
+        id: String,
+        title: String,
+        prompt: String,
+        code: String,
+        language: CodeLanguage = .python,
+        options: [ExerciseOption],
+        correctOptionIds: [String],
+        explanation: String
+    ) -> LessonStep {
+        LessonStep(
+            id: id,
+            kind: .singleChoice,
+            title: title,
+            body: "",
+            exercise: Exercise(
+                prompt: prompt,
+                options: options,
+                correctOptionIds: correctOptionIds,
+                explanation: explanation,
+                codeSnippet: CodeSnippet(code: code, language: language)
+            )
+        )
+    }
+
     private static func story(id: String, title: String, body: String) -> LessonStep {
         LessonStep(id: id, kind: .story, title: title, body: body, exercise: nil)
     }
@@ -261,6 +563,58 @@ enum BryqoContent {
                 options: options,
                 correctOptionIds: correctOptionIds,
                 explanation: explanation
+            )
+        )
+    }
+
+    private static func trueFalseWithCode(
+        id: String,
+        title: String,
+        prompt: String,
+        code: String,
+        language: CodeLanguage = .python,
+        correctAnswer: Bool,
+        explanation: String
+    ) -> LessonStep {
+        LessonStep(
+            id: id,
+            kind: .trueFalse,
+            title: title,
+            body: "",
+            exercise: Exercise(
+                prompt: prompt,
+                options: [
+                    option("true", "Verdadeiro"),
+                    option("false", "Falso")
+                ],
+                correctOptionIds: [correctAnswer ? "true" : "false"],
+                explanation: explanation,
+                codeSnippet: CodeSnippet(code: code, language: language)
+            )
+        )
+    }
+
+    private static func codeCompletion(
+        id: String,
+        title: String,
+        prompt: String,
+        code: String,
+        language: CodeLanguage = .python,
+        options: [ExerciseOption],
+        correctOptionId: String,
+        explanation: String
+    ) -> LessonStep {
+        LessonStep(
+            id: id,
+            kind: .codeCompletion,
+            title: title,
+            body: "",
+            exercise: Exercise(
+                prompt: prompt,
+                options: options,
+                correctOptionIds: [correctOptionId],
+                explanation: explanation,
+                codeSnippet: CodeSnippet(code: code, language: language)
             )
         )
     }

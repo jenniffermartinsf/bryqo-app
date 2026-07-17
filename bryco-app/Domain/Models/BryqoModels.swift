@@ -31,7 +31,20 @@ enum LessonStepKind: Equatable {
     case singleChoice
     case trueFalse
     case ordering
+    case codeCompletion
     case summary
+}
+
+struct CodeSnippet: Equatable {
+    let code: String
+    let language: CodeLanguage
+}
+
+enum CodeLanguage: String, Equatable {
+    case python = "Python"
+    case swift = "Swift"
+    case javascript = "JavaScript"
+    case generic = "Código"
 }
 
 struct Exercise: Equatable {
@@ -39,6 +52,15 @@ struct Exercise: Equatable {
     let options: [ExerciseOption]
     let correctOptionIds: [String]
     let explanation: String
+    let codeSnippet: CodeSnippet?
+
+    init(prompt: String, options: [ExerciseOption], correctOptionIds: [String], explanation: String, codeSnippet: CodeSnippet? = nil) {
+        self.prompt = prompt
+        self.options = options
+        self.correctOptionIds = correctOptionIds
+        self.explanation = explanation
+        self.codeSnippet = codeSnippet
+    }
 }
 
 struct ExerciseOption: Identifiable, Equatable {

@@ -67,6 +67,14 @@ extension Color {
             }
         )
     }
+
+    // Returns a darker version of the color — used for 3D button shadows.
+    var shadowed: Color {
+        let ui = UIColor(self)
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard ui.getRed(&r, green: &g, blue: &b, alpha: &a) else { return self }
+        return Color(red: Double(r * 0.72), green: Double(g * 0.72), blue: Double(b * 0.72), opacity: Double(a))
+    }
 }
 
 struct BryqoScreen<Content: View>: View {
@@ -86,10 +94,40 @@ struct BryqoScreen<Content: View>: View {
     }
 }
 
+// Duolingo-style 3D button: face sinks onto shadow on press.
+struct Duo3DButtonStyle: ButtonStyle {
+    var color: Color
+    var isDisabled: Bool
+
+    private let depth: CGFloat = 4
+
+    func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && !isDisabled
+        ZStack(alignment: .top) {
+            RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous)
+                .fill(color.shadowed)
+                .frame(height: 54)
+                .offset(y: pressed ? 1 : depth)
+            configuration.label
+                .background(
+                    RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous)
+                        .fill(isDisabled ? color.opacity(0.45) : color)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
+                .frame(height: 54)
+                .offset(y: pressed ? depth - 1 : 0)
+        }
+        .frame(height: 54 + depth)
+        .animation(.spring(response: 0.12, dampingFraction: 0.85), value: pressed)
+    }
+}
+
 struct BryqoPrimaryButton: View {
     let title: String
     var systemImage: String?
     var isDisabled = false
+    var color: Color = BryqoTheme.river
+    var textColor: Color = Color(hex: 0x082235)
     let action: () -> Void
 
     var body: some View {
@@ -98,19 +136,23 @@ struct BryqoPrimaryButton: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                 }
-
                 Text(title)
-                    .font(.headline.weight(.bold))
+                    .font(.system(.headline, design: .rounded, weight: .bold))
             }
-            .foregroundStyle(Color(hex: 0x082235))
+            .foregroundStyle(isDisabled ? textColor.opacity(0.55) : textColor)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .background(isDisabled ? BryqoTheme.river.opacity(0.45) : BryqoTheme.river)
-            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
         }
         .disabled(isDisabled)
-        .buttonStyle(.plain)
-        .animation(.easeOut(duration: 0.18), value: isDisabled)
+        .buttonStyle(Duo3DButtonStyle(color: color, isDisabled: isDisabled))
+    }
+}
+
+struct PressScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.spring(response: 0.15, dampingFraction: 0.8), value: configuration.isPressed)
     }
 }
 

@@ -5,39 +5,32 @@ struct LessonView: View {
     let lesson: Lesson
 
     @Environment(\.dismiss) private var dismiss
-    @State private var stepIndex = 0
-    @State private var selectedOptionIds: [String] = []
-    @State private var hasAnswered = false
+    @State private var viewModel: LessonViewModel
+    @State private var showCompletion = false
+    @State private var xpFloatVisible = false
 
-    private var currentStep: LessonStep {
-        lesson.steps[stepIndex]
-    }
-
-    private var isLastStep: Bool {
-        stepIndex == lesson.steps.count - 1
-    }
-
-    private var isAnswerCorrect: Bool {
-        guard let exercise = currentStep.exercise else { return true }
-        return selectedOptionIds == exercise.correctOptionIds
+    init(appState: BryqoAppState, lesson: Lesson) {
+        self.appState = appState
+        self.lesson = lesson
+        _viewModel = State(wrappedValue: LessonViewModel(lesson: lesson))
     }
 
     var body: some View {
         BryqoScreen {
             VStack(spacing: 0) {
-                progressHeader
+                lessonTopBar
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                         stepBadge
 
                         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                            Text(currentStep.title)
-                                .font(.system(size: 30, weight: .black))
+                            Text(viewModel.currentStep.title)
+                                .font(.system(size: 28, weight: .black, design: .rounded))
                                 .foregroundStyle(BryqoTheme.textPrimary)
 
-                            if !currentStep.body.isEmpty {
-                                Text(currentStep.body)
+                            if !viewModel.currentStep.body.isEmpty {
+                                Text(viewModel.currentStep.body)
                                     .font(.body)
                                     .lineSpacing(5)
                                     .foregroundStyle(BryqoTheme.textSecondary)
@@ -45,7 +38,7 @@ struct LessonView: View {
                         }
                         .bryqoCard()
 
-                        if let exercise = currentStep.exercise {
+                        if let exercise = viewModel.currentStep.exercise {
                             exerciseView(exercise)
                         }
                     }
@@ -55,27 +48,75 @@ struct LessonView: View {
                 bottomBar
             }
         }
-        .navigationTitle(lesson.title)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var progressHeader: some View {
-        VStack(spacing: BryqoTheme.Spacing.md) {
-            ProgressView(value: Double(stepIndex + 1), total: Double(lesson.steps.count))
-                .tint(BryqoTheme.river)
-                .background(Color.white.opacity(0.05))
-
-            HStack {
-                BryqoStatPill(value: "\(lesson.xpReward) XP", icon: "bolt.fill", tint: BryqoTheme.sun)
-                Spacer()
-                Text("Etapa \(stepIndex + 1) de \(lesson.steps.count)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(BryqoTheme.textSecondary)
+        .toolbar(.hidden, for: .navigationBar)
+        // XP float badge overlay
+        .overlay(alignment: .bottom) {
+            xpFloatBadge
+        }
+        // Lesson completion screen overlay
+        .overlay {
+            if showCompletion {
+                LessonCompletionView(
+                    lesson: lesson,
+                    xpEarned: viewModel.xpEarned,
+                    correctCount: viewModel.correctCount,
+                    totalQuestions: lesson.steps.filter { $0.exercise != nil }.count,
+                    streakDays: appState.progress.streakDays
+                ) {
+                    appState.completeLesson(lesson)
+                    dismiss()
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .padding(BryqoTheme.Spacing.xl)
+        .overlay {
+            if viewModel.hearts == 0 && !viewModel.hasAnswered && !showCompletion {
+                NoHeartsView { dismiss() }
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.3), value: viewModel.hearts == 0 && !viewModel.hasAnswered)
+        .animation(.spring(response: 0.45, dampingFraction: 0.8), value: showCompletion)
+        .onChange(of: viewModel.isComplete) { _, complete in
+            guard complete else { return }
+            showCompletion = true
+        }
+        .onChange(of: viewModel.xpFloatTrigger) { _, _ in
+            xpFloatVisible = true
+            Task {
+                try? await Task.sleep(for: .milliseconds(900))
+                xpFloatVisible = false
+            }
+        }
+    }
+
+    // MARK: - Top Bar
+
+    private var lessonTopBar: some View {
+        HStack(spacing: BryqoTheme.Spacing.lg) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+                    .frame(width: 34, height: 34)
+                    .background(BryqoTheme.border.opacity(0.5))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+
+            LessonProgressBar(progress: viewModel.progress)
+                .frame(height: 12)
+
+            HeartsView(hearts: viewModel.hearts)
+        }
+        .padding(.horizontal, BryqoTheme.Spacing.xl)
+        .padding(.vertical, BryqoTheme.Spacing.lg)
         .background(BryqoTheme.background)
     }
+
+    // MARK: - Step Badge
 
     private var stepBadge: some View {
         Label(stepLabel, systemImage: stepIcon)
@@ -88,185 +129,392 @@ struct LessonView: View {
             .clipShape(Capsule())
     }
 
+    // MARK: - XP Float Badge
+
+    private var xpFloatBadge: some View {
+        Label("+10 XP", systemImage: "bolt.fill")
+            .font(.system(size: 16, weight: .black, design: .rounded))
+            .foregroundStyle(BryqoTheme.sun)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(BryqoTheme.sun.opacity(0.15))
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(BryqoTheme.sun.opacity(0.35), lineWidth: 1.5))
+            .scaleEffect(xpFloatVisible ? 1.0 : 0.5)
+            .opacity(xpFloatVisible ? 1.0 : 0.0)
+            .offset(y: xpFloatVisible ? -140 : -100)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: xpFloatVisible)
+    }
+
+    // MARK: - Bottom Bar
+
     private var bottomBar: some View {
-        VStack(spacing: BryqoTheme.Spacing.md) {
-            if hasAnswered, let exercise = currentStep.exercise {
-                feedbackView(exercise: exercise)
+        VStack(spacing: 0) {
+            if viewModel.hasAnswered, let exercise = viewModel.currentStep.exercise {
+                feedbackBanner(exercise: exercise)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            } else {
+                BryqoPrimaryButton(
+                    title: verifyButtonTitle,
+                    isDisabled: !viewModel.canVerify
+                ) {
+                    handlePrimaryAction()
+                }
+                .padding(BryqoTheme.Spacing.xl)
+                .background(BryqoTheme.background)
+                .transition(.opacity)
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.hasAnswered)
+    }
+
+    private var verifyButtonTitle: String {
+        viewModel.currentStep.exercise == nil ? "CONTINUAR" : "VERIFICAR"
+    }
+
+    private func handlePrimaryAction() {
+        if viewModel.currentStep.exercise != nil {
+            viewModel.verify()
+        } else {
+            viewModel.advance()
+        }
+    }
+
+    // MARK: - Feedback Banner
+
+    private func feedbackBanner(exercise: Exercise) -> some View {
+        let isCorrect = viewModel.isAnswerCorrect
+        let accentColor = isCorrect ? BryqoTheme.success : BryqoTheme.error
+
+        return VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+            HStack(alignment: .top, spacing: BryqoTheme.Spacing.lg) {
+                BrixAvatar(size: 48)
+
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
+                    Text(isCorrect ? "Correto! 🎉" : "Ops! Quase lá. 🐛")
+                        .font(.system(size: 18, weight: .black, design: .rounded))
+                        .foregroundStyle(accentColor)
+
+                    Text(exercise.explanation)
+                        .font(.subheadline)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             BryqoPrimaryButton(
-                title: isLastStep ? "Concluir lição" : "Continuar",
-                systemImage: isLastStep ? "checkmark.seal.fill" : "arrow.right",
-                isDisabled: currentStep.exercise != nil && !hasAnswered
+                title: viewModel.isLastStep ? "CONCLUIR LIÇÃO" : "CONTINUAR",
+                systemImage: viewModel.isLastStep ? "checkmark.seal.fill" : nil,
+                color: accentColor,
+                textColor: .white
             ) {
-                advance()
+                viewModel.advance()
             }
         }
         .padding(BryqoTheme.Spacing.xl)
-        .background(BryqoTheme.background)
+        .background(accentColor.opacity(0.08))
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(accentColor)
+                .frame(height: 2)
+        }
     }
+
+    // MARK: - Exercise View
 
     private func exerciseView(_ exercise: Exercise) -> some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-            Text(exercise.prompt)
-                .font(.headline.bold())
-                .foregroundStyle(BryqoTheme.textPrimary)
+        exerciseContent(exercise)
+            .keyframeAnimator(
+                initialValue: CGFloat(0),
+                trigger: viewModel.shakeTrigger
+            ) { view, offset in
+                view.offset(x: offset)
+            } keyframes: { _ in
+                LinearKeyframe(8, duration: 0.07)
+                LinearKeyframe(-8, duration: 0.07)
+                LinearKeyframe(6, duration: 0.07)
+                LinearKeyframe(-6, duration: 0.07)
+                LinearKeyframe(3, duration: 0.07)
+                LinearKeyframe(0, duration: 0.07)
+            }
+    }
 
-            ForEach(exercise.options) { option in
-                Button {
-                    withAnimation(.spring(response: 0.22, dampingFraction: 0.82)) {
-                        select(option)
-                    }
-                } label: {
-                    HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
-                        Image(systemName: optionIcon(option))
-                            .font(.headline)
-                            .foregroundStyle(optionColor(option))
+    @ViewBuilder
+    private func exerciseContent(_ exercise: Exercise) -> some View {
+        switch viewModel.currentStep.kind {
+        case .trueFalse:
+            TrueOrFalseQuestion(
+                exercise: exercise,
+                selectedOptionId: viewModel.selectedOptionIds.first,
+                hasAnswered: viewModel.hasAnswered
+            ) { option in
+                viewModel.selectOption(option)
+                viewModel.verify()
+            }
 
-                        Text(option.text)
-                            .font(.headline)
-                            .foregroundStyle(BryqoTheme.textPrimary)
-                            .multilineTextAlignment(.leading)
-
-                        Spacer()
-                    }
-                    .padding(BryqoTheme.Spacing.lg)
-                    .background(optionBackground(option))
-                    .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                            .stroke(optionColor(option).opacity(selectedOptionIds.contains(option.id) || hasAnswered ? 0.8 : 0.18), lineWidth: 1.5)
-                    }
+        case .codeCompletion:
+            CodeCompletionQuestion(
+                exercise: exercise,
+                selectedOptionId: viewModel.selectedOptionIds.first,
+                hasAnswered: viewModel.hasAnswered
+            ) { option in
+                withAnimation(.spring(response: 0.22, dampingFraction: 0.82)) {
+                    viewModel.selectOption(option)
                 }
-                .buttonStyle(.plain)
-                .disabled(hasAnswered)
             }
-        }
-        .bryqoCard()
-    }
 
-    private func feedbackView(exercise: Exercise) -> some View {
-        HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
-            BrixAvatar(size: 42)
-
-            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
-                Text(isAnswerCorrect ? "Agora encaixou!" : "Vamos olhar por outro ângulo.")
-                    .font(.headline)
-                    .foregroundStyle(BryqoTheme.textPrimary)
-                Text(exercise.explanation)
-                    .font(.subheadline)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(BryqoTheme.Spacing.lg)
-        .background((isAnswerCorrect ? BryqoTheme.success : BryqoTheme.sun).opacity(0.13))
-        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                .stroke((isAnswerCorrect ? BryqoTheme.success : BryqoTheme.sun).opacity(0.22), lineWidth: 1)
-        }
-    }
-
-    private func select(_ option: ExerciseOption) {
-        guard let exercise = currentStep.exercise else { return }
-
-        switch currentStep.kind {
-        case .ordering:
-            guard !selectedOptionIds.contains(option.id) else { return }
-            selectedOptionIds.append(option.id)
-            hasAnswered = selectedOptionIds.count == exercise.correctOptionIds.count
         default:
-            selectedOptionIds = [option.id]
-            hasAnswered = true
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+                Text(exercise.prompt)
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundStyle(BryqoTheme.textPrimary)
+
+                if let snippet = exercise.codeSnippet {
+                    CodeSnippetView(snippet: snippet)
+                }
+
+                ForEach(exercise.options) { option in
+                    OptionCard(
+                        option: option,
+                        isSelected: viewModel.selectedOptionIds.contains(option.id),
+                        isCorrect: viewModel.hasAnswered && exercise.correctOptionIds.contains(option.id),
+                        isWrong: viewModel.hasAnswered
+                            && viewModel.selectedOptionIds.contains(option.id)
+                            && !exercise.correctOptionIds.contains(option.id),
+                        stepKind: viewModel.currentStep.kind,
+                        selectionIndex: viewModel.selectedOptionIds.firstIndex(of: option.id)
+                    ) {
+                        withAnimation(.spring(response: 0.22, dampingFraction: 0.82)) {
+                            viewModel.selectOption(option)
+                        }
+                    }
+                    .disabled(viewModel.hasAnswered)
+                }
+            }
+            .bryqoCard()
         }
     }
 
-    private func advance() {
-        if isLastStep {
-            appState.completeLesson(lesson)
-            dismiss()
-            return
-        }
-
-        withAnimation(.easeInOut(duration: 0.22)) {
-            stepIndex += 1
-            selectedOptionIds = []
-            hasAnswered = false
-        }
-    }
-
-    private func optionIcon(_ option: ExerciseOption) -> String {
-        if currentStep.kind == .ordering, let position = selectedOptionIds.firstIndex(of: option.id) {
-            return "\(position + 1).circle.fill"
-        }
-
-        if hasAnswered, currentStep.exercise?.correctOptionIds.contains(option.id) == true {
-            return "checkmark.circle.fill"
-        }
-
-        if selectedOptionIds.contains(option.id) {
-            return "largecircle.fill.circle"
-        }
-
-        return "circle"
-    }
-
-    private func optionColor(_ option: ExerciseOption) -> Color {
-        if hasAnswered, currentStep.exercise?.correctOptionIds.contains(option.id) == true {
-            return BryqoTheme.success
-        }
-
-        if selectedOptionIds.contains(option.id) {
-            return BryqoTheme.river
-        }
-
-        return BryqoTheme.textSecondary
-    }
-
-    private func optionBackground(_ option: ExerciseOption) -> Color {
-        if hasAnswered, currentStep.exercise?.correctOptionIds.contains(option.id) == true {
-            return BryqoTheme.success.opacity(0.14)
-        }
-
-        if selectedOptionIds.contains(option.id) {
-            return BryqoTheme.river.opacity(0.14)
-        }
-
-        return Color.white.opacity(0.04)
-    }
+    // MARK: - Helpers
 
     private var stepLabel: String {
-        switch currentStep.kind {
-        case .story:
-            return "CONTEXTO"
-        case .concept:
-            return "CONCEITO"
-        case .singleChoice:
-            return "ESCOLHA"
-        case .trueFalse:
-            return "VERDADEIRO OU FALSO"
-        case .ordering:
-            return "ORDENAR"
-        case .summary:
-            return "RESUMO"
+        switch viewModel.currentStep.kind {
+        case .story: return "CONTEXTO"
+        case .concept: return "CONCEITO"
+        case .singleChoice: return "ESCOLHA"
+        case .trueFalse: return "VERDADEIRO OU FALSO"
+        case .ordering: return "ORDENAR"
+        case .codeCompletion: return "COMPLETAR"
+        case .summary: return "RESUMO"
         }
     }
 
     private var stepIcon: String {
-        switch currentStep.kind {
-        case .story:
-            return "book.pages.fill"
-        case .concept:
-            return "lightbulb.fill"
-        case .singleChoice:
-            return "checklist"
-        case .trueFalse:
-            return "questionmark.circle.fill"
-        case .ordering:
-            return "arrow.up.arrow.down"
-        case .summary:
-            return "seal.fill"
+        switch viewModel.currentStep.kind {
+        case .story: return "book.pages.fill"
+        case .concept: return "lightbulb.fill"
+        case .singleChoice: return "checklist"
+        case .trueFalse: return "questionmark.circle.fill"
+        case .ordering: return "arrow.up.arrow.down"
+        case .codeCompletion: return "square.and.pencil"
+        case .summary: return "seal.fill"
+        }
+    }
+}
+
+// MARK: - No Hearts View
+
+private struct NoHeartsView: View {
+    let onDismiss: () -> Void
+    @State private var cardScale: CGFloat = 0.85
+    @State private var cardOpacity: Double = 0
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.65)
+                .ignoresSafeArea()
+
+            VStack(spacing: BryqoTheme.Spacing.xl) {
+                BrixAvatar(size: 88)
+
+                VStack(spacing: BryqoTheme.Spacing.sm) {
+                    Text("Sem vidas! 💀")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(BryqoTheme.error)
+
+                    Text("Você ficou sem corações nessa lição.\nPratique outra para continuar.")
+                        .font(.body)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                BryqoPrimaryButton(
+                    title: "SAIR DA LIÇÃO",
+                    systemImage: "xmark",
+                    color: BryqoTheme.error,
+                    textColor: .white,
+                    action: onDismiss
+                )
+            }
+            .padding(BryqoTheme.Spacing.xxl)
+            .background(BryqoTheme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card + 4, style: .continuous))
+            .padding(.horizontal, BryqoTheme.Spacing.xl)
+            .scaleEffect(cardScale)
+            .opacity(cardOpacity)
+        }
+        .onAppear {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.65)) {
+                cardScale = 1.0
+                cardOpacity = 1.0
+            }
+        }
+    }
+}
+
+// MARK: - Option Card
+
+private struct OptionCard: View {
+    let option: ExerciseOption
+    let isSelected: Bool
+    let isCorrect: Bool
+    let isWrong: Bool
+    let stepKind: LessonStepKind
+    let selectionIndex: Int?
+    let onTap: () -> Void
+
+    private var borderColor: Color {
+        if isCorrect { return BryqoTheme.success }
+        if isWrong { return BryqoTheme.error }
+        if isSelected { return BryqoTheme.river }
+        return BryqoTheme.border
+    }
+
+    private var backgroundColor: Color {
+        if isCorrect { return BryqoTheme.success.opacity(0.12) }
+        if isWrong { return BryqoTheme.error.opacity(0.10) }
+        if isSelected { return BryqoTheme.river.opacity(0.12) }
+        return BryqoTheme.surface
+    }
+
+    private var iconName: String {
+        if stepKind == .ordering, let idx = selectionIndex {
+            return "\(idx + 1).circle.fill"
+        }
+        if isCorrect { return "checkmark.circle.fill" }
+        if isWrong { return "xmark.circle.fill" }
+        if isSelected { return "largecircle.fill.circle" }
+        return "circle"
+    }
+
+    private var iconColor: Color {
+        if isCorrect { return BryqoTheme.success }
+        if isWrong { return BryqoTheme.error }
+        if isSelected { return BryqoTheme.river }
+        return BryqoTheme.textSecondary
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: BryqoTheme.Spacing.lg) {
+                Image(systemName: iconName)
+                    .font(.headline)
+                    .foregroundStyle(iconColor)
+                    .animation(.spring(response: 0.22, dampingFraction: 0.7), value: iconName)
+
+                Text(option.text)
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(BryqoTheme.textPrimary)
+                    .multilineTextAlignment(.leading)
+
+                Spacer()
+            }
+            .padding(BryqoTheme.Spacing.lg)
+            .background(backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                    .stroke(borderColor, lineWidth: 2)
+            }
+        }
+        .buttonStyle(PressScaleButtonStyle())
+        .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isSelected)
+        .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isCorrect)
+        .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isWrong)
+    }
+}
+
+// MARK: - Lesson Progress Bar
+
+private struct LessonProgressBar: View {
+    let progress: Double
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.pill, style: .continuous)
+                    .fill(BryqoTheme.border)
+
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.pill, style: .continuous)
+                    .fill(BryqoTheme.success)
+                    .frame(width: max(8, geometry.size.width * max(0, min(1, progress))))
+            }
+        }
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: progress)
+    }
+}
+
+// MARK: - Hearts View
+
+private struct HeartsView: View {
+    let hearts: Int
+    private let maxHearts = 3
+    @State private var lostIndex: Int? = nil
+    @State private var lostScale: CGFloat = 1.0
+    @State private var lostOpacity: Double = 1.0
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(0..<maxHearts, id: \.self) { index in
+                ZStack {
+                    // Outline heart (always visible underneath)
+                    Image(systemName: "heart")
+                        .font(.system(size: 17))
+                        .foregroundStyle(BryqoTheme.border)
+
+                    // Filled heart (disappears with animation when lost)
+                    if index < hearts || index == lostIndex {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 17))
+                            .foregroundStyle(BryqoTheme.error)
+                            .scaleEffect(index == lostIndex ? lostScale : 1.0)
+                            .opacity(index == lostIndex ? lostOpacity : 1.0)
+                    }
+                }
+            }
+        }
+        .onChange(of: hearts) { oldValue, newValue in
+            guard newValue < oldValue else { return }
+            lostIndex = newValue
+            lostScale = 1.0
+            lostOpacity = 1.0
+            Task {
+                // Phase 1: brief scale-up (impact feel)
+                withAnimation(.spring(response: 0.15, dampingFraction: 0.4)) {
+                    lostScale = 1.4
+                }
+                try? await Task.sleep(for: .milliseconds(150))
+                // Phase 2: scale down + fade out
+                withAnimation(.easeIn(duration: 0.3)) {
+                    lostScale = 0.0
+                    lostOpacity = 0.0
+                }
+                try? await Task.sleep(for: .milliseconds(380))
+                lostIndex = nil
+                lostScale = 1.0
+                lostOpacity = 1.0
+            }
         }
     }
 }
