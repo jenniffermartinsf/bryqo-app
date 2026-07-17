@@ -2,10 +2,24 @@ import SwiftUI
 
 struct LearnView: View {
     let appState: BryqoAppState
-    let unit: LearningUnit
+    let units: [LearningUnit]
 
     private var nextLesson: Lesson? {
-        unit.lessons.first { !appState.isLessonCompleted($0) }
+        for unit in units {
+            if let lesson = unit.lessons.first(where: { !appState.isLessonCompleted($0) }) {
+                return lesson
+            }
+        }
+        return nil
+    }
+
+    private var nextLessonUnitName: String {
+        for unit in units {
+            if unit.lessons.contains(where: { !appState.isLessonCompleted($0) }) {
+                return unit.title
+            }
+        }
+        return ""
     }
 
     var body: some View {
@@ -15,7 +29,7 @@ struct LearnView: View {
                     header
                     dailyGoalCard
                     continueCard
-                    tracksSection
+                    LessonMapView(units: units, appState: appState)
                 }
                 .padding(BryqoTheme.Spacing.xl)
             }
@@ -81,7 +95,7 @@ struct LearnView: View {
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .multilineTextAlignment(.leading)
 
-                    Text(nextLesson == nil ? "Volte à mochila para revisar." : "Internet e Redes")
+                    Text(nextLesson == nil ? "Volte à mochila para revisar." : nextLessonUnitName)
                         .font(.headline)
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
@@ -106,66 +120,4 @@ struct LearnView: View {
         .buttonStyle(.plain)
     }
 
-    private var tracksSection: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-            BryqoSectionTitle(title: "Trilhas")
-
-            trackCard(
-                title: "Internet e Redes",
-                subtitle: unit.title,
-                icon: "wifi",
-                tint: BryqoTheme.sun,
-                isLocked: false,
-                progress: Double(appState.completedLessonCount) / Double(unit.lessons.count)
-            )
-
-            trackCard(
-                title: "Pensamento Computacional",
-                subtitle: "A base de tudo",
-                icon: "safari",
-                tint: BryqoTheme.river,
-                isLocked: true,
-                progress: 0
-            )
-
-            trackCard(
-                title: "Como Computadores Funcionam",
-                subtitle: "Conclua a trilha anterior para desbloquear",
-                icon: "cpu",
-                tint: BryqoTheme.primary,
-                isLocked: true,
-                progress: 0
-            )
-        }
-    }
-
-    private func trackCard(title: String, subtitle: String, icon: String, tint: Color, isLocked: Bool, progress: Double) -> some View {
-        HStack(spacing: BryqoTheme.Spacing.xl) {
-            Image(systemName: isLocked ? "lock.fill" : icon)
-                .font(.title2)
-                .foregroundStyle(isLocked ? BryqoTheme.textSecondary : tint)
-                .frame(width: 58, height: 58)
-                .background((isLocked ? BryqoTheme.textSecondary : tint).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-
-            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
-                Text(title)
-                    .font(.headline.bold())
-                    .foregroundStyle(isLocked ? BryqoTheme.textSecondary : BryqoTheme.textPrimary)
-
-                Text(isLocked ? "Conclua a trilha anterior para desbloquear" : subtitle)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-
-                ProgressView(value: progress)
-                    .tint(tint)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.headline.bold())
-                .foregroundStyle(BryqoTheme.textSecondary)
-        }
-        .bryqoCard(fill: isLocked ? BryqoTheme.surface.opacity(0.58) : BryqoTheme.surface)
-    }
 }

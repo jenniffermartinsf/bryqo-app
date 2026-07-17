@@ -7,7 +7,7 @@ struct LearningUnit: Identifiable, Equatable {
     let lessons: [Lesson]
 }
 
-struct Lesson: Identifiable, Equatable {
+struct Lesson: Identifiable, Equatable, Hashable {
     let id: String
     let title: String
     let subtitle: String
@@ -17,7 +17,7 @@ struct Lesson: Identifiable, Equatable {
     let steps: [LessonStep]
 }
 
-struct LessonStep: Identifiable, Equatable {
+struct LessonStep: Identifiable, Equatable, Hashable {
     let id: String
     let kind: LessonStepKind
     let title: String
@@ -25,7 +25,7 @@ struct LessonStep: Identifiable, Equatable {
     let exercise: Exercise?
 }
 
-enum LessonStepKind: Equatable {
+enum LessonStepKind: Equatable, Hashable {
     case story
     case concept
     case singleChoice
@@ -35,19 +35,19 @@ enum LessonStepKind: Equatable {
     case summary
 }
 
-struct CodeSnippet: Equatable {
+struct CodeSnippet: Equatable, Hashable {
     let code: String
     let language: CodeLanguage
 }
 
-enum CodeLanguage: String, Equatable {
+enum CodeLanguage: String, Equatable, Hashable {
     case python = "Python"
     case swift = "Swift"
     case javascript = "JavaScript"
     case generic = "Código"
 }
 
-struct Exercise: Equatable {
+struct Exercise: Equatable, Hashable {
     let prompt: String
     let options: [ExerciseOption]
     let correctOptionIds: [String]
@@ -63,7 +63,7 @@ struct Exercise: Equatable {
     }
 }
 
-struct ExerciseOption: Identifiable, Equatable {
+struct ExerciseOption: Identifiable, Equatable, Hashable {
     let id: String
     let text: String
 }

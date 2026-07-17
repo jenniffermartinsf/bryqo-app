@@ -23,7 +23,7 @@ struct MainTabView: View {
         case .valley:
             ValleyView(appState: appState, unit: BryqoContent.sampleUnit)
         case .learn:
-            LearnView(appState: appState, unit: BryqoContent.sampleUnit)
+            LearnView(appState: appState, units: [BryqoContent.sampleUnit, BryqoContent.sampleCodeUnit])
         case .backpack:
             BackpackView(appState: appState, unit: BryqoContent.sampleUnit)
         case .achievements:
