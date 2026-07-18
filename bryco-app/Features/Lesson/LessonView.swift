@@ -8,6 +8,7 @@ struct LessonView: View {
     @State private var viewModel: LessonViewModel
     @State private var showCompletion = false
     @State private var xpFloatVisible = false
+    @State private var lessonMistakeCount = 0
 
     init(appState: BryqoAppState, lesson: Lesson) {
         self.appState = appState
@@ -63,7 +64,7 @@ struct LessonView: View {
                     totalQuestions: lesson.steps.filter { $0.exercise != nil }.count,
                     streakDays: appState.progress.streakDays
                 ) {
-                    appState.completeLesson(lesson)
+                    appState.completeLesson(lesson, hasMistakes: lessonMistakeCount > 0)
                     dismiss()
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -71,7 +72,10 @@ struct LessonView: View {
         }
         .overlay {
             if viewModel.hearts == 0 && !viewModel.hasAnswered && !showCompletion {
-                NoHeartsView { dismiss() }
+                NoHeartsView {
+                    appState.loseHeart()
+                    dismiss()
+                }
                     .transition(.opacity)
             }
         }
@@ -79,6 +83,7 @@ struct LessonView: View {
         .animation(.spring(response: 0.45, dampingFraction: 0.8), value: showCompletion)
         .onChange(of: viewModel.isComplete) { _, complete in
             guard complete else { return }
+            lessonMistakeCount = 3 - viewModel.hearts
             showCompletion = true
         }
         .onChange(of: viewModel.xpFloatTrigger) { _, _ in

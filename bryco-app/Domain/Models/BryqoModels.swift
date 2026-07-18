@@ -80,4 +80,21 @@ struct UserProgress: Equatable {
     var xp: Int = 0
     var streakDays: Int = 0
     var earnedMaterials: [String] = []
+    // Gamification
+    var hearts: Int = 5
+    var lastActivityDate: Date? = nil
+    var earnedAchievementIds: Set<String> = []
+    var perfectLessonCount: Int = 0
+}
+
+// MARK: - Achievement
+
+struct Achievement: Identifiable {
+    let id: String
+    let title: String
+    let description: String
+    let icon: String
+    let rarity: Rarity
+
+    enum Rarity { case common, rare, epic }
 }

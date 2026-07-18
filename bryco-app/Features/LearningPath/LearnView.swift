@@ -63,7 +63,15 @@ struct LearnView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: BryqoTheme.Spacing.md) {
-                BryqoStatPill(value: "\(appState.progress.streakDays) dias", icon: "bolt.fill", tint: BryqoTheme.textSecondary)
+                // Global hearts
+                HStack(spacing: 3) {
+                    ForEach(0..<5, id: \.self) { i in
+                        Image(systemName: i < appState.progress.hearts ? "heart.fill" : "heart")
+                            .font(.system(size: 13))
+                            .foregroundStyle(i < appState.progress.hearts ? BryqoTheme.error : BryqoTheme.border)
+                    }
+                }
+                BryqoStatPill(value: "\(appState.progress.streakDays)d", icon: "flame.fill", tint: Color(hex: 0xFF7A20))
                 BryqoStatPill(value: "\(appState.progress.xp) XP", icon: "bolt.fill", tint: BryqoTheme.sun)
             }
         }

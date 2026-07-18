@@ -4,49 +4,59 @@ struct OnboardingView: View {
     let appState: BryqoAppState
 
     @State private var step = 0
+    @State private var goingForward = true
     @State private var displayName = ""
-    @State private var didAttemptProfileContinue = false
-    @State private var selectedExperience = "Estou começando"
-    @State private var selectedGoal = "Construir uma base"
+    @State private var didAttemptContinue = false
+    @State private var selectedExperience = ""
+    @State private var selectedGoal = ""
     @State private var selectedDailyGoal = 10
+    @State private var quizAnswer: String? = nil
+    @State private var quizChecked = false
 
-    private let experiences = [
-        "Nunca programei",
-        "Estou começando",
-        "Já estudo há algum tempo",
-        "Já trabalho com desenvolvimento"
+    private let experiences: [(icon: String, title: String, subtitle: String)] = [
+        ("🌱", "Nunca programei", "Começando do zero, do jeito certo"),
+        ("📖", "Estou aprendendo", "Já vi algo, mas quero uma base sólida"),
+        ("💻", "Sei o básico", "Quero preencher lacunas e aprofundar"),
+        ("🚀", "Trabalho com dev", "Revisando fundamentos")
     ]
 
-    private let goals = [
-        "Construir uma base",
-        "Melhorar nas entrevistas",
-        "Preencher lacunas",
-        "Revisar fundamentos"
+    private let goals: [(icon: String, title: String, subtitle: String)] = [
+        ("🏗️", "Construir uma base sólida", "Aprender do zero de forma consistente"),
+        ("🎯", "Me preparar para entrevistas", "Algoritmos, lógica e estruturas de dados"),
+        ("🔍", "Preencher lacunas", "Reforçar conceitos que ficaram soltos"),
+        ("🔄", "Revisar fundamentos", "Consolidar o que já sei")
     ]
 
-    private let tracks = [
-        TrackPreview(title: "Pensamento Computacional", subtitle: "Quebre problemas em partes e pense como um algoritmo.", icon: "safari", tint: BryqoTheme.river),
-        TrackPreview(title: "Como Computadores Funcionam", subtitle: "Hardware, processamento e memória por trás de cada toque.", icon: "cpu", tint: BryqoTheme.primary),
-        TrackPreview(title: "Internet e Redes", subtitle: "Como dispositivos se encontram e trocam informações.", icon: "wifi", tint: BryqoTheme.sun)
+    private let dailyGoals: [DailyGoalOption] = [
+        DailyGoalOption(title: "Casual", subtitle: "Aprendo quando tenho tempo", minutes: 5),
+        DailyGoalOption(title: "Regular", subtitle: "Um hábito leve todo dia", minutes: 10),
+        DailyGoalOption(title: "Sério", subtitle: "Comprometido com o progresso", minutes: 15),
+        DailyGoalOption(title: "Intenso", subtitle: "Foco total no aprendizado", minutes: 20)
     ]
 
-    private let dailyGoals = [
-        DailyGoalOption(title: "Casual", minutes: 5),
-        DailyGoalOption(title: "Regular", minutes: 10),
-        DailyGoalOption(title: "Sério", minutes: 15),
-        DailyGoalOption(title: "Intenso", minutes: 20)
-    ]
+    private let quizOptions = ["Um Algoritmo", "Um Vírus", "Uma RAM", "Um Pixel"]
+    private let quizCorrect = "Um Algoritmo"
 
     var body: some View {
         BryqoScreen {
             VStack(spacing: 0) {
-                TabView(selection: $step) {
-                    welcomeStep.tag(0)
-                    profileStep.tag(1)
-                    tracksStep.tag(2)
-                    goalStep.tag(3)
+                if step > 0 && step < 6 {
+                    navBar
+                        .padding(.horizontal, BryqoTheme.Spacing.xl)
+                        .padding(.top, BryqoTheme.Spacing.md)
+                        .padding(.bottom, BryqoTheme.Spacing.sm)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                ZStack {
+                    currentStepView
+                        .id(step)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: goingForward ? .trailing : .leading),
+                            removal: .move(edge: goingForward ? .leading : .trailing)
+                        ))
+                }
+                .clipped()
+                .animation(.spring(response: 0.38, dampingFraction: 0.88), value: step)
 
                 bottomCTA
                     .padding(.horizontal, BryqoTheme.Spacing.xl)
@@ -55,132 +65,151 @@ struct OnboardingView: View {
         }
     }
 
-    private var welcomeStep: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-                valleyHero
-                    .padding(.horizontal, -BryqoTheme.Spacing.xl)
-
-                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                    Text("Bryqo")
-                        .font(.system(size: 42, weight: .black))
-                        .foregroundStyle(BryqoTheme.textPrimary)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text("Construa seu conhecimento. Um bloco por vez.")
-                        .font(.title2.bold())
-                        .foregroundStyle(BryqoTheme.river)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text("Aprenda como computadores, redes e a internet realmente funcionam em lições curtas, práticas e guiadas por Brix.")
-                        .font(.body)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineSpacing(5)
-                        .foregroundStyle(BryqoTheme.textSecondary)
-                }
-                .layoutPriority(1)
-            }
-            .padding(.horizontal, BryqoTheme.Spacing.xl)
-            .padding(.bottom, BryqoTheme.Spacing.xl)
+    @ViewBuilder
+    private var currentStepView: some View {
+        switch step {
+        case 0:  welcomeStep
+        case 1:  nameStep
+        case 2:  experienceStep
+        case 3:  goalStep
+        case 4:  miniQuizStep
+        case 5:  dailyGoalStep
+        default: allSetStep
         }
     }
 
-    private var profileStep: some View {
+    // MARK: - Nav Bar
+
+    private var navBar: some View {
+        HStack(spacing: BryqoTheme.Spacing.md) {
+            Button { navigate(forward: false) } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+                    .frame(width: 36, height: 36)
+                    .background(BryqoTheme.surface)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+
+            HStack(spacing: 6) {
+                ForEach(1..<6, id: \.self) { i in
+                    Capsule()
+                        .fill(i <= step ? BryqoTheme.primary : BryqoTheme.border)
+                        .frame(width: i == step ? 22 : 8, height: 8)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.72), value: step)
+                }
+            }
+        }
+    }
+
+    // MARK: - Step 0: Welcome
+
+    private var welcomeStep: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                Image("OnboardingHero")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 280)
+                    .clipped()
+                    .padding(.horizontal, -BryqoTheme.Spacing.xl)
+
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                    VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
+                        Text("Bryqo")
+                            .font(.system(size: 44, weight: .black))
+                            .foregroundStyle(BryqoTheme.textPrimary)
+
+                        Text("Aprenda a pensar como dev.")
+                            .font(.title2.bold())
+                            .foregroundStyle(BryqoTheme.river)
+
+                        Text("Computadores, redes e a internet — do jeito que ninguém te ensinou antes. Lições curtas, divertidas e guiadas por Brix.")
+                            .font(.body)
+                            .lineSpacing(5)
+                            .foregroundStyle(BryqoTheme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack(spacing: BryqoTheme.Spacing.md) {
+                        featurePill(icon: "bolt.fill", text: "Lições de 5 minutos", tint: BryqoTheme.sun)
+                        featurePill(icon: "star.fill", text: "XP, streaks e conquistas", tint: BryqoTheme.primary)
+                        featurePill(icon: "checkmark.seal.fill", text: "Do zero ao sólido, sem enrolação", tint: BryqoTheme.river)
+                    }
+                }
+                .padding(.horizontal, BryqoTheme.Spacing.xl)
+                .padding(.top, BryqoTheme.Spacing.xl)
+                .padding(.bottom, BryqoTheme.Spacing.xl)
+            }
+        }
+    }
+
+    // MARK: - Step 1: Name
+
+    private var nameStep: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 stepHeader(
-                    title: "Como podemos te chamar?",
+                    icon: "person.fill",
+                    title: "Como podemos\nte chamar?",
                     subtitle: "Seu progresso fica salvo neste dispositivo."
                 )
 
-                Button {} label: {
-                    Label("Continue with Apple", systemImage: "apple.logo")
-                        .font(.headline.bold())
-                        .foregroundStyle(.black)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.button, style: .continuous))
-                }
-                .buttonStyle(.plain)
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
+                    TextField("Seu nome", text: $displayName)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                        .textInputAutocapitalization(.words)
+                        .padding(BryqoTheme.Spacing.xl)
+                        .background(BryqoTheme.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                                .strokeBorder(
+                                    didAttemptContinue && !isNameValid ? BryqoTheme.error : BryqoTheme.border,
+                                    lineWidth: 1.5
+                                )
+                        }
+                        .onChange(of: displayName) { _, _ in didAttemptContinue = false }
 
-                HStack(spacing: BryqoTheme.Spacing.xl) {
-                    Rectangle().fill(BryqoTheme.border).frame(height: 1)
-                    Text("ou")
-                        .font(.headline)
-                        .foregroundStyle(BryqoTheme.textSecondary)
-                    Rectangle().fill(BryqoTheme.border).frame(height: 1)
-                }
-
-            TextField("Seu nome", text: $displayName)
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(BryqoTheme.textPrimary)
-                .textInputAutocapitalization(.words)
-                .padding(BryqoTheme.Spacing.xl)
-                    .background(BryqoTheme.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                        .stroke(BryqoTheme.border, lineWidth: 1.5)
-                }
-                .onChange(of: displayName) { _, _ in
-                    didAttemptProfileContinue = false
+                    if didAttemptContinue && !isNameValid {
+                        Label("Digite seu nome para continuar.", systemImage: "exclamationmark.circle.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(BryqoTheme.error)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
                 }
 
-            if didAttemptProfileContinue && !isDisplayNameValid {
-                Label("Digite seu nome para continuar.", systemImage: "exclamationmark.circle.fill")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(BryqoTheme.error)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-
-            selectionGrid(title: "Experiência", options: experiences, selection: $selectedExperience)
-                selectionGrid(title: "Objetivo", options: goals, selection: $selectedGoal)
+                BrixSpeechBubble(text: "Pode ser seu apelido! Eu mesmo prefiro Brix a Brixiliano Algoritmão.")
             }
             .padding(BryqoTheme.Spacing.xl)
             .padding(.bottom, BryqoTheme.Spacing.xl)
         }
     }
 
-    private var tracksStep: some View {
+    // MARK: - Step 2: Experience
+
+    private var experienceStep: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 stepHeader(
-                    title: "O que você vai aprender",
-                    subtitle: "Três trilhas, desbloqueadas em ordem, cada uma com lições curtas e exercícios práticos."
+                    icon: "chart.bar.fill",
+                    title: "Qual é sua\nexperiência?",
+                    subtitle: "Vamos adaptar o ritmo para você."
                 )
 
-                VStack(spacing: BryqoTheme.Spacing.lg) {
-                    ForEach(tracks) { track in
-                        HStack(spacing: BryqoTheme.Spacing.lg) {
-                            Image(systemName: track.icon)
-                            .font(.title2)
-                                .foregroundStyle(track.tint)
-                            .frame(width: 58, height: 58)
-                                .background(track.tint.opacity(0.14))
-                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                                .layoutPriority(0)
-
-                            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
-                                Text(track.title)
-                                    .font(.headline.bold())
-                                    .foregroundStyle(BryqoTheme.textPrimary)
-                                    .lineLimit(2)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                Text(track.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundStyle(BryqoTheme.textSecondary)
-                                    .lineLimit(3)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .lineSpacing(3)
+                VStack(spacing: BryqoTheme.Spacing.md) {
+                    ForEach(experiences, id: \.title) { exp in
+                        selectionRow(
+                            icon: exp.icon, title: exp.title, subtitle: exp.subtitle,
+                            isSelected: selectedExperience == exp.title
+                        ) {
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                                selectedExperience = exp.title
                             }
-                            .layoutPriority(1)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .bryqoCard()
                     }
                 }
             }
@@ -189,15 +218,167 @@ struct OnboardingView: View {
         }
     }
 
+    // MARK: - Step 3: Goal
+
     private var goalStep: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 stepHeader(
-                    title: "Qual é a sua meta diária?",
-                    subtitle: "Você pode mudar isso a qualquer momento no seu perfil."
+                    icon: "target",
+                    title: "Qual é o seu\nobjetivo?",
+                    subtitle: "Isso ajuda a personalizar sua trilha."
                 )
 
-                VStack(spacing: BryqoTheme.Spacing.lg) {
+                VStack(spacing: BryqoTheme.Spacing.md) {
+                    ForEach(goals, id: \.title) { goal in
+                        selectionRow(
+                            icon: goal.icon, title: goal.title, subtitle: goal.subtitle,
+                            isSelected: selectedGoal == goal.title
+                        ) {
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                                selectedGoal = goal.title
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
+        }
+    }
+
+    // MARK: - Step 4: Mini Quiz
+
+    private var miniQuizStep: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepHeader(
+                    icon: "sparkles",
+                    title: "Um gostinho\ndo que vem por aí",
+                    subtitle: "Responda essa — não tem nota, só curiosidade."
+                )
+
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+                    Text("Você está ensinando um robô a fazer um sanduíche, passo a passo. O que você está criando?")
+                        .font(.headline.bold())
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(4)
+
+                    VStack(spacing: BryqoTheme.Spacing.md) {
+                        ForEach(quizOptions, id: \.self) { option in
+                            quizOptionButton(option)
+                        }
+                    }
+                }
+                .padding(BryqoTheme.Spacing.lg)
+                .background(BryqoTheme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
+                        .strokeBorder(BryqoTheme.border, lineWidth: 1.5)
+                }
+
+                if quizChecked, let ans = quizAnswer {
+                    quizFeedback(isCorrect: ans == quizCorrect)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .padding(BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: quizChecked)
+        }
+    }
+
+    private func quizOptionButton(_ option: String) -> some View {
+        let isSelected = quizAnswer == option
+        let isCorrect = option == quizCorrect
+        let showResult = quizChecked && isSelected
+
+        return Button {
+            guard !quizChecked else { return }
+            withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                quizAnswer = option
+                quizChecked = true
+            }
+        } label: {
+            HStack(spacing: BryqoTheme.Spacing.md) {
+                Text(option)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(
+                        showResult ? (isCorrect ? BryqoTheme.success : BryqoTheme.error)
+                            : (isSelected ? BryqoTheme.river : BryqoTheme.textPrimary)
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if showResult {
+                    Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundStyle(isCorrect ? BryqoTheme.success : BryqoTheme.error)
+                }
+            }
+            .padding(BryqoTheme.Spacing.lg)
+            .background(
+                showResult ? (isCorrect ? BryqoTheme.success.opacity(0.12) : BryqoTheme.error.opacity(0.12))
+                    : (isSelected ? BryqoTheme.river.opacity(0.14) : BryqoTheme.background)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                    .strokeBorder(
+                        showResult ? (isCorrect ? BryqoTheme.success : BryqoTheme.error)
+                            : (isSelected ? BryqoTheme.river : BryqoTheme.border),
+                        lineWidth: 1.5
+                    )
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func quizFeedback(isCorrect: Bool) -> some View {
+        HStack(alignment: .top, spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: isCorrect ? "checkmark.circle.fill" : "lightbulb.fill")
+                .font(.title3)
+                .foregroundStyle(isCorrect ? BryqoTheme.success : BryqoTheme.sun)
+
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
+                Text(isCorrect ? "Exatamente!" : "Quase lá!")
+                    .font(.headline.bold())
+                    .foregroundStyle(isCorrect ? BryqoTheme.success : BryqoTheme.sun)
+
+                Text(
+                    isCorrect
+                        ? "Um algoritmo é uma sequência de passos para resolver um problema. Você já pensa como dev!"
+                        : "Um algoritmo é uma sequência de instruções — como uma receita passo a passo. No app você vai criar os seus."
+                )
+                .font(.subheadline)
+                .foregroundStyle(BryqoTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(3)
+            }
+            .layoutPriority(1)
+        }
+        .padding(BryqoTheme.Spacing.lg)
+        .background((isCorrect ? BryqoTheme.success : BryqoTheme.sun).opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                .strokeBorder((isCorrect ? BryqoTheme.success : BryqoTheme.sun).opacity(0.35), lineWidth: 1.5)
+        }
+    }
+
+    // MARK: - Step 5: Daily Goal
+
+    private var dailyGoalStep: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepHeader(
+                    icon: "calendar.badge.clock",
+                    title: "Qual é a sua\nmeta diária?",
+                    subtitle: "Você pode mudar isso a qualquer momento."
+                )
+
+                VStack(spacing: BryqoTheme.Spacing.md) {
                     ForEach(dailyGoals) { goal in
                         Button {
                             withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
@@ -209,7 +390,7 @@ struct OnboardingView: View {
                                     Text(goal.title)
                                         .font(.headline.bold())
                                         .foregroundStyle(BryqoTheme.textPrimary)
-                                    Text("\(goal.minutes) minutos por dia")
+                                    Text(goal.subtitle)
                                         .font(.subheadline)
                                         .foregroundStyle(BryqoTheme.textSecondary)
                                 }
@@ -217,20 +398,26 @@ struct OnboardingView: View {
 
                                 Spacer()
 
+                                Text("\(goal.minutes) min")
+                                    .font(.system(size: 13, weight: .black, design: .rounded))
+                                    .foregroundStyle(selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.textSecondary)
+
                                 if selectedDailyGoal == goal.minutes {
-                                    Image(systemName: "checkmark.circle")
-                                        .font(.title2)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
                                         .foregroundStyle(BryqoTheme.river)
+                                        .transition(.scale.combined(with: .opacity))
                                 }
                             }
                             .frame(maxWidth: .infinity)
                             .bryqoCard(
                                 padding: BryqoTheme.Spacing.lg,
-                                fill: selectedDailyGoal == goal.minutes ? BryqoTheme.river.opacity(0.18) : BryqoTheme.surface,
+                                fill: selectedDailyGoal == goal.minutes ? BryqoTheme.river.opacity(0.12) : BryqoTheme.surface,
                                 border: selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.border
                             )
                         }
                         .buttonStyle(.plain)
+                        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: selectedDailyGoal)
                     }
                 }
 
@@ -242,104 +429,226 @@ struct OnboardingView: View {
         }
     }
 
-    private var bottomCTA: some View {
-        BryqoPrimaryButton(
-            title: step == 0 ? "Começar" : step == 3 ? "Começar a construir" : "Continuar"
-        ) {
-            if step == 1 && !isDisplayNameValid {
-                withAnimation(.easeOut(duration: 0.18)) {
-                    didAttemptProfileContinue = true
-                }
-                return
-            }
+    // MARK: - Step 6: All Set
 
-            if step < 3 {
-                withAnimation(.easeInOut(duration: 0.22)) {
-                    step += 1
+    private var allSetStep: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: BryqoTheme.Spacing.xl) {
+                BrixAvatar(size: 96)
+                    .padding(.top, BryqoTheme.Spacing.xxxl)
+
+                VStack(spacing: BryqoTheme.Spacing.sm) {
+                    Text("Tudo pronto,")
+                        .font(.system(size: 34, weight: .black))
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                    Text(firstName)
+                        .font(.system(size: 34, weight: .black))
+                        .foregroundStyle(BryqoTheme.primary)
+                    Text("🎉")
+                        .font(.system(size: 44))
                 }
-            } else {
-                appState.completeOnboarding(
-                    displayName: displayName,
-                    experience: selectedExperience,
-                    goal: selectedGoal,
-                    dailyGoalMinutes: selectedDailyGoal
-                )
+                .multilineTextAlignment(.center)
+
+                VStack(spacing: BryqoTheme.Spacing.md) {
+                    summaryRow(
+                        icon: "chart.bar.fill",
+                        label: selectedExperience.isEmpty ? "Iniciante" : selectedExperience,
+                        tint: BryqoTheme.river
+                    )
+                    summaryRow(
+                        icon: "target",
+                        label: selectedGoal.isEmpty ? "Construir uma base" : selectedGoal,
+                        tint: BryqoTheme.primary
+                    )
+                    summaryRow(
+                        icon: "calendar.badge.clock",
+                        label: "\(selectedDailyGoal) minutos por dia",
+                        tint: BryqoTheme.sun
+                    )
+                }
+                .padding(.horizontal, BryqoTheme.Spacing.sm)
+
+                BrixSpeechBubble(text: "Cada lição te deixa mais perto de pensar como engenheiro. Bora começar!")
             }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
     }
 
-    private var isDisplayNameValid: Bool {
+    // MARK: - Bottom CTA
+
+    private var bottomCTA: some View {
+        let (title, disabled): (String, Bool) = {
+            switch step {
+            case 0:  return ("Começar", false)
+            case 1:  return ("Continuar", false)
+            case 2:  return (selectedExperience.isEmpty ? "Selecione seu nível" : "Continuar", selectedExperience.isEmpty)
+            case 3:  return (selectedGoal.isEmpty ? "Selecione seu objetivo" : "Continuar", selectedGoal.isEmpty)
+            case 4:  return (quizChecked ? "Continuar" : "Responda para continuar", !quizChecked)
+            case 5:  return ("Continuar", false)
+            default: return ("Começar a construir", false)
+            }
+        }()
+
+        return BryqoPrimaryButton(
+            title: title,
+            isDisabled: disabled,
+            color: step == 6 ? BryqoTheme.primary : BryqoTheme.river
+        ) {
+            advance()
+        }
+    }
+
+    // MARK: - Logic
+
+    private var firstName: String {
+        let name = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? "construtor" : (name.components(separatedBy: " ").first ?? name)
+    }
+
+    private var isNameValid: Bool {
         !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private var valleyHero: some View {
-        Image("OnboardingHero")
-            .resizable()
-            .scaledToFill()
-            .frame(maxWidth: .infinity)
-            .frame(height: 300)
-            .clipped()
+    private func advance() {
+        if step == 1 && !isNameValid {
+            withAnimation(.easeOut(duration: 0.18)) { didAttemptContinue = true }
+            return
+        }
+        if step < 6 {
+            navigate(forward: true)
+        } else {
+            appState.completeOnboarding(
+                displayName: displayName,
+                experience: selectedExperience.isEmpty ? "Iniciante" : selectedExperience,
+                goal: selectedGoal.isEmpty ? "Construir uma base" : selectedGoal,
+                dailyGoalMinutes: selectedDailyGoal
+            )
+        }
     }
 
-    private func stepHeader(title: String, subtitle: String) -> some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-            Text(title)
-                .font(.system(size: 34, weight: .black))
+    private func navigate(forward: Bool) {
+        goingForward = forward
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.88)) {
+            step = forward ? step + 1 : step - 1
+        }
+    }
+
+    // MARK: - Reusable Views
+
+    private func featurePill(icon: String, text: String, tint: Color) -> some View {
+        HStack(spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: icon)
+                .font(.body.weight(.bold))
+                .foregroundStyle(tint)
+                .frame(width: 34, height: 34)
+                .background(tint.opacity(0.15))
+                .clipShape(Circle())
+
+            Text(text)
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(BryqoTheme.textPrimary)
-                .lineLimit(nil)
+
+            Spacer()
+        }
+        .padding(.horizontal, BryqoTheme.Spacing.lg)
+        .padding(.vertical, BryqoTheme.Spacing.md)
+        .background(BryqoTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+    }
+
+    private func stepHeader(icon: String, title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(BryqoTheme.primary)
+                .padding(.top, BryqoTheme.Spacing.lg)
+
+            Text(title)
+                .font(.system(size: 30, weight: .black))
+                .foregroundStyle(BryqoTheme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(subtitle)
                 .font(.body)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .lineSpacing(5)
+                .lineSpacing(4)
                 .foregroundStyle(BryqoTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.top, BryqoTheme.Spacing.xxl)
     }
 
-    private func selectionGrid(title: String, options: [String], selection: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(BryqoTheme.textPrimary)
+    private func selectionRow(icon: String, title: String, subtitle: String, isSelected: Bool, onTap: @escaping () -> Void) -> some View {
+        Button(action: onTap) {
+            HStack(spacing: BryqoTheme.Spacing.lg) {
+                Text(icon)
+                    .font(.title2)
+                    .frame(width: 50, height: 50)
+                    .background(isSelected ? BryqoTheme.primary.opacity(0.14) : BryqoTheme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: BryqoTheme.Spacing.md) {
-                ForEach(options, id: \.self) { option in
-                    Button {
-                        selection.wrappedValue = option
-                    } label: {
-                        Text(option)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(selection.wrappedValue == option ? BryqoTheme.river : BryqoTheme.textSecondary)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                            .padding(.horizontal, BryqoTheme.Spacing.md)
-                            .background(selection.wrappedValue == option ? BryqoTheme.river.opacity(0.14) : BryqoTheme.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                                    .stroke(selection.wrappedValue == option ? BryqoTheme.river : BryqoTheme.border, lineWidth: 1.3)
-                            }
-                    }
-                    .buttonStyle(.plain)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.headline.bold())
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .layoutPriority(1)
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(BryqoTheme.primary)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
+            .frame(maxWidth: .infinity)
+            .bryqoCard(
+                padding: BryqoTheme.Spacing.md,
+                fill: isSelected ? BryqoTheme.primary.opacity(0.07) : BryqoTheme.surface,
+                border: isSelected ? BryqoTheme.primary : BryqoTheme.border
+            )
+        }
+        .buttonStyle(.plain)
+        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: isSelected)
+    }
+
+    private func summaryRow(icon: String, label: String, tint: Color) -> some View {
+        HStack(spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: icon)
+                .font(.body.weight(.bold))
+                .foregroundStyle(tint)
+                .frame(width: 32, height: 32)
+                .background(tint.opacity(0.14))
+                .clipShape(Circle())
+
+            Text(label)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(BryqoTheme.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Spacer()
+        }
+        .padding(.horizontal, BryqoTheme.Spacing.lg)
+        .padding(.vertical, BryqoTheme.Spacing.md)
+        .background(tint.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
+                .strokeBorder(tint.opacity(0.25), lineWidth: 1.5)
         }
     }
-}
-
-private struct TrackPreview: Identifiable {
-    let id = UUID()
-    let title: String
-    let subtitle: String
-    let icon: String
-    let tint: Color
 }
 
 private struct DailyGoalOption: Identifiable {
     let id = UUID()
     let title: String
+    let subtitle: String
     let minutes: Int
 }
 

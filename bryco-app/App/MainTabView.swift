@@ -27,7 +27,7 @@ struct MainTabView: View {
         case .backpack:
             BackpackView(appState: appState, unit: BryqoContent.sampleUnit)
         case .achievements:
-            AchievementsView(appState: appState, unit: BryqoContent.sampleUnit)
+            AchievementsView(appState: appState)
         case .profile:
             ProfileView(appState: appState)
         }
