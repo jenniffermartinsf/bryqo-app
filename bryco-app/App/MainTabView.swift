@@ -21,7 +21,7 @@ struct MainTabView: View {
     private var selectedView: some View {
         switch selectedTab {
         case .valley:
-            ValleyView(appState: appState, unit: BryqoContent.sampleUnit)
+            ValleyView(appState: appState, unit: BryqoContent.sampleUnit, units: [BryqoContent.sampleUnit, BryqoContent.sampleCodeUnit])
         case .learn:
             LearnView(appState: appState, units: [BryqoContent.sampleUnit, BryqoContent.sampleCodeUnit])
         case .backpack:

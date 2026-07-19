@@ -73,6 +73,7 @@ struct OnboardingProfile: Equatable {
     let experience: String
     let goal: String
     let dailyGoalMinutes: Int
+    let accountCreatedDate: Date
 }
 
 struct UserProgress: Equatable {

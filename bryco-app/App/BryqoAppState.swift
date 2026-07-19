@@ -5,7 +5,35 @@ import Observation
 final class BryqoAppState {
     var profile: OnboardingProfile?
     var progress = UserProgress()
-    var isLightMode = false
+
+    // Light mode is default; persisted to UserDefaults
+    var isLightMode: Bool = true {
+        didSet { UserDefaults.standard.set(isLightMode, forKey: "bryqo.isLightMode") }
+    }
+
+    // Avatar image data persisted to Documents directory
+    var avatarImageData: Data? = nil {
+        didSet {
+            if let data = avatarImageData {
+                try? data.write(to: BryqoAppState.avatarFileURL)
+            } else {
+                try? FileManager.default.removeItem(at: BryqoAppState.avatarFileURL)
+            }
+        }
+    }
+
+    private static var avatarFileURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("bryqo_avatar.jpg")
+    }
+
+    init() {
+        // Restore persisted light-mode preference; default is true (light)
+        if let saved = UserDefaults.standard.object(forKey: "bryqo.isLightMode") as? Bool {
+            isLightMode = saved
+        }
+        avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
+    }
 
     // MARK: - Static Definitions
 
@@ -38,6 +66,16 @@ final class BryqoAppState {
         return 1
     }
 
+    var levelName: String {
+        switch currentLevel {
+        case 1: return "Aprendiz"
+        case 2: return "Estudante"
+        case 3: return "Desenvolvedor"
+        case 4: return "Arquiteto"
+        default: return "Engenheiro"
+        }
+    }
+
     var xpForCurrentLevel: Int {
         BryqoAppState.levelThresholds[max(0, currentLevel - 1)]
     }
@@ -63,8 +101,13 @@ final class BryqoAppState {
             displayName: displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "construtor" : displayName,
             experience: experience,
             goal: goal,
-            dailyGoalMinutes: dailyGoalMinutes
+            dailyGoalMinutes: dailyGoalMinutes,
+            accountCreatedDate: Date()
         )
+    }
+
+    func resetOnboarding() {
+        profile = nil
     }
 
     // MARK: - Lesson

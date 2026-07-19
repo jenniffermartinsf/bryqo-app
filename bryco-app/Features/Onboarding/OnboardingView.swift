@@ -10,6 +10,9 @@ struct OnboardingView: View {
     @State private var selectedExperience = ""
     @State private var selectedGoal = ""
     @State private var selectedDailyGoal = 10
+    // Welcome screen animations
+    @State private var mascotFloat: CGFloat = 0
+    @State private var welcomeAppeared = false
     @State private var quizAnswer: String? = nil
     @State private var quizChecked = false
 
@@ -107,42 +110,56 @@ struct OnboardingView: View {
 
     private var welcomeStep: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 0) {
-                Image("OnboardingHero")
+            VStack(spacing: BryqoTheme.Spacing.xxl) {
+                // Logo-v3 (Brix + Bryqo) com float + entrada spring
+                Image("BryqoLogoV3")
                     .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 280)
-                    .clipped()
-                    .padding(.horizontal, -BryqoTheme.Spacing.xl)
-
-                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-                    VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
-                        Text("Bryqo")
-                            .font(.system(size: 44, weight: .black))
-                            .foregroundStyle(BryqoTheme.textPrimary)
-
-                        Text("Aprenda a pensar como dev.")
-                            .font(.title2.bold())
-                            .foregroundStyle(BryqoTheme.river)
-
-                        Text("Computadores, redes e a internet — do jeito que ninguém te ensinou antes. Lições curtas, divertidas e guiadas por Brix.")
-                            .font(.body)
-                            .lineSpacing(5)
-                            .foregroundStyle(BryqoTheme.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                    .scaledToFit()
+                    .frame(maxWidth: 320)
+                    .frame(height: 260)
+                    .offset(y: mascotFloat)
+                    .scaleEffect(welcomeAppeared ? 1.0 : 0.75)
+                    .opacity(welcomeAppeared ? 1.0 : 0)
+                    .onAppear {
+                        withAnimation(.spring(response: 0.65, dampingFraction: 0.7)) {
+                            welcomeAppeared = true
+                        }
+                        withAnimation(.easeInOut(duration: 4.5).repeatForever(autoreverses: true)) {
+                            mascotFloat = -14
+                        }
                     }
 
-                    VStack(spacing: BryqoTheme.Spacing.md) {
-                        featurePill(icon: "bolt.fill", text: "Lições de 5 minutos", tint: BryqoTheme.sun)
-                        featurePill(icon: "star.fill", text: "XP, streaks e conquistas", tint: BryqoTheme.primary)
-                        featurePill(icon: "checkmark.seal.fill", text: "Do zero ao sólido, sem enrolação", tint: BryqoTheme.river)
-                    }
+                // Título e subtítulo
+                VStack(spacing: BryqoTheme.Spacing.md) {
+                    Text("Construa seu conhecimento.\nUm bloco por vez.")
+                        .font(.system(size: 26, weight: .black))
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text("Olá, eu sou o Brix! Vamos aprender os fundamentos da programação construindo, juntos, um vale inteiro.")
+                        .font(.body)
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.horizontal, BryqoTheme.Spacing.xl)
-                .padding(.top, BryqoTheme.Spacing.xl)
-                .padding(.bottom, BryqoTheme.Spacing.xl)
+                .frame(maxWidth: .infinity)
+                .opacity(welcomeAppeared ? 1.0 : 0)
+                .animation(.easeOut(duration: 0.35).delay(0.2), value: welcomeAppeared)
+
+                // Feature pills
+                VStack(spacing: BryqoTheme.Spacing.md) {
+                    featurePill(icon: "bolt.fill", text: "Lições de 5 minutos", tint: BryqoTheme.sun)
+                    featurePill(icon: "star.fill", text: "XP, streaks e conquistas", tint: BryqoTheme.primary)
+                    featurePill(icon: "checkmark.seal.fill", text: "Do zero ao sólido, sem enrolação", tint: BryqoTheme.river)
+                }
+                .opacity(welcomeAppeared ? 1.0 : 0)
+                .animation(.easeOut(duration: 0.4).delay(0.35), value: welcomeAppeared)
             }
+            .padding(.horizontal, BryqoTheme.Spacing.xl)
+            .padding(.top, BryqoTheme.Spacing.xl)
+            .padding(.bottom, BryqoTheme.Spacing.xl)
         }
     }
 
@@ -481,7 +498,7 @@ struct OnboardingView: View {
     private var bottomCTA: some View {
         let (title, disabled): (String, Bool) = {
             switch step {
-            case 0:  return ("Começar", false)
+            case 0:  return ("Vamos construir", false)
             case 1:  return ("Continuar", false)
             case 2:  return (selectedExperience.isEmpty ? "Selecione seu nível" : "Continuar", selectedExperience.isEmpty)
             case 3:  return (selectedGoal.isEmpty ? "Selecione seu objetivo" : "Continuar", selectedGoal.isEmpty)

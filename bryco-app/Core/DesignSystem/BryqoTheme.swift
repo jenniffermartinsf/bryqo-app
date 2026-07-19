@@ -2,21 +2,36 @@ import SwiftUI
 import UIKit
 
 enum BryqoTheme {
-    static let background = Color(light: 0xF8F8F4, dark: 0x1A1C1E)
+    // Background & Surface — updated per design spec
+    static let background = Color(light: 0xEFF3EC, dark: 0x14161A)
     static let surface = Color(light: 0xFFFFFF, dark: 0x232628)
-    static let elevatedSurface = Color(light: 0xF0ECE4, dark: 0x2B2A25)
-    static let primary = Color(hex: 0x3F8F5A)
-    static let river = Color(hex: 0x4EA9E8)
-    static let wood = Color(hex: 0x8C6445)
+    static let elevatedSurface = Color(light: 0xF4F6F1, dark: 0x1C1F22)
+
+    // Brand colours — adaptive in dark mode per spec
+    static let primary = Color(light: 0x3F8F5A, dark: 0x4CAF6A)
+    static let river = Color(light: 0x4EA9E8, dark: 0x58A6FF)
+    static let wood = Color(light: 0x8C6445, dark: 0xB08258)
+
+    // Accent / semantic — same in both themes
+    static let coral = Color(hex: 0xFF6B4A)   // Sequência (fogo)
     static let stone = Color(hex: 0x8A9099)
-    static let sun = Color(hex: 0xF5B83D)
+    static let sun = Color(hex: 0xF5B83D)     // XP / meta / nó atual
     static let success = Color(hex: 0x4CAF6A)
     static let warning = Color(hex: 0xFFB545)
     static let error = Color(hex: 0xEF5350)
-    static let textPrimary = Color(light: 0x1F211D, dark: 0xF8F3EA)
-    static let textSecondary = Color(light: 0x6D675C, dark: 0xB8AE9B)
-    static let border = Color(light: 0xDED8CB, dark: 0x3A3428)
 
+    // Text — updated per design spec
+    static let textPrimary = Color(light: 0x1A1C1E, dark: 0xF1F3EE)
+    static let textSecondary = Color(light: 0x6B7280, dark: 0x9AA1A8)
+
+    // Border — semi-transparent per spec: rgba(0,0,0,.08) / rgba(255,255,255,.10)
+    static let border = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor.white.withAlphaComponent(0.10)
+            : UIColor.black.withAlphaComponent(0.08)
+    })
+
+    // Aliases
     static let forest = primary
     static let leaf = success
     static let sunlight = sun
