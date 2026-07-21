@@ -30,6 +30,9 @@ struct ValleyView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                     header
+                    if appState.isStreakAtRisk {
+                        streakAtRiskBanner
+                    }
                     ValleyProgressView(
                         completedLessons: appState.completedLessonCount,
                         totalLessons: unit.lessons.count
@@ -48,6 +51,50 @@ struct ValleyView: View {
             }
         }
     }
+
+    // MARK: - Streak At-Risk Banner
+
+    private var streakAtRiskBanner: some View {
+        HStack(spacing: BryqoTheme.Spacing.lg) {
+            Text("🔥")
+                .font(.title2)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Sequência em risco!")
+                    .font(.headline.bold())
+                    .foregroundStyle(BryqoTheme.warning)
+
+                Text(progress.streakFreezeCount > 0
+                     ? "Estude hoje ou seu freeze será usado automaticamente."
+                     : "Estude hoje para não quebrar \(appState.progress.streakDays) dias consecutivos.")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer()
+
+            if progress.streakFreezeCount > 0 {
+                Label("\(progress.streakFreezeCount)", systemImage: "snowflake")
+                    .font(.caption.weight(.black))
+                    .foregroundStyle(BryqoTheme.river)
+                    .padding(.horizontal, BryqoTheme.Spacing.sm)
+                    .padding(.vertical, 4)
+                    .background(BryqoTheme.river.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+        }
+        .padding(BryqoTheme.Spacing.lg)
+        .background(BryqoTheme.warning.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
+                .stroke(BryqoTheme.warning.opacity(0.35), lineWidth: 1.5)
+        }
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
+    private var progress: UserProgress { appState.progress }
 
     // MARK: - Header
 

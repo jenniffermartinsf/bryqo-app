@@ -86,6 +86,8 @@ struct UserProgress: Equatable {
     var lastActivityDate: Date? = nil
     var earnedAchievementIds: Set<String> = []
     var perfectLessonCount: Int = 0
+    // Streak protection — used automatically when a day is missed
+    var streakFreezeCount: Int = 1
 }
 
 // MARK: - Achievement

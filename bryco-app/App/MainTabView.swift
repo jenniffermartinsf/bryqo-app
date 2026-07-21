@@ -15,6 +15,17 @@ struct MainTabView: View {
                     .padding(.bottom, BryqoTheme.Spacing.md)
             }
         }
+        .overlay {
+            if let milestone = appState.pendingStreakMilestone {
+                StreakMilestoneView(days: milestone) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        appState.pendingStreakMilestone = nil
+                    }
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.3), value: appState.pendingStreakMilestone != nil)
     }
 
     @ViewBuilder

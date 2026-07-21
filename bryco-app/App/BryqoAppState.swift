@@ -22,6 +22,9 @@ final class BryqoAppState {
     // Notifications — persisted to UserDefaults; use setNotificationsEnabled() to toggle
     var notificationsEnabled: Bool = false
 
+    // Set when streak crosses a milestone (7 / 30 / 100); cleared after celebration is shown.
+    var pendingStreakMilestone: Int? = nil
+
     // Avatar image persisted to Documents (binary, not SwiftData)
     var avatarImageData: Data? = nil {
         didSet {
@@ -79,7 +82,8 @@ final class BryqoAppState {
             hearts: persistedState.hearts,
             lastActivityDate: persistedState.lastActivityDate,
             earnedAchievementIds: Set(persistedState.earnedAchievementIds),
-            perfectLessonCount: persistedState.perfectLessonCount
+            perfectLessonCount: persistedState.perfectLessonCount,
+            streakFreezeCount: persistedState.streakFreezeCount
         )
 
         if let name = persistedState.displayName,
@@ -111,6 +115,7 @@ final class BryqoAppState {
         persistedState.lastActivityDate = progress.lastActivityDate
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
+        persistedState.streakFreezeCount = progress.streakFreezeCount
 
         persistedState.displayName = profile?.displayName
         persistedState.experience = profile?.experience
@@ -177,6 +182,13 @@ final class BryqoAppState {
         let total = Double(xpForNextLevel - xpForCurrentLevel)
         guard total > 0 else { return 1.0 }
         return min(1.0, current / total)
+    }
+
+    // True when the user studied yesterday but not yet today — streak at risk of breaking.
+    var isStreakAtRisk: Bool {
+        guard progress.streakDays > 0, let last = progress.lastActivityDate else { return false }
+        let today = Calendar.current.startOfDay(for: Date())
+        return !Calendar.current.isDate(last, inSameDayAs: today)
     }
 
     // MARK: - Onboarding
@@ -264,18 +276,33 @@ final class BryqoAppState {
 
         guard let last = progress.lastActivityDate else {
             progress.streakDays = 1
+            checkMilestone(progress.streakDays)
             return
         }
 
         if Calendar.current.isDate(last, inSameDayAs: today) {
-            return
+            return // already studied today — streak unchanged
         }
 
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
         if Calendar.current.isDate(last, inSameDayAs: yesterday) {
+            // Consecutive day — extend streak
             progress.streakDays += 1
+            checkMilestone(progress.streakDays)
         } else {
-            progress.streakDays = 1
+            // Missed at least one day
+            if progress.streakFreezeCount > 0 {
+                // Use a freeze: streak survives, not incremented
+                progress.streakFreezeCount -= 1
+            } else {
+                progress.streakDays = 1
+            }
+        }
+    }
+
+    private func checkMilestone(_ streak: Int) {
+        if [7, 30, 100].contains(streak) {
+            pendingStreakMilestone = streak
         }
     }
 
