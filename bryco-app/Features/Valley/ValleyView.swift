@@ -6,6 +6,7 @@ struct ValleyView: View {
     let units: [LearningUnit]
 
     @State private var selectedLesson: Lesson?
+    @State private var showNoHeartsSheet = false
 
     private var nextLesson: Lesson? {
         for u in units {
@@ -31,6 +32,9 @@ struct ValleyView: View {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                     header
                     dailyGoalCard
+                    if progress.hearts < BryqoAppState.heartsMax {
+                        heartsRegenCard
+                    }
                     if appState.isStreakAtRisk {
                         streakAtRiskBanner
                     }
@@ -49,6 +53,9 @@ struct ValleyView: View {
             .background(BryqoTheme.background)
             .navigationDestination(item: $selectedLesson) { lesson in
                 LessonView(appState: appState, lesson: lesson)
+            }
+            .sheet(isPresented: $showNoHeartsSheet) {
+                NoHeartsSheet(appState: appState)
             }
         }
     }
@@ -152,6 +159,11 @@ struct ValleyView: View {
 
             HStack(spacing: BryqoTheme.Spacing.sm) {
                 BryqoStatPill(
+                    value: "\(appState.progress.hearts)",
+                    icon: "heart.fill",
+                    tint: BryqoTheme.error
+                )
+                BryqoStatPill(
                     value: "\(appState.progress.streakDays)",
                     icon: "flame.fill",
                     tint: BryqoTheme.coral
@@ -170,7 +182,11 @@ struct ValleyView: View {
     private var continueCard: some View {
         Button {
             if let lesson = nextLesson {
-                selectedLesson = lesson
+                if appState.progress.hearts == 0 {
+                    showNoHeartsSheet = true
+                } else {
+                    selectedLesson = lesson
+                }
             }
         } label: {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
@@ -260,6 +276,51 @@ struct ValleyView: View {
             }
         }
         .bryqoCard()
+    }
+}
+
+// MARK: - Hearts Regen Card
+
+extension ValleyView {
+    var heartsRegenCard: some View {
+        HStack(spacing: BryqoTheme.Spacing.lg) {
+            // Heart slots
+            HStack(spacing: 5) {
+                ForEach(0..<BryqoAppState.heartsMax, id: \.self) { index in
+                    Image(systemName: index < progress.hearts ? "heart.fill" : "heart")
+                        .font(.system(size: 20))
+                        .foregroundStyle(index < progress.hearts ? BryqoTheme.error : BryqoTheme.border)
+                }
+            }
+
+            Spacer()
+
+            // Countdown
+            if let nextAt = appState.nextHeartAt {
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    let remaining = max(0, nextAt.timeIntervalSinceNow)
+                    let mins = Int(remaining) / 60
+                    let secs = Int(remaining) % 60
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("próximo coração")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(BryqoTheme.textSecondary)
+                        Text(String(format: "%d:%02d", mins, secs))
+                            .font(.system(size: 18, weight: .black, design: .monospaced))
+                            .foregroundStyle(BryqoTheme.warning)
+                            .contentTransition(.numericText())
+                    }
+                }
+            }
+        }
+        .padding(BryqoTheme.Spacing.lg)
+        .background(BryqoTheme.error.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
+                .stroke(BryqoTheme.error.opacity(0.20), lineWidth: 1.5)
+        }
+        .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 

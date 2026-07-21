@@ -20,8 +20,11 @@ struct bryco_appApp: App {
                 }
         }
         .onChange(of: scenePhase) { _, phase in
-            guard phase == .active, appState.notificationsEnabled else { return }
-            appState.notificationManager.ensureScheduledIfNeeded()
+            guard phase == .active else { return }
+            appState.applyHeartRegeneration()
+            if appState.notificationsEnabled {
+                appState.notificationManager.ensureScheduledIfNeeded()
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ struct LessonMapView: View {
 
     @State private var selectedLesson: Lesson? = nil
     @State private var showLockedToast = false
+    @State private var showNoHeartsSheet = false
 
     private let unitConfig: [(icon: String, tint: Color)] = [
         ("wifi",          BryqoTheme.sun),
@@ -24,7 +25,13 @@ struct LessonMapView: View {
                         icon: cfg.icon,
                         tint: cfg.tint,
                         appState: appState,
-                        onSelectLesson: { selectedLesson = $0 },
+                        onSelectLesson: { lesson in
+                            if appState.progress.hearts == 0 {
+                                showNoHeartsSheet = true
+                            } else {
+                                selectedLesson = lesson
+                            }
+                        },
                         onLockedTap: showLockedMessage
                     )
                 } else {
@@ -34,6 +41,9 @@ struct LessonMapView: View {
         }
         .navigationDestination(item: $selectedLesson) { lesson in
             LessonView(appState: appState, lesson: lesson)
+        }
+        .sheet(isPresented: $showNoHeartsSheet) {
+            NoHeartsSheet(appState: appState)
         }
         .overlay(alignment: .bottom) {
             if showLockedToast {

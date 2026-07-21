@@ -90,6 +90,8 @@ struct UserProgress: Equatable {
     var streakFreezeCount: Int = 1
     // Daily XP earned today — resets at midnight
     var dailyXpEarned: Int = 0
+    // Hearts regeneration baseline — updated when a heart is lost
+    var heartsUpdatedAt: Date = Date()
 }
 
 // MARK: - Achievement
