@@ -116,7 +116,7 @@ struct AchievementsView: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
                 ForEach(0..<35, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(index < appState.completedLessonCount ? BryqoTheme.primary : Color.white.opacity(0.04))
+                        .fill(index < appState.completedLessonCount ? BryqoTheme.primary : BryqoTheme.primary.opacity(0.12))
                         .frame(height: 22)
                 }
             }

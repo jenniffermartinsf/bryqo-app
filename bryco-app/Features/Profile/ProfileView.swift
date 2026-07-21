@@ -73,7 +73,7 @@ struct ProfileView: View {
                 .frame(width: 96, height: 96)
                 .clipShape(Circle())
         } else {
-            Image("BrixMascot")
+            Image("BrixNeutro")
                 .resizable()
                 .scaledToFit()
                 .padding(10)

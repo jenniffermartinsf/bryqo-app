@@ -228,18 +228,11 @@ struct BrixAvatar: View {
     var size: CGFloat = 56
 
     var body: some View {
-        Image("BrixMascot")
+        Image("BrixNeutro")
             .resizable()
             .scaledToFit()
-            .padding(size * 0.04)
-            .background(BryqoTheme.river.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: size * 0.25, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: size * 0.25, style: .continuous)
-                    .stroke(BryqoTheme.river.opacity(0.16), lineWidth: 1)
-            }
-        .frame(width: size, height: size)
-        .accessibilityLabel("Brix")
+            .frame(width: size, height: size)
+            .accessibilityLabel("Brix")
     }
 }
 
@@ -247,8 +240,9 @@ struct BrixSpeechBubble: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .center, spacing: BryqoTheme.Spacing.lg) {
-            BrixAvatar(size: 42)
+        HStack(alignment: .bottom, spacing: 8) {
+            BrixAvatar(size: 72)
+                .fixedSize()
 
             Text(text)
                 .font(.body.weight(.semibold))
@@ -256,14 +250,68 @@ struct BrixSpeechBubble: View {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .layoutPriority(1)
                 .padding(BryqoTheme.Spacing.lg)
-                .background(BryqoTheme.river.opacity(0.18))
-                .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
-                        .stroke(BryqoTheme.river.opacity(0.22), lineWidth: 1)
+                // Extra bottom padding gives space for the tail that extends below
+                .padding(.bottom, 14)
+                .background {
+                    ChatBubbleShape()
+                        .fill(BryqoTheme.river.opacity(0.15))
                 }
         }
+    }
+}
+
+// Rounded rect + iMessage-style tail at bottom-left, all in one unified path.
+private struct ChatBubbleShape: Shape {
+    var cornerRadius: CGFloat = 18
+
+    func path(in rect: CGRect) -> Path {
+        let r = cornerRadius
+        // Tail dimensions
+        let tailTipX: CGFloat = -8   // tip extends 8pt left of the bubble
+        let tailTipY: CGFloat = rect.maxY + 14  // tip is 14pt below bubble bottom
+
+        var p = Path()
+
+        // Start at top-left (after arc)
+        p.move(to: CGPoint(x: r, y: 0))
+
+        // Top edge → top-right arc
+        p.addLine(to: CGPoint(x: rect.maxX - r, y: 0))
+        p.addArc(center: CGPoint(x: rect.maxX - r, y: r),
+                 radius: r, startAngle: .degrees(-90), endAngle: .degrees(0), clockwise: false)
+
+        // Right edge → bottom-right arc
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
+        p.addArc(center: CGPoint(x: rect.maxX - r, y: rect.maxY - r),
+                 radius: r, startAngle: .degrees(0), endAngle: .degrees(90), clockwise: false)
+
+        // Bottom edge going left — stops just before the tail
+        p.addLine(to: CGPoint(x: r, y: rect.maxY))
+
+        // TAIL outer edge: gentle convex curve sweeping down-left to tip
+        p.addCurve(
+            to: CGPoint(x: tailTipX, y: tailTipY),
+            control1: CGPoint(x: r * 0.3, y: rect.maxY),
+            control2: CGPoint(x: tailTipX * 0.3, y: tailTipY * 0.85)
+        )
+
+        // TAIL inner edge: deep concave scoop back up to the left wall
+        // The far-right control point creates the characteristic iMessage concavity
+        p.addCurve(
+            to: CGPoint(x: 0, y: rect.maxY - 2),
+            control1: CGPoint(x: r * 2.5, y: tailTipY - 4),
+            control2: CGPoint(x: r * 0.6, y: rect.maxY + 2)
+        )
+
+        // Left edge going up → top-left arc
+        p.addLine(to: CGPoint(x: 0, y: r))
+        p.addArc(center: CGPoint(x: r, y: r),
+                 radius: r, startAngle: .degrees(180), endAngle: .degrees(-90), clockwise: false)
+
+        p.closeSubpath()
+        return p
     }
 }
 

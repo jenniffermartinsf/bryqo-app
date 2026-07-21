@@ -94,7 +94,7 @@ struct ValleyProgressView: View {
                 .offset(x: 52, y: -62)
 
             // Brix on left
-            Image("BrixMascot")
+            Image("BrixNeutro")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 52, height: 52)
