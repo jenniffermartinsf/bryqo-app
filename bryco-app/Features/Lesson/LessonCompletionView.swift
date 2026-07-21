@@ -8,7 +8,8 @@ struct LessonCompletionView: View {
     let streakDays: Int
     let onContinue: () -> Void
 
-    @State private var mascotScale: CGFloat = 0.3
+    @State private var mascotScale: CGFloat = 0.1
+    @State private var mascotFloat = false
     @State private var contentVisible = false
 
     var body: some View {
@@ -17,9 +18,17 @@ struct LessonCompletionView: View {
                 Spacer()
 
                 // Mascot
-                BrixAvatar(size: 100)
+                Image("BrixFeliz")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180, height: 180)
                     .scaleEffect(mascotScale)
-                    .animation(.spring(response: 0.45, dampingFraction: 0.48), value: mascotScale)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.38), value: mascotScale)
+                    .offset(y: mascotFloat ? -10 : 0)
+                    .animation(
+                        .easeInOut(duration: 1.4).repeatForever(autoreverses: true),
+                        value: mascotFloat
+                    )
 
                 Spacer().frame(height: BryqoTheme.Spacing.xl)
 
@@ -84,6 +93,10 @@ struct LessonCompletionView: View {
         .onAppear {
             mascotScale = 1.0
             contentVisible = true
+            Task {
+                try? await Task.sleep(for: .seconds(0.7))
+                mascotFloat = true
+            }
         }
     }
 
