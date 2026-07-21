@@ -1,17 +1,24 @@
 import SwiftUI
 import Observation
+import SwiftData
 
 @Observable
 final class BryqoAppState {
+    // Persistence layer — excluded from observation tracking
+    @ObservationIgnored private let modelContainer: ModelContainer
+    @ObservationIgnored private let modelContext: ModelContext
+    @ObservationIgnored private var persistedState: PersistedUserState
+
+    // In-memory state (observed by Views — no changes needed in Views)
     var profile: OnboardingProfile?
     var progress = UserProgress()
 
-    // Light mode is default; persisted to UserDefaults
+    // Light mode persisted to UserDefaults (fast, single bool)
     var isLightMode: Bool = true {
         didSet { UserDefaults.standard.set(isLightMode, forKey: "bryqo.isLightMode") }
     }
 
-    // Avatar image data persisted to Documents directory
+    // Avatar image persisted to Documents (binary, not SwiftData)
     var avatarImageData: Data? = nil {
         didSet {
             if let data = avatarImageData {
@@ -28,11 +35,85 @@ final class BryqoAppState {
     }
 
     init() {
-        // Restore persisted light-mode preference; default is true (light)
+        // --- Phase 1: initialize all stored properties without defaults ---
+        let schema = Schema([PersistedUserState.self])
+        let diskConfig = ModelConfiguration(schema: schema)
+
+        if let container = try? ModelContainer(
+            for: schema,
+            migrationPlan: BryqoMigrationPlan.self,
+            configurations: diskConfig
+        ) {
+            modelContainer = container
+        } else {
+            // Fallback to in-memory if disk setup fails (e.g. simulator sandbox issue)
+            modelContainer = try! ModelContainer(
+                for: schema,
+                configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            )
+        }
+
+        modelContext = ModelContext(modelContainer)
+
+        let descriptor = FetchDescriptor<PersistedUserState>()
+        let results = (try? modelContext.fetch(descriptor)) ?? []
+        if let existing = results.first {
+            persistedState = existing
+        } else {
+            let newState = PersistedUserState()
+            modelContext.insert(newState)
+            persistedState = newState
+            try? modelContext.save()
+        }
+
+        // --- Phase 2: all stored properties initialized — restore from persisted state ---
+        progress = UserProgress(
+            completedLessonIds: Set(persistedState.completedLessonIds),
+            xp: persistedState.xp,
+            streakDays: persistedState.streakDays,
+            earnedMaterials: persistedState.earnedMaterials,
+            hearts: persistedState.hearts,
+            lastActivityDate: persistedState.lastActivityDate,
+            earnedAchievementIds: Set(persistedState.earnedAchievementIds),
+            perfectLessonCount: persistedState.perfectLessonCount
+        )
+
+        if let name = persistedState.displayName,
+           let experience = persistedState.experience,
+           let goal = persistedState.goal {
+            profile = OnboardingProfile(
+                displayName: name,
+                experience: experience,
+                goal: goal,
+                dailyGoalMinutes: persistedState.dailyGoalMinutes,
+                accountCreatedDate: persistedState.accountCreatedDate
+            )
+        }
+
         if let saved = UserDefaults.standard.object(forKey: "bryqo.isLightMode") as? Bool {
             isLightMode = saved
         }
         avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
+    }
+
+    // Syncs in-memory structs back to the SwiftData model and saves explicitly.
+    private func save() {
+        persistedState.completedLessonIds = Array(progress.completedLessonIds)
+        persistedState.xp = progress.xp
+        persistedState.streakDays = progress.streakDays
+        persistedState.earnedMaterials = progress.earnedMaterials
+        persistedState.hearts = progress.hearts
+        persistedState.lastActivityDate = progress.lastActivityDate
+        persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
+        persistedState.perfectLessonCount = progress.perfectLessonCount
+
+        persistedState.displayName = profile?.displayName
+        persistedState.experience = profile?.experience
+        persistedState.goal = profile?.goal
+        persistedState.dailyGoalMinutes = profile?.dailyGoalMinutes ?? 20
+        persistedState.accountCreatedDate = profile?.accountCreatedDate ?? Date()
+
+        try? modelContext.save()
     }
 
     // MARK: - Static Definitions
@@ -50,7 +131,6 @@ final class BryqoAppState {
         Achievement(id: "level_3",       title: "Nível 3",          description: "Alcance o nível 3.",                      icon: "rosette",             rarity: .rare),
     ]
 
-    // XP required to reach level N (index = level - 1)
     static let levelThresholds: [Int] = [0, 100, 250, 500, 1000, 2000, 3500, 5000, 7500, 10000]
 
     // MARK: - Computed Properties
@@ -104,10 +184,12 @@ final class BryqoAppState {
             dailyGoalMinutes: dailyGoalMinutes,
             accountCreatedDate: Date()
         )
+        save()
     }
 
     func resetOnboarding() {
         profile = nil
+        save()
     }
 
     // MARK: - Lesson
@@ -129,7 +211,6 @@ final class BryqoAppState {
         progress.xp += lesson.xpReward
         progress.earnedMaterials.append(lesson.materialReward)
 
-        // Hearts: perfect play earns +1 heart (capped at 5), mistakes lose 1
         if hasMistakes {
             progress.hearts = max(0, progress.hearts - 1)
         } else {
@@ -139,10 +220,12 @@ final class BryqoAppState {
 
         updateStreak()
         checkAchievements()
+        save()
     }
 
     func loseHeart() {
         progress.hearts = max(0, progress.hearts - 1)
+        save()
     }
 
     // MARK: - Private
@@ -157,14 +240,14 @@ final class BryqoAppState {
         }
 
         if Calendar.current.isDate(last, inSameDayAs: today) {
-            return  // already studied today, keep streak
+            return
         }
 
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
         if Calendar.current.isDate(last, inSameDayAs: yesterday) {
             progress.streakDays += 1
         } else {
-            progress.streakDays = 1  // streak broken
+            progress.streakDays = 1
         }
     }
 
