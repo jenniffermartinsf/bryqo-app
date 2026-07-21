@@ -8,7 +8,8 @@ final class LessonViewModel {
     private(set) var stepIndex: Int = 0
     private(set) var selectedOptionIds: [String] = []
     private(set) var hasAnswered: Bool = false
-    private(set) var hearts: Int = 3
+    private(set) var hearts: Int
+    private(set) var mistakeCount: Int = 0
     private(set) var xpEarned: Int = 0
     private(set) var correctCount: Int = 0
     private(set) var isComplete: Bool = false
@@ -38,8 +39,9 @@ final class LessonViewModel {
         return !selectedOptionIds.isEmpty
     }
 
-    init(lesson: Lesson) {
+    init(lesson: Lesson, initialHearts: Int) {
         self.lesson = lesson
+        self.hearts = max(1, initialHearts)
     }
 
     func selectOption(_ option: ExerciseOption) {
@@ -61,6 +63,7 @@ final class LessonViewModel {
         hasAnswered = true
         if !isAnswerCorrect {
             hearts = max(0, hearts - 1)
+            mistakeCount += 1
             shakeTrigger += 1
         } else {
             xpEarned += 10

@@ -8,12 +8,11 @@ struct LessonView: View {
     @State private var viewModel: LessonViewModel
     @State private var showCompletion = false
     @State private var xpFloatVisible = false
-    @State private var lessonMistakeCount = 0
 
     init(appState: BryqoAppState, lesson: Lesson) {
         self.appState = appState
         self.lesson = lesson
-        _viewModel = State(wrappedValue: LessonViewModel(lesson: lesson))
+        _viewModel = State(wrappedValue: LessonViewModel(lesson: lesson, initialHearts: appState.progress.hearts))
     }
 
     var body: some View {
@@ -64,7 +63,7 @@ struct LessonView: View {
                     totalQuestions: lesson.steps.filter { $0.exercise != nil }.count,
                     streakDays: appState.progress.streakDays
                 ) {
-                    appState.completeLesson(lesson, hasMistakes: lessonMistakeCount > 0)
+                    appState.completeLesson(lesson, hasMistakes: viewModel.mistakeCount > 0)
                     dismiss()
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -73,17 +72,18 @@ struct LessonView: View {
         .overlay {
             if viewModel.hearts == 0 && !viewModel.hasAnswered && !showCompletion {
                 NoHeartsView {
-                    appState.loseHeart()
                     dismiss()
                 }
-                    .transition(.opacity)
+                .transition(.opacity)
             }
         }
         .animation(.easeOut(duration: 0.3), value: viewModel.hearts == 0 && !viewModel.hasAnswered)
         .animation(.spring(response: 0.45, dampingFraction: 0.8), value: showCompletion)
+        .onChange(of: viewModel.hearts) { old, new in
+            if new < old { appState.loseHeart() }
+        }
         .onChange(of: viewModel.isComplete) { _, complete in
             guard complete else { return }
-            lessonMistakeCount = 3 - viewModel.hearts
             showCompletion = true
         }
         .onChange(of: viewModel.xpFloatTrigger) { _, _ in
@@ -474,7 +474,7 @@ private struct LessonProgressBar: View {
 
 private struct HeartsView: View {
     let hearts: Int
-    private let maxHearts = 3
+    private let maxHearts = 5
     @State private var lostIndex: Int? = nil
     @State private var lostScale: CGFloat = 1.0
     @State private var lostOpacity: Double = 1.0
