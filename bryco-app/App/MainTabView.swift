@@ -21,11 +21,11 @@ struct MainTabView: View {
     private var selectedView: some View {
         switch selectedTab {
         case .valley:
-            ValleyView(appState: appState, unit: BryqoContent.sampleUnit, units: [BryqoContent.sampleUnit, BryqoContent.sampleCodeUnit])
+            ValleyView(appState: appState, unit: BryqoContent.allUnits[0], units: BryqoContent.allUnits)
         case .learn:
-            LearnView(appState: appState, units: [BryqoContent.sampleUnit, BryqoContent.sampleCodeUnit])
+            LearnView(appState: appState, units: BryqoContent.allUnits)
         case .backpack:
-            BackpackView(appState: appState, unit: BryqoContent.sampleUnit)
+            BackpackView(appState: appState, unit: BryqoContent.allUnits[0])
         case .achievements:
             AchievementsView(appState: appState)
         case .profile:
