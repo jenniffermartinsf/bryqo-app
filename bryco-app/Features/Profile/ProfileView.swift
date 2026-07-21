@@ -5,6 +5,8 @@ struct ProfileView: View {
     let appState: BryqoAppState
 
     @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var isSigningIn = false
+    @State private var signInErrorMessage: String?
 
     var body: some View {
         ScrollView {
@@ -180,6 +182,8 @@ struct ProfileView: View {
             BryqoSectionTitle(title: "Conta")
                 .padding(.top, BryqoTheme.Spacing.md)
 
+            accountAuthCard
+
             Button {
                 appState.resetOnboarding()
             } label: {
@@ -200,6 +204,89 @@ struct ProfileView: View {
                 .bryqoCard()
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private var accountAuthCard: some View {
+        let auth = appState.authManager
+        if auth.isAnonymous || !auth.isSignedIn {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+                HStack(spacing: BryqoTheme.Spacing.md) {
+                    Image(systemName: "exclamationmark.icloud.fill")
+                        .font(.title2)
+                        .foregroundStyle(BryqoTheme.warning)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Progresso sem backup")
+                            .font(.headline.bold())
+                            .foregroundStyle(BryqoTheme.textPrimary)
+                        Text("Reinstalar o app apaga tudo. Vincule sua Apple ID para salvar.")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(BryqoTheme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                Button {
+                    isSigningIn = true
+                    Task {
+                        do {
+                            try await auth.signInWithApple()
+                        } catch {
+                            let nsErr = error as NSError
+                            // ASAuthorizationError.canceled (1001) is user dismissal — not an error to show
+                            if nsErr.domain != "com.apple.AuthenticationServices.AuthorizationError" || nsErr.code != 1001 {
+                                signInErrorMessage = error.localizedDescription
+                            }
+                        }
+                        isSigningIn = false
+                    }
+                } label: {
+                    HStack(spacing: BryqoTheme.Spacing.sm) {
+                        if isSigningIn {
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(0.85)
+                        } else {
+                            Image(systemName: "apple.logo")
+                        }
+                        Text(isSigningIn ? "Vinculando…" : "Salvar com Apple")
+                            .font(.headline.bold())
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.black)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isSigningIn)
+            }
+            .bryqoCard()
+            .alert("Erro ao vincular conta", isPresented: .init(
+                get: { signInErrorMessage != nil },
+                set: { if !$0 { signInErrorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(signInErrorMessage ?? "")
+            }
+        } else {
+            HStack(spacing: BryqoTheme.Spacing.md) {
+                Image(systemName: "checkmark.icloud.fill")
+                    .font(.title2)
+                    .foregroundStyle(BryqoTheme.success)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Conta vinculada")
+                        .font(.headline.bold())
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                    Text("Progresso salvo com sua Apple ID.")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                }
+                Spacer()
+            }
+            .bryqoCard()
         }
     }
 
@@ -231,9 +318,9 @@ struct ProfileView: View {
             BryqoSectionTitle(title: "Suporte")
 
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                Label("Progresso salvo neste dispositivo", systemImage: "iphone")
-                Label("Login e sincronização ficam para o MVP", systemImage: "icloud.slash")
-                Label("Dados locais não são compartilhados com terceiros", systemImage: "lock.fill")
+                Label("Login anônimo + Sign in with Apple", systemImage: "person.badge.shield.checkmark.fill")
+                Label("Sincronização com Firestore em breve", systemImage: "icloud")
+                Label("Dados não são compartilhados com terceiros", systemImage: "lock.fill")
             }
             .font(.body.weight(.semibold))
             .foregroundStyle(BryqoTheme.textSecondary)

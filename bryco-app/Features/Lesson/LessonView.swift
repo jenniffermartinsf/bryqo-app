@@ -8,8 +8,6 @@ struct LessonView: View {
     @State private var viewModel: LessonViewModel
     @State private var showCompletion = false
     @State private var xpFloatVisible = false
-    @State private var lessonStartTime = Date()
-
     init(appState: BryqoAppState, lesson: Lesson) {
         self.appState = appState
         self.lesson = lesson
@@ -50,6 +48,9 @@ struct LessonView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            BryqoAnalytics.lessonStarted(lessonId: lesson.id)
+        }
         // XP float badge overlay
         .overlay(alignment: .bottom) {
             xpFloatBadge
@@ -64,9 +65,7 @@ struct LessonView: View {
                     totalQuestions: lesson.steps.filter { $0.exercise != nil }.count,
                     streakDays: appState.progress.streakDays
                 ) {
-                    appState.completeLesson(lesson, hasMistakes: viewModel.mistakeCount > 0)
-                    let elapsed = max(1, Int(Date().timeIntervalSince(lessonStartTime) / 60))
-                    appState.addStudyTime(minutes: min(elapsed, 60))
+                    appState.completeLesson(lesson, mistakeCount: viewModel.mistakeCount)
                     dismiss()
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))

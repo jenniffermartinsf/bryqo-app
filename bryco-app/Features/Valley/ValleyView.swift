@@ -102,8 +102,8 @@ struct ValleyView: View {
     private var dailyGoalCard: some View {
         HStack(spacing: BryqoTheme.Spacing.xl) {
             DailyGoalRing(
-                studiedMinutes: progress.dailyMinutesStudied,
-                goalMinutes: appState.dailyGoalMinutes,
+                earnedXp: progress.dailyXpEarned,
+                goalXp: appState.dailyGoalXp,
                 progress: appState.dailyGoalProgress
             )
 
@@ -113,7 +113,7 @@ struct ValleyView: View {
                     .tracking(1.2)
                     .foregroundStyle(BryqoTheme.textSecondary)
 
-                Text("\(progress.dailyMinutesStudied) / \(appState.dailyGoalMinutes) min")
+                Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
                     .font(.system(size: 22, weight: .black, design: .rounded))
                     .foregroundStyle(BryqoTheme.textPrimary)
 
@@ -122,8 +122,8 @@ struct ValleyView: View {
                         .font(.caption.weight(.bold))
                         .foregroundStyle(BryqoTheme.success)
                 } else {
-                    let remaining = appState.dailyGoalMinutes - progress.dailyMinutesStudied
-                    Text("Faltam \(remaining) min")
+                    let remaining = appState.dailyGoalXp - progress.dailyXpEarned
+                    Text("Faltam \(remaining) XP")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
@@ -264,8 +264,8 @@ struct ValleyView: View {
 }
 
 private struct DailyGoalRing: View {
-    let studiedMinutes: Int
-    let goalMinutes: Int
+    let earnedXp: Int
+    let goalXp: Int
     let progress: Double
 
     private var ringColor: Color {
@@ -292,10 +292,10 @@ private struct DailyGoalRing: View {
                 .animation(.spring(response: 0.7, dampingFraction: 0.82), value: progress)
 
             VStack(spacing: 0) {
-                Text("\(studiedMinutes)")
-                    .font(.system(size: 22, weight: .black, design: .rounded))
+                Text("\(earnedXp)")
+                    .font(.system(size: 20, weight: .black, design: .rounded))
                     .foregroundStyle(BryqoTheme.textPrimary)
-                Text("min")
+                Text("XP")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(BryqoTheme.textSecondary)
             }

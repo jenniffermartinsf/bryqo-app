@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3F5A7F64300FF1D100E8A9B2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F63300FF1D100E8A9B2 /* FirebaseCore */; };
+		3F5A7F66300FF1DB00E8A9B2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F65300FF1DB00E8A9B2 /* FirebaseAuth */; };
+		3F5A7F68300FF1E900E8A9B2 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F67300FF1E900E8A9B2 /* FirebaseFirestore */; };
+		3F5A7F6A300FF1F500E8A9B2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F69300FF1F500E8A9B2 /* FirebaseAnalytics */; };
+		3F5A7F6C300FF20200E8A9B2 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F6B300FF20200E8A9B2 /* FirebaseCrashlytics */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3FC61E5530073514005F52B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +60,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F5A7F64300FF1D100E8A9B2 /* FirebaseCore in Frameworks */,
+				3F5A7F66300FF1DB00E8A9B2 /* FirebaseAuth in Frameworks */,
+				3F5A7F6C300FF20200E8A9B2 /* FirebaseCrashlytics in Frameworks */,
+				3F5A7F6A300FF1F500E8A9B2 /* FirebaseAnalytics in Frameworks */,
+				3F5A7F68300FF1E900E8A9B2 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +85,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F5A7F62300FF1D100E8A9B2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3FC61E3C30073512005F52B0 = {
 			isa = PBXGroup;
 			children = (
 				3FC61E4730073512005F52B0 /* bryco-app */,
 				3FC61E5730073514005F52B0 /* bryco-appTests */,
 				3FC61E6130073514005F52B0 /* bryco-appUITests */,
+				3F5A7F62300FF1D100E8A9B2 /* Frameworks */,
 				3FC61E4630073512005F52B0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +133,11 @@
 			);
 			name = "bryco-app";
 			packageProductDependencies = (
+				3F5A7F63300FF1D100E8A9B2 /* FirebaseCore */,
+				3F5A7F65300FF1DB00E8A9B2 /* FirebaseAuth */,
+				3F5A7F67300FF1E900E8A9B2 /* FirebaseFirestore */,
+				3F5A7F69300FF1F500E8A9B2 /* FirebaseAnalytics */,
+				3F5A7F6B300FF20200E8A9B2 /* FirebaseCrashlytics */,
 			);
 			productName = "bryco-app";
 			productReference = 3FC61E4530073512005F52B0 /* bryco-app.app */;
@@ -195,6 +221,9 @@
 			);
 			mainGroup = 3FC61E3C30073512005F52B0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FC61E4630073512005F52B0 /* Products */;
 			projectDirPath = "";
@@ -395,6 +424,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "bryco-app/bryco-app.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3MX8K5DT3M;
@@ -412,6 +443,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jenniffermartinsf.bryco-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -427,6 +459,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "bryco-app/bryco-app.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3MX8K5DT3M;
@@ -444,6 +478,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "jenniffermartinsf.bryco-app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -578,6 +613,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.16.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3F5A7F63300FF1D100E8A9B2 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		3F5A7F65300FF1DB00E8A9B2 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		3F5A7F67300FF1E900E8A9B2 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		3F5A7F69300FF1F500E8A9B2 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		3F5A7F6B300FF20200E8A9B2 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3FC61E3D30073512005F52B0 /* Project object */;
 }

@@ -41,7 +41,7 @@ final class LessonViewModel {
 
     init(lesson: Lesson, initialHearts: Int) {
         self.lesson = lesson
-        self.hearts = max(1, initialHearts)
+        self.hearts = initialHearts
     }
 
     func selectOption(_ option: ExerciseOption) {
@@ -70,6 +70,11 @@ final class LessonViewModel {
             correctCount += 1
             xpFloatTrigger += 1
         }
+        BryqoAnalytics.exerciseAnswered(
+            lessonId: lesson.id,
+            stepId: currentStep.id,
+            correct: isAnswerCorrect
+        )
     }
 
     func advance() {

@@ -9,8 +9,10 @@ final class BryqoAppState {
     @ObservationIgnored private let modelContext: ModelContext
     @ObservationIgnored private var persistedState: PersistedUserState
     @ObservationIgnored let notificationManager = BryqoNotificationManager()
+    @ObservationIgnored let authManager = BryqoAuthManager()
+    @ObservationIgnored private let firestoreService = BryqoFirestoreService()
 
-    // In-memory state (observed by Views — no changes needed in Views)
+    // In-memory state (observed by Views)
     var profile: OnboardingProfile?
     var progress = UserProgress()
 
@@ -42,7 +44,6 @@ final class BryqoAppState {
     }
 
     init() {
-        // --- Phase 1: initialize all stored properties without defaults ---
         let schema = Schema([PersistedUserState.self])
         let diskConfig = ModelConfiguration(schema: schema)
 
@@ -53,7 +54,6 @@ final class BryqoAppState {
         ) {
             modelContainer = container
         } else {
-            // Fallback to in-memory if disk setup fails (e.g. simulator sandbox issue)
             modelContainer = try! ModelContainer(
                 for: schema,
                 configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
@@ -73,7 +73,6 @@ final class BryqoAppState {
             try? modelContext.save()
         }
 
-        // --- Phase 2: all stored properties initialized — restore from persisted state ---
         progress = UserProgress(
             completedLessonIds: Set(persistedState.completedLessonIds),
             xp: persistedState.xp,
@@ -84,14 +83,14 @@ final class BryqoAppState {
             earnedAchievementIds: Set(persistedState.earnedAchievementIds),
             perfectLessonCount: persistedState.perfectLessonCount,
             streakFreezeCount: persistedState.streakFreezeCount,
-            dailyMinutesStudied: persistedState.dailyMinutesStudied
+            dailyXpEarned: persistedState.dailyXpEarned
         )
 
-        // Reset daily minutes when the last session was on a different day
+        // Reset daily XP when the last session was on a different day
         if let last = progress.lastActivityDate,
            !Calendar.current.isDate(last, inSameDayAs: Date()) {
-            progress.dailyMinutesStudied = 0
-            persistedState.dailyMinutesStudied = 0
+            progress.dailyXpEarned = 0
+            persistedState.dailyXpEarned = 0
             try? modelContext.save()
         }
 
@@ -114,7 +113,90 @@ final class BryqoAppState {
         avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
     }
 
-    // Syncs in-memory structs back to the SwiftData model and saves explicitly.
+    // MARK: - Firestore sync
+
+    /// Called once per session after auth resolves. Merges remote state into local.
+    func syncFromFirestore() async {
+        guard let uid = authManager.currentUID else { return }
+        let remote = await firestoreService.loadUserData(uid: uid)
+
+        guard let remote else {
+            // No remote doc yet — bootstrap from local state
+            await firestoreService.saveUserData(uid: uid, snapshot: buildSnapshot())
+            return
+        }
+
+        mergeRemote(remote)
+    }
+
+    private func mergeRemote(_ remote: FirestoreUserSnapshot) {
+        progress.xp = max(progress.xp, remote.xp)
+        progress.streakDays = max(progress.streakDays, remote.streakDays)
+        progress.hearts = remote.hearts  // Firestore is the single authority for hearts
+        progress.completedLessonIds.formUnion(remote.completedLessonIds)
+
+        let localMaterialsSet = Set(progress.earnedMaterials)
+        for m in remote.earnedMaterials where !localMaterialsSet.contains(m) {
+            progress.earnedMaterials.append(m)
+        }
+        progress.earnedAchievementIds.formUnion(remote.earnedAchievementIds)
+        progress.perfectLessonCount = max(progress.perfectLessonCount, remote.perfectLessonCount)
+        progress.streakFreezeCount = max(progress.streakFreezeCount, remote.streakFreezeCount)
+
+        if let remoteDate = remote.lastActivityDate {
+            if let localDate = progress.lastActivityDate {
+                if remoteDate > localDate { progress.lastActivityDate = remoteDate }
+            } else {
+                progress.lastActivityDate = remoteDate
+            }
+        }
+
+        // Only carry over remote's daily XP if its last session was today
+        let today = Calendar.current.startOfDay(for: Date())
+        if let remoteDate = remote.lastActivityDate,
+           Calendar.current.isDate(remoteDate, inSameDayAs: today) {
+            progress.dailyXpEarned = max(progress.dailyXpEarned, remote.dailyXpEarned)
+        }
+
+        // Use remote profile when local has none (e.g. after reinstall)
+        if profile == nil,
+           let name = remote.displayName,
+           let exp = remote.experience,
+           let g = remote.goal {
+            profile = OnboardingProfile(
+                displayName: name,
+                experience: exp,
+                goal: g,
+                dailyGoalMinutes: remote.dailyGoalMinutes,
+                accountCreatedDate: remote.accountCreatedDate
+            )
+        }
+
+        save()
+    }
+
+    private func buildSnapshot() -> FirestoreUserSnapshot {
+        var s = FirestoreUserSnapshot()
+        s.xp = progress.xp
+        s.streakDays = progress.streakDays
+        s.hearts = progress.hearts
+        s.heartsUpdatedAt = Date()
+        s.lastActivityDate = progress.lastActivityDate
+        s.completedLessonIds = Array(progress.completedLessonIds)
+        s.earnedMaterials = progress.earnedMaterials
+        s.earnedAchievementIds = Array(progress.earnedAchievementIds)
+        s.perfectLessonCount = progress.perfectLessonCount
+        s.streakFreezeCount = progress.streakFreezeCount
+        s.dailyXpEarned = progress.dailyXpEarned
+        s.displayName = profile?.displayName
+        s.experience = profile?.experience
+        s.goal = profile?.goal
+        s.dailyGoalMinutes = profile?.dailyGoalMinutes ?? 20
+        s.accountCreatedDate = profile?.accountCreatedDate ?? Date()
+        return s
+    }
+
+    // Syncs in-memory structs to SwiftData and fires a background Firestore write.
     private func save() {
         persistedState.completedLessonIds = Array(progress.completedLessonIds)
         persistedState.xp = progress.xp
@@ -125,7 +207,7 @@ final class BryqoAppState {
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
         persistedState.streakFreezeCount = progress.streakFreezeCount
-        persistedState.dailyMinutesStudied = progress.dailyMinutesStudied
+        persistedState.dailyXpEarned = progress.dailyXpEarned
 
         persistedState.displayName = profile?.displayName
         persistedState.experience = profile?.experience
@@ -134,6 +216,11 @@ final class BryqoAppState {
         persistedState.accountCreatedDate = profile?.accountCreatedDate ?? Date()
 
         try? modelContext.save()
+
+        if let uid = authManager.currentUID {
+            let snapshot = buildSnapshot()
+            Task { await firestoreService.saveUserData(uid: uid, snapshot: snapshot) }
+        }
     }
 
     // MARK: - Static Definitions
@@ -201,11 +288,20 @@ final class BryqoAppState {
         return !Calendar.current.isDate(last, inSameDayAs: today)
     }
 
-    var dailyGoalMinutes: Int { profile?.dailyGoalMinutes ?? 20 }
+    // Daily XP goal derived from onboarding minutes choice.
+    // Approximate: one lesson (~10 min) awards ~100 XP.
+    var dailyGoalXp: Int {
+        switch profile?.dailyGoalMinutes ?? 20 {
+        case ..<10: return 50
+        case 10..<20: return 100
+        case 20..<30: return 150
+        default: return 200
+        }
+    }
 
     var dailyGoalProgress: Double {
-        guard dailyGoalMinutes > 0 else { return 0 }
-        return min(1.0, Double(progress.dailyMinutesStudied) / Double(dailyGoalMinutes))
+        guard dailyGoalXp > 0 else { return 0 }
+        return min(1.0, Double(progress.dailyXpEarned) / Double(dailyGoalXp))
     }
 
     // MARK: - Onboarding
@@ -238,9 +334,10 @@ final class BryqoAppState {
         return isLessonCompleted(unit.lessons[index - 1])
     }
 
-    func completeLesson(_ lesson: Lesson, hasMistakes: Bool = false) {
+    func completeLesson(_ lesson: Lesson, mistakeCount: Int = 0) {
         guard !isLessonCompleted(lesson) else { return }
 
+        let hasMistakes = mistakeCount > 0
         progress.completedLessonIds.insert(lesson.id)
         progress.xp += lesson.xpReward
         progress.earnedMaterials.append(lesson.materialReward)
@@ -253,8 +350,20 @@ final class BryqoAppState {
         }
 
         updateStreak()
+
+        // Add to daily XP after updateStreak (which may reset it for a new day)
+        progress.dailyXpEarned += lesson.xpReward
+
         checkAchievements()
         save()
+        BryqoAnalytics.lessonCompleted(lessonId: lesson.id, xpEarned: lesson.xpReward, perfect: !hasMistakes)
+
+        if let uid = authManager.currentUID {
+            let mc = mistakeCount
+            let lessonId = lesson.id
+            Task { await firestoreService.saveLessonProgress(uid: uid, lessonId: lessonId, mistakes: mc) }
+        }
+
         if notificationsEnabled {
             notificationManager.cancelAndRescheduleFromTomorrow()
         }
@@ -265,13 +374,7 @@ final class BryqoAppState {
         save()
     }
 
-    func addStudyTime(minutes: Int) {
-        progress.dailyMinutesStudied += minutes
-        save()
-    }
-
-    // Enables or disables the daily reminder. Requests UNUserNotificationCenter
-    // permission on first enable; reverts the toggle if permission is denied.
+    // Enables or disables the daily reminder.
     func setNotificationsEnabled(_ enabled: Bool) {
         notificationsEnabled = enabled
         UserDefaults.standard.set(enabled, forKey: "bryqo.notifications.enabled")
@@ -303,21 +406,18 @@ final class BryqoAppState {
         }
 
         if Calendar.current.isDate(last, inSameDayAs: today) {
-            return // already studied today — streak unchanged
+            return // already studied today
         }
 
-        // New day — daily minutes reset (addStudyTime will re-add for this session)
-        progress.dailyMinutesStudied = 0
+        // New day — reset daily XP before completeLesson re-adds today's reward
+        progress.dailyXpEarned = 0
 
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
         if Calendar.current.isDate(last, inSameDayAs: yesterday) {
-            // Consecutive day — extend streak
             progress.streakDays += 1
             checkMilestone(progress.streakDays)
         } else {
-            // Missed at least one day
             if progress.streakFreezeCount > 0 {
-                // Use a freeze: streak survives, not incremented
                 progress.streakFreezeCount -= 1
             } else {
                 progress.streakDays = 1
@@ -328,6 +428,7 @@ final class BryqoAppState {
     private func checkMilestone(_ streak: Int) {
         if [7, 30, 100].contains(streak) {
             pendingStreakMilestone = streak
+            BryqoAnalytics.streakMilestone(days: streak)
         }
     }
 
