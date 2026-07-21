@@ -75,13 +75,16 @@ final class BryqoAppState {
             earnedAchievementIds: Set(persistedState.earnedAchievementIds),
             perfectLessonCount: persistedState.perfectLessonCount,
             streakFreezeCount: persistedState.streakFreezeCount,
+            dailyMinutesStudied: persistedState.dailyMinutesStudied,
             dailyXpEarned: persistedState.dailyXpEarned,
             heartsUpdatedAt: persistedState.heartsUpdatedAt
         )
 
         if let last = progress.lastActivityDate,
            !Calendar.current.isDate(last, inSameDayAs: Date()) {
+            progress.dailyMinutesStudied = 0
             progress.dailyXpEarned = 0
+            persistedState.dailyMinutesStudied = 0
             persistedState.dailyXpEarned = 0
             try? modelContext.save()
         }
@@ -104,7 +107,26 @@ final class BryqoAppState {
         notificationsEnabled = UserDefaults.standard.bool(forKey: "bryqo.notifications.enabled")
         avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
 
+        applyStreakDecay()
         applyHeartRegeneration()
+    }
+
+    // MARK: - Streak Decay
+
+    /// Consume a streak freeze (or reset) when the user missed more than one day.
+    /// Called on init and foreground so decay applies even without completing a lesson.
+    func applyStreakDecay() {
+        guard progress.streakDays > 0, let last = progress.lastActivityDate else { return }
+        let today = Calendar.current.startOfDay(for: Date())
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        guard last < yesterday, !Calendar.current.isDate(last, inSameDayAs: yesterday) else { return }
+        if progress.streakFreezeCount > 0 {
+            progress.streakFreezeCount -= 1
+            progress.lastActivityDate = yesterday  // freeze covers the missed day
+        } else {
+            progress.streakDays = 0
+        }
+        save()
     }
 
     // MARK: - Hearts Regeneration
@@ -201,6 +223,7 @@ final class BryqoAppState {
         s.earnedAchievementIds = Array(progress.earnedAchievementIds)
         s.perfectLessonCount = progress.perfectLessonCount
         s.streakFreezeCount = progress.streakFreezeCount
+        s.dailyMinutesStudied = progress.dailyMinutesStudied
         s.dailyXpEarned = progress.dailyXpEarned
         s.displayName = profile?.displayName
         s.experience = profile?.experience
@@ -221,6 +244,7 @@ final class BryqoAppState {
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
         persistedState.streakFreezeCount = progress.streakFreezeCount
+        persistedState.dailyMinutesStudied = progress.dailyMinutesStudied
         persistedState.dailyXpEarned = progress.dailyXpEarned
         persistedState.displayName = profile?.displayName
         persistedState.experience = profile?.experience

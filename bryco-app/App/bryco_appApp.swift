@@ -21,6 +21,7 @@ struct bryco_appApp: App {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
+            appState.applyStreakDecay()
             appState.applyHeartRegeneration()
             if appState.notificationsEnabled {
                 appState.notificationManager.ensureScheduledIfNeeded()

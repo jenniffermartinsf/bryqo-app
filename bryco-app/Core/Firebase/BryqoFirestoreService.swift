@@ -12,6 +12,7 @@ struct FirestoreUserSnapshot {
     var earnedAchievementIds: [String] = []
     var perfectLessonCount: Int = 0
     var streakFreezeCount: Int = 1
+    var dailyMinutesStudied: Int = 0
     var dailyXpEarned: Int = 0
     var displayName: String? = nil
     var experience: String? = nil
@@ -34,6 +35,7 @@ final class BryqoFirestoreService {
             "earnedAchievementIds": snapshot.earnedAchievementIds,
             "perfectLessonCount": snapshot.perfectLessonCount,
             "streakFreezeCount": snapshot.streakFreezeCount,
+            "dailyMinutesStudied": snapshot.dailyMinutesStudied,
             "dailyXpEarned": snapshot.dailyXpEarned,
             "dailyGoalMinutes": snapshot.dailyGoalMinutes,
             "accountCreatedDate": Timestamp(date: snapshot.accountCreatedDate),
@@ -73,6 +75,7 @@ final class BryqoFirestoreService {
         s.earnedAchievementIds = data["earnedAchievementIds"] as? [String] ?? []
         s.perfectLessonCount = data["perfectLessonCount"] as? Int ?? 0
         s.streakFreezeCount = data["streakFreezeCount"] as? Int ?? 1
+        s.dailyMinutesStudied = data["dailyMinutesStudied"] as? Int ?? 0
         s.dailyXpEarned = data["dailyXpEarned"] as? Int ?? 0
         s.displayName = data["displayName"] as? String
         s.experience = data["experience"] as? String
