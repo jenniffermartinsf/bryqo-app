@@ -159,11 +159,6 @@ struct ValleyView: View {
 
             HStack(spacing: BryqoTheme.Spacing.sm) {
                 BryqoStatPill(
-                    value: "\(appState.progress.hearts)",
-                    icon: "heart.fill",
-                    tint: BryqoTheme.error
-                )
-                BryqoStatPill(
                     value: "\(appState.progress.streakDays)",
                     icon: "flame.fill",
                     tint: BryqoTheme.coral

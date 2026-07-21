@@ -54,7 +54,7 @@ final class BryqoNotificationManager {
     private func buildContent() -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
         content.title = "Brix está esperando! 🦫"
-        content.body = "Que tal uma lição de CS hoje? Não quebre sua sequência. 🔥"
+        content.body = "Que tal uma lição de Lógica hoje? Não quebre sua sequência. 🔥"
         content.sound = .default
         return content
     }
