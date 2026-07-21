@@ -1,17 +1,17 @@
-//
-//  bryco_appApp.swift
-//  bryco-app
-//
-//  Created by Jenniffer Martins on 15/07/26.
-//
-
 import SwiftUI
 
 @main
 struct bryco_appApp: App {
+    @State private var appState = BryqoAppState()
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(appState: appState)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active, appState.notificationsEnabled else { return }
+            appState.notificationManager.ensureScheduledIfNeeded()
         }
     }
 }

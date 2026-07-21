@@ -5,7 +5,6 @@ struct ProfileView: View {
     let appState: BryqoAppState
 
     @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var notificationsEnabled = false
 
     var body: some View {
         ScrollView {
@@ -172,7 +171,10 @@ struct ProfileView: View {
             settingToggle(
                 title: "Lembrete diário",
                 subtitle: "Brix te avisa às 19h se você ainda não estudou.",
-                isOn: $notificationsEnabled
+                isOn: Binding(
+                    get: { appState.notificationsEnabled },
+                    set: { appState.setNotificationsEnabled($0) }
+                )
             )
 
             BryqoSectionTitle(title: "Conta")

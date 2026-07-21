@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var appState = BryqoAppState()
+    let appState: BryqoAppState
 
     var body: some View {
         Group {
@@ -17,5 +17,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(appState: BryqoAppState())
 }

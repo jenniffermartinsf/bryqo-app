@@ -8,6 +8,7 @@ final class BryqoAppState {
     @ObservationIgnored private let modelContainer: ModelContainer
     @ObservationIgnored private let modelContext: ModelContext
     @ObservationIgnored private var persistedState: PersistedUserState
+    @ObservationIgnored let notificationManager = BryqoNotificationManager()
 
     // In-memory state (observed by Views — no changes needed in Views)
     var profile: OnboardingProfile?
@@ -17,6 +18,9 @@ final class BryqoAppState {
     var isLightMode: Bool = true {
         didSet { UserDefaults.standard.set(isLightMode, forKey: "bryqo.isLightMode") }
     }
+
+    // Notifications — persisted to UserDefaults; use setNotificationsEnabled() to toggle
+    var notificationsEnabled: Bool = false
 
     // Avatar image persisted to Documents (binary, not SwiftData)
     var avatarImageData: Data? = nil {
@@ -93,6 +97,7 @@ final class BryqoAppState {
         if let saved = UserDefaults.standard.object(forKey: "bryqo.isLightMode") as? Bool {
             isLightMode = saved
         }
+        notificationsEnabled = UserDefaults.standard.bool(forKey: "bryqo.notifications.enabled")
         avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
     }
 
@@ -221,11 +226,34 @@ final class BryqoAppState {
         updateStreak()
         checkAchievements()
         save()
+        if notificationsEnabled {
+            notificationManager.cancelAndRescheduleFromTomorrow()
+        }
     }
 
     func loseHeart() {
         progress.hearts = max(0, progress.hearts - 1)
         save()
+    }
+
+    // Enables or disables the daily reminder. Requests UNUserNotificationCenter
+    // permission on first enable; reverts the toggle if permission is denied.
+    func setNotificationsEnabled(_ enabled: Bool) {
+        notificationsEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: "bryqo.notifications.enabled")
+        if enabled {
+            Task {
+                let granted = await notificationManager.requestAndSchedule()
+                if !granted {
+                    await MainActor.run {
+                        self.notificationsEnabled = false
+                        UserDefaults.standard.set(false, forKey: "bryqo.notifications.enabled")
+                    }
+                }
+            }
+        } else {
+            notificationManager.cancel()
+        }
     }
 
     // MARK: - Private
