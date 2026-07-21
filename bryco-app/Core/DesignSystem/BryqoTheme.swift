@@ -252,8 +252,6 @@ struct BrixSpeechBubble: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .layoutPriority(1)
                 .padding(BryqoTheme.Spacing.lg)
-                // Extra bottom padding gives space for the tail that extends below
-                .padding(.bottom, 14)
                 .background {
                     ChatBubbleShape()
                         .fill(BryqoTheme.river.opacity(0.15))
@@ -268,41 +266,40 @@ private struct ChatBubbleShape: Shape {
 
     func path(in rect: CGRect) -> Path {
         let r = cornerRadius
-        // Tail dimensions
-        let tailTipX: CGFloat = -8   // tip extends 8pt left of the bubble
-        let tailTipY: CGFloat = rect.maxY + 14  // tip is 14pt below bubble bottom
+        // Tail goes LEFT (not down) — tip is 14pt to the left, only 4pt below bottom
+        let tipX: CGFloat = -14
+        let tipY: CGFloat = rect.maxY + 4
 
         var p = Path()
 
-        // Start at top-left (after arc)
         p.move(to: CGPoint(x: r, y: 0))
 
-        // Top edge → top-right arc
+        // Top edge + top-right arc
         p.addLine(to: CGPoint(x: rect.maxX - r, y: 0))
         p.addArc(center: CGPoint(x: rect.maxX - r, y: r),
                  radius: r, startAngle: .degrees(-90), endAngle: .degrees(0), clockwise: false)
 
-        // Right edge → bottom-right arc
+        // Right edge + bottom-right arc
         p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
         p.addArc(center: CGPoint(x: rect.maxX - r, y: rect.maxY - r),
                  radius: r, startAngle: .degrees(0), endAngle: .degrees(90), clockwise: false)
 
-        // Bottom edge going left — stops just before the tail
+        // Bottom edge going left (stops before tail)
         p.addLine(to: CGPoint(x: r, y: rect.maxY))
 
-        // TAIL outer edge: gentle convex curve sweeping down-left to tip
+        // TAIL outer edge: sweeps left and barely down to tip
         p.addCurve(
-            to: CGPoint(x: tailTipX, y: tailTipY),
-            control1: CGPoint(x: r * 0.3, y: rect.maxY),
-            control2: CGPoint(x: tailTipX * 0.3, y: tailTipY * 0.85)
+            to: CGPoint(x: tipX, y: tipY),
+            control1: CGPoint(x: r * 0.4, y: rect.maxY),
+            control2: CGPoint(x: tipX + 4, y: rect.maxY + 1)
         )
 
-        // TAIL inner edge: deep concave scoop back up to the left wall
-        // The far-right control point creates the characteristic iMessage concavity
+        // TAIL inner edge: deep concave curve back to left wall
+        // control1 pulled far to the right = the characteristic iMessage scoop
         p.addCurve(
-            to: CGPoint(x: 0, y: rect.maxY - 2),
-            control1: CGPoint(x: r * 2.5, y: tailTipY - 4),
-            control2: CGPoint(x: r * 0.6, y: rect.maxY + 2)
+            to: CGPoint(x: 0, y: rect.maxY - r * 0.4),
+            control1: CGPoint(x: tipX + 10, y: tipY),
+            control2: CGPoint(x: r * 0.2, y: rect.maxY)
         )
 
         // Left edge going up → top-left arc
