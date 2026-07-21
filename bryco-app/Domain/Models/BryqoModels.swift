@@ -88,6 +88,8 @@ struct UserProgress: Equatable {
     var perfectLessonCount: Int = 0
     // Streak protection — used automatically when a day is missed
     var streakFreezeCount: Int = 1
+    // Daily goal tracking — resets at midnight each day
+    var dailyMinutesStudied: Int = 0
 }
 
 // MARK: - Achievement

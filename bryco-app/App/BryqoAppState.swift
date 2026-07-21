@@ -83,8 +83,17 @@ final class BryqoAppState {
             lastActivityDate: persistedState.lastActivityDate,
             earnedAchievementIds: Set(persistedState.earnedAchievementIds),
             perfectLessonCount: persistedState.perfectLessonCount,
-            streakFreezeCount: persistedState.streakFreezeCount
+            streakFreezeCount: persistedState.streakFreezeCount,
+            dailyMinutesStudied: persistedState.dailyMinutesStudied
         )
+
+        // Reset daily minutes when the last session was on a different day
+        if let last = progress.lastActivityDate,
+           !Calendar.current.isDate(last, inSameDayAs: Date()) {
+            progress.dailyMinutesStudied = 0
+            persistedState.dailyMinutesStudied = 0
+            try? modelContext.save()
+        }
 
         if let name = persistedState.displayName,
            let experience = persistedState.experience,
@@ -116,6 +125,7 @@ final class BryqoAppState {
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
         persistedState.streakFreezeCount = progress.streakFreezeCount
+        persistedState.dailyMinutesStudied = progress.dailyMinutesStudied
 
         persistedState.displayName = profile?.displayName
         persistedState.experience = profile?.experience
@@ -191,6 +201,13 @@ final class BryqoAppState {
         return !Calendar.current.isDate(last, inSameDayAs: today)
     }
 
+    var dailyGoalMinutes: Int { profile?.dailyGoalMinutes ?? 20 }
+
+    var dailyGoalProgress: Double {
+        guard dailyGoalMinutes > 0 else { return 0 }
+        return min(1.0, Double(progress.dailyMinutesStudied) / Double(dailyGoalMinutes))
+    }
+
     // MARK: - Onboarding
 
     func completeOnboarding(displayName: String, experience: String, goal: String, dailyGoalMinutes: Int) {
@@ -248,6 +265,11 @@ final class BryqoAppState {
         save()
     }
 
+    func addStudyTime(minutes: Int) {
+        progress.dailyMinutesStudied += minutes
+        save()
+    }
+
     // Enables or disables the daily reminder. Requests UNUserNotificationCenter
     // permission on first enable; reverts the toggle if permission is denied.
     func setNotificationsEnabled(_ enabled: Bool) {
@@ -283,6 +305,9 @@ final class BryqoAppState {
         if Calendar.current.isDate(last, inSameDayAs: today) {
             return // already studied today — streak unchanged
         }
+
+        // New day — daily minutes reset (addStudyTime will re-add for this session)
+        progress.dailyMinutesStudied = 0
 
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
         if Calendar.current.isDate(last, inSameDayAs: yesterday) {

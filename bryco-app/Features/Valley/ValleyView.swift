@@ -30,6 +30,7 @@ struct ValleyView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                     header
+                    dailyGoalCard
                     if appState.isStreakAtRisk {
                         streakAtRiskBanner
                     }
@@ -95,6 +96,43 @@ struct ValleyView: View {
     }
 
     private var progress: UserProgress { appState.progress }
+
+    // MARK: - Daily Goal Card
+
+    private var dailyGoalCard: some View {
+        HStack(spacing: BryqoTheme.Spacing.xl) {
+            DailyGoalRing(
+                studiedMinutes: progress.dailyMinutesStudied,
+                goalMinutes: appState.dailyGoalMinutes,
+                progress: appState.dailyGoalProgress
+            )
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text("META DO DIA")
+                    .font(.caption.weight(.black))
+                    .tracking(1.2)
+                    .foregroundStyle(BryqoTheme.textSecondary)
+
+                Text("\(progress.dailyMinutesStudied) / \(appState.dailyGoalMinutes) min")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(BryqoTheme.textPrimary)
+
+                if appState.dailyGoalProgress >= 1.0 {
+                    Label("Meta atingida hoje!", systemImage: "checkmark.circle.fill")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(BryqoTheme.success)
+                } else {
+                    let remaining = appState.dailyGoalMinutes - progress.dailyMinutesStudied
+                    Text("Faltam \(remaining) min")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                }
+            }
+
+            Spacer()
+        }
+        .bryqoCard()
+    }
 
     // MARK: - Header
 
@@ -222,5 +260,46 @@ struct ValleyView: View {
             }
         }
         .bryqoCard()
+    }
+}
+
+private struct DailyGoalRing: View {
+    let studiedMinutes: Int
+    let goalMinutes: Int
+    let progress: Double
+
+    private var ringColor: Color {
+        progress >= 1.0 ? BryqoTheme.success : BryqoTheme.primary
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(BryqoTheme.border.opacity(0.6), lineWidth: 9)
+
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(
+                    AngularGradient(
+                        gradient: Gradient(colors: [ringColor.opacity(0.7), ringColor]),
+                        center: .center,
+                        startAngle: .degrees(-90),
+                        endAngle: .degrees(270)
+                    ),
+                    style: StrokeStyle(lineWidth: 9, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.spring(response: 0.7, dampingFraction: 0.82), value: progress)
+
+            VStack(spacing: 0) {
+                Text("\(studiedMinutes)")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(BryqoTheme.textPrimary)
+                Text("min")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+            }
+        }
+        .frame(width: 78, height: 78)
     }
 }

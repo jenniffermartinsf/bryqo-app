@@ -18,6 +18,7 @@ enum BryqoSchemaV1: VersionedSchema {
         var earnedAchievementIds: [String]
         var perfectLessonCount: Int
         var streakFreezeCount: Int
+        var dailyMinutesStudied: Int
 
         // OnboardingProfile — nil fields mean onboarding not yet completed
         var displayName: String?
@@ -36,6 +37,7 @@ enum BryqoSchemaV1: VersionedSchema {
             earnedAchievementIds = []
             perfectLessonCount = 0
             streakFreezeCount = 1
+            dailyMinutesStudied = 0
             displayName = nil
             experience = nil
             goal = nil

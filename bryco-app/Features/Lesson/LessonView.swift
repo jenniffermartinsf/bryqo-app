@@ -8,6 +8,7 @@ struct LessonView: View {
     @State private var viewModel: LessonViewModel
     @State private var showCompletion = false
     @State private var xpFloatVisible = false
+    @State private var lessonStartTime = Date()
 
     init(appState: BryqoAppState, lesson: Lesson) {
         self.appState = appState
@@ -64,6 +65,8 @@ struct LessonView: View {
                     streakDays: appState.progress.streakDays
                 ) {
                     appState.completeLesson(lesson, hasMistakes: viewModel.mistakeCount > 0)
+                    let elapsed = max(1, Int(Date().timeIntervalSince(lessonStartTime) / 60))
+                    appState.addStudyTime(minutes: min(elapsed, 60))
                     dismiss()
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
