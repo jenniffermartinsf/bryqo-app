@@ -485,9 +485,14 @@ struct OnboardingView: View {
 
                                 Spacer()
 
-                                Text("\(goal.minutes) min")
-                                    .font(.system(size: 13, weight: .black, design: .rounded))
-                                    .foregroundStyle(selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.textSecondary)
+                                VStack(alignment: .trailing, spacing: 2) {
+                                    Text("\(goal.minutes) min")
+                                        .font(.system(size: 13, weight: .black, design: .rounded))
+                                        .foregroundStyle(selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.textSecondary)
+                                    Text("+\(BryqoAppState.xpGoal(for: goal.minutes)) XP/dia")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundStyle(BryqoTheme.textSecondary.opacity(0.7))
+                                }
 
                                 if selectedDailyGoal == goal.minutes {
                                     Image(systemName: "checkmark.circle.fill")

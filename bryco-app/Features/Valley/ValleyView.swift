@@ -115,7 +115,7 @@ struct ValleyView: View {
             )
 
             VStack(alignment: .leading, spacing: 5) {
-                Text("META DO DIA")
+                Text("META · \(appState.dailyGoalTier.uppercased())")
                     .font(.caption.weight(.black))
                     .tracking(1.2)
                     .foregroundStyle(BryqoTheme.textSecondary)
@@ -123,22 +123,28 @@ struct ValleyView: View {
                 Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
                     .font(.system(size: 22, weight: .black, design: .rounded))
                     .foregroundStyle(BryqoTheme.textPrimary)
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progress.dailyXpEarned)
 
                 if appState.dailyGoalProgress >= 1.0 {
                     Label("Meta atingida hoje!", systemImage: "checkmark.circle.fill")
                         .font(.caption.weight(.bold))
                         .foregroundStyle(BryqoTheme.success)
+                        .transition(.scale.combined(with: .opacity))
                 } else {
                     let remaining = appState.dailyGoalXp - progress.dailyXpEarned
                     Text("Faltam \(remaining) XP")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(BryqoTheme.textSecondary)
+                        .contentTransition(.numericText())
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: remaining)
                 }
             }
 
             Spacer()
         }
         .bryqoCard()
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appState.dailyGoalProgress >= 1.0)
     }
 
     // MARK: - Header
@@ -324,9 +330,8 @@ private struct DailyGoalRing: View {
     let goalXp: Int
     let progress: Double
 
-    private var ringColor: Color {
-        progress >= 1.0 ? BryqoTheme.success : BryqoTheme.primary
-    }
+    private var isDone: Bool { progress >= 1.0 }
+    private var ringColor: Color { isDone ? BryqoTheme.success : BryqoTheme.primary }
 
     var body: some View {
         ZStack {
@@ -334,10 +339,10 @@ private struct DailyGoalRing: View {
                 .stroke(BryqoTheme.border.opacity(0.6), lineWidth: 9)
 
             Circle()
-                .trim(from: 0, to: progress)
+                .trim(from: 0, to: min(1.0, progress))
                 .stroke(
                     AngularGradient(
-                        gradient: Gradient(colors: [ringColor.opacity(0.7), ringColor]),
+                        gradient: Gradient(colors: [ringColor.opacity(0.65), ringColor]),
                         center: .center,
                         startAngle: .degrees(-90),
                         endAngle: .degrees(270)
@@ -347,15 +352,26 @@ private struct DailyGoalRing: View {
                 .rotationEffect(.degrees(-90))
                 .animation(.spring(response: 0.7, dampingFraction: 0.82), value: progress)
 
-            VStack(spacing: 0) {
-                Text("\(earnedXp)")
-                    .font(.system(size: 20, weight: .black, design: .rounded))
-                    .foregroundStyle(BryqoTheme.textPrimary)
-                Text("XP")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(BryqoTheme.textSecondary)
+            if isDone {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 22, weight: .black))
+                    .foregroundStyle(BryqoTheme.success)
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                VStack(spacing: 0) {
+                    Text("\(earnedXp)")
+                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .foregroundStyle(BryqoTheme.textPrimary)
+                        .contentTransition(.numericText())
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: earnedXp)
+                    Text("XP")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                }
+                .transition(.scale.combined(with: .opacity))
             }
         }
         .frame(width: 78, height: 78)
+        .animation(.spring(response: 0.4, dampingFraction: 0.75), value: isDone)
     }
 }

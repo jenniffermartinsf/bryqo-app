@@ -320,12 +320,24 @@ final class BryqoAppState {
         return !Calendar.current.isDate(last, inSameDayAs: Calendar.current.startOfDay(for: Date()))
     }
 
-    var dailyGoalXp: Int {
-        switch profile?.dailyGoalMinutes ?? 20 {
-        case ..<10: return 50
-        case 10..<20: return 100
-        case 20..<30: return 150
-        default: return 200
+    /// Single source of truth for XP goal per onboarding tier (minutes → XP).
+    static func xpGoal(for minutes: Int) -> Int {
+        switch minutes {
+        case 5:  return 15   // Casual  — 1 lesson/day
+        case 10: return 30   // Regular — 2 lessons/day
+        case 15: return 50   // Sério   — 3 lessons/day
+        default: return 75   // Intenso — 5 lessons/day
+        }
+    }
+
+    var dailyGoalXp: Int { BryqoAppState.xpGoal(for: profile?.dailyGoalMinutes ?? 10) }
+
+    var dailyGoalTier: String {
+        switch profile?.dailyGoalMinutes ?? 10 {
+        case 5:  return "Casual"
+        case 10: return "Regular"
+        case 15: return "Sério"
+        default: return "Intenso"
         }
     }
 
