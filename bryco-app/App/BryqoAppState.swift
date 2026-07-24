@@ -35,14 +35,21 @@ final class BryqoAppState {
             .appendingPathComponent("bryqo_avatar.jpg")
     }
 
-    init() {
+    /// - Parameter inMemory: when `true`, uses a throwaway in-memory store instead of the
+    ///   on-disk one. Kept out of production call sites (defaults to `false`) and used by tests
+    ///   so each case starts from a clean, isolated state.
+    init(inMemory: Bool = false) {
         let schema = Schema([PersistedUserState.self])
-        let diskConfig = ModelConfiguration(schema: schema)
 
-        if let container = try? ModelContainer(
+        if inMemory {
+            modelContainer = try! ModelContainer(
+                for: schema,
+                configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            )
+        } else if let container = try? ModelContainer(
             for: schema,
             migrationPlan: BryqoMigrationPlan.self,
-            configurations: diskConfig
+            configurations: ModelConfiguration(schema: schema)
         ) {
             modelContainer = container
         } else {
@@ -165,7 +172,8 @@ final class BryqoAppState {
         mergeRemote(remote)
     }
 
-    private func mergeRemote(_ remote: FirestoreUserSnapshot) {
+    // Non-private so tests can exercise the local↔remote merge in isolation.
+    func mergeRemote(_ remote: FirestoreUserSnapshot) {
         progress.xp = max(progress.xp, remote.xp)
         progress.streakDays = max(progress.streakDays, remote.streakDays)
         progress.hearts = remote.hearts

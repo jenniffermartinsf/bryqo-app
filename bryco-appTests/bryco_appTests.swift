@@ -52,10 +52,12 @@ struct bryco_appTests {
     @Test func themePreferenceSwitchesColorScheme() {
         let state = BryqoAppState()
 
+        // Set the value explicitly rather than assuming a default — `isLightMode` is
+        // backed by shared UserDefaults, so the starting value isn't test-isolated.
+        state.isLightMode = false
         #expect(state.preferredColorScheme == .dark)
 
         state.isLightMode = true
-
         #expect(state.preferredColorScheme == .light)
     }
 
