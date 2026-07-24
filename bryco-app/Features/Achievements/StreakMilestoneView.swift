@@ -4,6 +4,8 @@ struct StreakMilestoneView: View {
     let days: Int
     let onDismiss: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var mascotScale: CGFloat = 0.1
     @State private var mascotFloat = false
     @State private var contentVisible = false
@@ -19,12 +21,13 @@ struct StreakMilestoneView: View {
                     .scaledToFit()
                     .frame(width: 140, height: 140)
                     .scaleEffect(mascotScale)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.38), value: mascotScale)
+                    .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.38), value: mascotScale)
                     .offset(y: mascotFloat ? -8 : 0)
                     .animation(
-                        .easeInOut(duration: 1.3).repeatForever(autoreverses: true),
+                        reduceMotion ? nil : .easeInOut(duration: 1.3).repeatForever(autoreverses: true),
                         value: mascotFloat
                     )
+                    .accessibilityLabel("Brix comemorando")
 
                 VStack(spacing: BryqoTheme.Spacing.sm) {
                     Text("🔥 \(days) dias!")
@@ -56,12 +59,14 @@ struct StreakMilestoneView: View {
             .padding(.horizontal, BryqoTheme.Spacing.xl)
             .opacity(contentVisible ? 1 : 0)
             .scaleEffect(contentVisible ? 1 : 0.88)
-            .animation(.spring(response: 0.45, dampingFraction: 0.72), value: contentVisible)
+            .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.72), value: contentVisible)
         }
         .overlay(alignment: .top) { ConfettiView() }
         .onAppear {
             mascotScale = 1.0
             contentVisible = true
+            // Respect Reduce Motion: skip the perpetual bobbing animation.
+            guard !reduceMotion else { return }
             Task {
                 try? await Task.sleep(for: .seconds(0.6))
                 mascotFloat = true

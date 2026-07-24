@@ -4,6 +4,8 @@ struct ValleyProgressView: View {
     let completedLessons: Int
     let totalLessons: Int
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var wheelRotation: Double = 0
     @State private var brixFloat: CGFloat = 0
     @State private var cloudOffset: CGFloat = 0
@@ -28,6 +30,8 @@ struct ValleyProgressView: View {
                 .padding(16)
         }
         .onAppear {
+            // Respect Reduce Motion: keep the scene static instead of perpetually animating.
+            guard !reduceMotion else { return }
             withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
                 wheelRotation = 360
             }
@@ -99,6 +103,7 @@ struct ValleyProgressView: View {
                 .scaledToFit()
                 .frame(width: 52, height: 52)
                 .offset(x: -110, y: brixFloat - 56)
+                .accessibilityHidden(true)   // decorative mascot in the scene
         }
     }
 

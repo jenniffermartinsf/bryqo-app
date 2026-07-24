@@ -110,8 +110,11 @@ struct LessonView: View {
                     .frame(width: 34, height: 34)
                     .background(BryqoTheme.border.opacity(0.5))
                     .clipShape(Circle())
+                    .frame(width: 44, height: 44)   // HIG: 44pt minimum tap target
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Sair da lição")
 
             LessonProgressBar(progress: viewModel.progress)
                 .frame(height: 12)
@@ -501,6 +504,10 @@ private struct HeartsView: View {
                 }
             }
         }
+        // VoiceOver reads a single "Vidas: N de 5" instead of ten separate heart images.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Vidas")
+        .accessibilityValue("\(hearts) de \(maxHearts)")
         .onChange(of: hearts) { oldValue, newValue in
             guard newValue < oldValue else { return }
             lostIndex = newValue

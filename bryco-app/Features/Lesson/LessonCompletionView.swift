@@ -8,6 +8,8 @@ struct LessonCompletionView: View {
     let streakDays: Int
     let onContinue: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var mascotScale: CGFloat = 0.1
     @State private var mascotFloat = false
     @State private var contentVisible = false
@@ -23,12 +25,13 @@ struct LessonCompletionView: View {
                     .scaledToFit()
                     .frame(width: 180, height: 180)
                     .scaleEffect(mascotScale)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.38), value: mascotScale)
+                    .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.38), value: mascotScale)
                     .offset(y: mascotFloat ? -10 : 0)
                     .animation(
-                        .easeInOut(duration: 1.4).repeatForever(autoreverses: true),
+                        reduceMotion ? nil : .easeInOut(duration: 1.4).repeatForever(autoreverses: true),
                         value: mascotFloat
                     )
+                    .accessibilityLabel("Brix comemorando")
 
                 Spacer().frame(height: BryqoTheme.Spacing.xl)
 
@@ -93,6 +96,7 @@ struct LessonCompletionView: View {
         .onAppear {
             mascotScale = 1.0
             contentVisible = true
+            guard !reduceMotion else { return }
             Task {
                 try? await Task.sleep(for: .seconds(0.7))
                 mascotFloat = true
