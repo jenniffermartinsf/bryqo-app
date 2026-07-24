@@ -90,7 +90,7 @@ struct OnboardingView: View {
         HStack(spacing: BryqoTheme.Spacing.md) {
             Button { navigate(forward: false) } label: {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .semibold))
+                    .bryqoFont(16, weight: .semibold)
                     .foregroundStyle(BryqoTheme.textSecondary)
                     .frame(width: 36, height: 36)
                     .background(BryqoTheme.surface)
@@ -144,7 +144,7 @@ struct OnboardingView: View {
             // Título + subtítulo logo abaixo, com 32pt de separação da logo
             VStack(spacing: 12) {
                 Text("Aprenda a pensar como programador.")
-                    .font(.system(size: 26, weight: .black))
+                    .bryqoFont(26, relativeTo: .title2, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
                     .multilineTextAlignment(.center)
 
@@ -173,7 +173,7 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
                     Text("Fundamentos antes\nde frameworks.")
-                        .font(.system(size: 30, weight: .black))
+                        .bryqoFont(30, relativeTo: .largeTitle, weight: .black)
                         .foregroundStyle(BryqoTheme.textPrimary)
 
                     Text("Aqui você aprende o que realmente fica.")
@@ -213,7 +213,7 @@ struct OnboardingView: View {
     private func featureCard(icon: String, tint: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .bold))
+                .bryqoFont(20, relativeTo: .title2, weight: .bold)
                 .foregroundStyle(tint)
                 .frame(width: 46, height: 46)
                 .background(tint.opacity(0.14))
@@ -497,10 +497,10 @@ struct OnboardingView: View {
 
                                 VStack(alignment: .trailing, spacing: 2) {
                                     Text("\(goal.minutes) min")
-                                        .font(.system(size: 13, weight: .black, design: .rounded))
+                                        .bryqoFont(13, weight: .black, design: .rounded)
                                         .foregroundStyle(selectedDailyGoal == goal.minutes ? BryqoTheme.river : BryqoTheme.textSecondary)
                                     Text("+\(BryqoAppState.xpGoal(for: goal.minutes)) XP/dia")
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .bryqoFont(11, weight: .semibold)
                                         .foregroundStyle(BryqoTheme.textSecondary.opacity(0.7))
                                 }
 
@@ -544,13 +544,13 @@ struct OnboardingView: View {
 
                 VStack(spacing: BryqoTheme.Spacing.sm) {
                     Text("Tudo pronto,")
-                        .font(.system(size: 34, weight: .black))
+                        .bryqoFont(34, relativeTo: .largeTitle, weight: .black)
                         .foregroundStyle(BryqoTheme.textPrimary)
                     Text(firstName)
-                        .font(.system(size: 34, weight: .black))
+                        .bryqoFont(34, relativeTo: .largeTitle, weight: .black)
                         .foregroundStyle(BryqoTheme.primary)
                     Text("🎉")
-                        .font(.system(size: 44))
+                        .bryqoFont(44, relativeTo: .largeTitle)
                 }
                 .multilineTextAlignment(.center)
 
@@ -667,12 +667,12 @@ struct OnboardingView: View {
     private func stepHeader(icon: String, title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
             Image(systemName: icon)
-                .font(.system(size: 26, weight: .bold))
+                .bryqoFont(26, relativeTo: .title2, weight: .bold)
                 .foregroundStyle(BryqoTheme.primary)
                 .padding(.top, BryqoTheme.Spacing.lg)
 
             Text(title)
-                .font(.system(size: 30, weight: .black))
+                .bryqoFont(30, relativeTo: .largeTitle, weight: .black)
                 .foregroundStyle(BryqoTheme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 

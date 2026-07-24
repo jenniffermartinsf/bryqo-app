@@ -12,7 +12,7 @@ struct ProfileView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Perfil")
-                    .font(.system(size: 34, weight: .black))
+                    .bryqoFont(34, relativeTo: .largeTitle, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 avatarSection
@@ -40,7 +40,7 @@ struct ProfileView: View {
                 avatarCircle
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "camera.fill")
-                            .font(.system(size: 13, weight: .bold))
+                            .bryqoFont(13, weight: .bold)
                             .foregroundStyle(.white)
                             .frame(width: 30, height: 30)
                             .background(BryqoTheme.primary)
@@ -54,7 +54,7 @@ struct ProfileView: View {
 
             VStack(spacing: BryqoTheme.Spacing.sm) {
                 Text(appState.profile?.displayName ?? "construtor")
-                    .font(.system(size: 26, weight: .black))
+                    .bryqoFont(26, relativeTo: .title2, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Text("Construindo desde \(creationMonth) · Nível \(appState.levelName)")
@@ -134,7 +134,7 @@ struct ProfileView: View {
                 .foregroundStyle(color)
 
             Text(value)
-                .font(.system(size: 26, weight: .black))
+                .bryqoFont(26, relativeTo: .title2, weight: .black)
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             Text(label)

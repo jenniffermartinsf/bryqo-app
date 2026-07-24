@@ -12,7 +12,7 @@ struct BackpackView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Mochila")
-                    .font(.system(size: 34, weight: .black))
+                    .bryqoFont(34, relativeTo: .largeTitle, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Text("Materiais, revisões e reforços ficam aqui para você continuar construindo.")
@@ -85,7 +85,7 @@ struct BackpackView: View {
     private var emptyReview: some View {
         VStack(spacing: BryqoTheme.Spacing.md) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 36, weight: .bold))
+                .bryqoFont(36, relativeTo: .largeTitle, weight: .bold)
                 .foregroundStyle(BryqoTheme.success)
 
             Text("Tudo em dia")

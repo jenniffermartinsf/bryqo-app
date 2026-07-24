@@ -17,7 +17,7 @@ struct CodeCompletionQuestion: View {
     var body: some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             Text(exercise.prompt)
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .bryqoFont(19, weight: .bold, design: .rounded)
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             // Live-filled code snippet
@@ -84,7 +84,7 @@ private struct CompletionChip: View {
             onTap()
         } label: {
             Text(text)
-                .font(.system(size: 15, weight: .semibold, design: .monospaced))
+                .bryqoFont(15, weight: .semibold, design: .monospaced)
                 .foregroundStyle(textColor)
                 .lineLimit(1)
                 .padding(.horizontal, BryqoTheme.Spacing.lg)

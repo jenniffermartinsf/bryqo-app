@@ -31,11 +31,11 @@ struct StreakMilestoneView: View {
 
                 VStack(spacing: BryqoTheme.Spacing.sm) {
                     Text("🔥 \(days) dias!")
-                        .font(.system(size: 48, weight: .black, design: .rounded))
+                        .bryqoFont(48, relativeTo: .largeTitle, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.sun)
 
                     Text(subtitle)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .bryqoFont(18, weight: .bold, design: .rounded)
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .multilineTextAlignment(.center)
 

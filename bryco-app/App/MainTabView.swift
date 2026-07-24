@@ -90,10 +90,10 @@ private struct FloatingTabBar: View {
                 } label: {
                     VStack(spacing: 5) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 20, weight: .bold))
+                            .bryqoFont(20, relativeTo: .title2, weight: .bold)
 
                         Text(tab.rawValue)
-                            .font(.system(size: 10, weight: .bold))
+                            .bryqoFont(10, weight: .bold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }

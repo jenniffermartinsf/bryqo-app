@@ -70,12 +70,12 @@ struct UnitMapSection: View {
                 // Titles
                 VStack(alignment: .leading, spacing: 3) {
                     Text("UNIDADE")
-                        .font(.system(size: 11, weight: .black))
+                        .bryqoFont(11, weight: .black)
                         .tracking(1.5)
                         .foregroundStyle(tint)
 
                     Text(unit.title)
-                        .font(.system(size: 17, weight: .black, design: .rounded))
+                        .bryqoFont(17, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .lineLimit(2)
 
@@ -90,7 +90,7 @@ struct UnitMapSection: View {
                 // Lesson count
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("\(completedCount)/\(unit.lessons.count)")
-                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .bryqoFont(20, relativeTo: .title2, weight: .black, design: .rounded)
                         .foregroundStyle(tint)
                     Text("lições")
                         .font(.caption.bold())
@@ -122,7 +122,7 @@ struct UnitMapSection: View {
             if completedCount == unit.lessons.count, let firstLesson = unit.lessons.first {
                 Button { onSelectLesson(firstLesson) } label: {
                     Label("PRATICAR NOVAMENTE", systemImage: "arrow.counterclockwise")
-                        .font(.system(size: 13, weight: .black))
+                        .bryqoFont(13, weight: .black)
                         .tracking(0.8)
                         .foregroundStyle(tint)
                         .frame(maxWidth: .infinity)

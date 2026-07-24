@@ -9,7 +9,7 @@ struct AchievementsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                 Text("Conquistas")
-                    .font(.system(size: 34, weight: .black))
+                    .bryqoFont(34, relativeTo: .largeTitle, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 Picker("", selection: $selectedTab) {
@@ -49,7 +49,7 @@ struct AchievementsView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
                     Text("Nível \(appState.currentLevel)")
-                        .font(.system(size: 30, weight: .black))
+                        .bryqoFont(30, relativeTo: .largeTitle, weight: .black)
                         .foregroundStyle(BryqoTheme.textPrimary)
                     Text("\(appState.progress.xp) / \(appState.xpForNextLevel) XP")
                         .font(.headline.bold())
@@ -59,7 +59,7 @@ struct AchievementsView: View {
                 Spacer()
 
                 Image(systemName: "rosette")
-                    .font(.system(size: 28, weight: .bold))
+                    .bryqoFont(28, relativeTo: .largeTitle, weight: .bold)
                     .foregroundStyle(BryqoTheme.river)
                     .frame(width: 60, height: 60)
                     .background(BryqoTheme.river.opacity(0.14))
@@ -187,7 +187,7 @@ struct AchievementsView: View {
 
     private func rarityPill(_ label: String, color: Color) -> some View {
         Text(label)
-            .font(.system(size: 9, weight: .black))
+            .bryqoFont(9, weight: .black)
             .tracking(0.8)
             .foregroundStyle(color)
             .padding(.horizontal, 6)
@@ -227,7 +227,7 @@ struct AchievementsView: View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             // Rank number
             Text(entry.rank <= 3 ? rankMedal(entry.rank) : "#\(entry.rank)")
-                .font(.system(size: entry.rank <= 3 ? 22 : 15, weight: .black, design: .rounded))
+                .bryqoFont(entry.rank <= 3 ? 22 : 15, relativeTo: .title2, weight: .black, design: .rounded)
                 .foregroundStyle(rankColor(entry.rank))
                 .frame(width: 36, alignment: .center)
 
@@ -240,7 +240,7 @@ struct AchievementsView: View {
                         .fill(BryqoTheme.surface)
                         .frame(width: 44, height: 44)
                     Text(String(entry.name.prefix(1)).uppercased())
-                        .font(.system(size: 18, weight: .black))
+                        .bryqoFont(18, weight: .black)
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
             }
@@ -264,7 +264,7 @@ struct AchievementsView: View {
             Spacer()
 
             Text("\(entry.xp) XP")
-                .font(.system(size: 15, weight: .black, design: .rounded))
+                .bryqoFont(15, weight: .black, design: .rounded)
                 .foregroundStyle(entry.isCurrentUser ? BryqoTheme.river : BryqoTheme.textPrimary)
         }
         .padding(BryqoTheme.Spacing.lg)
