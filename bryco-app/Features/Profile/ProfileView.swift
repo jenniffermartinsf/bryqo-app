@@ -50,6 +50,7 @@ struct ProfileView: View {
                     }
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Alterar foto de perfil")
 
             VStack(spacing: BryqoTheme.Spacing.sm) {
                 Text(appState.profile?.displayName ?? "construtor")

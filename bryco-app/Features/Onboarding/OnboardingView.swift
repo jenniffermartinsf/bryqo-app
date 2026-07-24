@@ -3,6 +3,8 @@ import SwiftUI
 struct OnboardingView: View {
     let appState: BryqoAppState
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var step = 0
     @State private var goingForward = true
     @State private var displayName = ""
@@ -93,8 +95,11 @@ struct OnboardingView: View {
                     .frame(width: 36, height: 36)
                     .background(BryqoTheme.surface)
                     .clipShape(Circle())
+                    .frame(width: 44, height: 44)   // HIG: 44pt minimum tap target
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Voltar")
 
             HStack(spacing: 6) {
                 ForEach(1..<7, id: \.self) { i in
@@ -104,6 +109,8 @@ struct OnboardingView: View {
                         .animation(.spring(response: 0.3, dampingFraction: 0.72), value: step)
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Passo \(step) de 6")
         }
     }
 
@@ -122,10 +129,13 @@ struct OnboardingView: View {
                 .offset(y: mascotFloat)
                 .scaleEffect(welcomeAppeared ? 1.0 : 0.78)
                 .opacity(welcomeAppeared ? 1.0 : 0)
+                .accessibilityLabel("Bryqo")
                 .onAppear {
                     withAnimation(.spring(response: 0.65, dampingFraction: 0.7)) {
                         welcomeAppeared = true
                     }
+                    // Respect Reduce Motion: skip the perpetual floating animation.
+                    guard !reduceMotion else { return }
                     withAnimation(.easeInOut(duration: 3.5).repeatForever(autoreverses: true)) {
                         mascotFloat = -24
                     }

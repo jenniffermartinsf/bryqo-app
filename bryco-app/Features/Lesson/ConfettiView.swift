@@ -13,6 +13,8 @@ struct ConfettiView: View {
         let isCircle: Bool
     }
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     @State private var particles: [Particle] = []
     @State private var active = false
 
@@ -39,6 +41,8 @@ struct ConfettiView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .onAppear {
+                // Reduce Motion: skip the falling-confetti animation entirely.
+                guard !reduceMotion else { return }
                 particles = generate(width: geo.size.width)
                 Task {
                     try? await Task.sleep(for: .milliseconds(80))
@@ -47,6 +51,7 @@ struct ConfettiView: View {
             }
         }
         .allowsHitTesting(false)
+        .accessibilityHidden(true)
         .ignoresSafeArea()
     }
 
