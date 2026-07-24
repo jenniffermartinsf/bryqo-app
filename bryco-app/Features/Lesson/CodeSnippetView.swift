@@ -148,7 +148,7 @@ struct CodeSnippetView: View {
     private var header: some View {
         HStack {
             Text(snippet.language.rawValue)
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .bryqoFont(12, weight: .semibold, design: .monospaced)
                 .foregroundStyle(Color(hex: 0x6C7086))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
@@ -164,7 +164,7 @@ struct CodeSnippetView: View {
     private var codeBody: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             highlightedText
-                .font(.system(size: 14, design: .monospaced))
+                .bryqoFont(14, design: .monospaced)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
         }

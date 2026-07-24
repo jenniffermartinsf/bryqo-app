@@ -12,7 +12,7 @@ struct TrueOrFalseQuestion: View {
     var body: some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             Text(exercise.prompt)
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .bryqoFont(19, weight: .bold, design: .rounded)
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             if let snippet = exercise.codeSnippet {
@@ -58,11 +58,11 @@ struct TrueOrFalseQuestion: View {
         return Button { onSelect(option) } label: {
             VStack(spacing: BryqoTheme.Spacing.sm) {
                 Image(systemName: iconName)
-                    .font(.system(size: 26))
+                    .bryqoFont(26, relativeTo: .title2)
                     .foregroundStyle(resolvedColor)
 
                 Text(option.text)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .bryqoFont(16, weight: .bold, design: .rounded)
                     .foregroundStyle(isSelected || (hasAnswered && isCorrectOption) ? resolvedColor : BryqoTheme.textPrimary)
             }
             .frame(maxWidth: .infinity)

@@ -38,11 +38,11 @@ struct LessonCompletionView: View {
                 // Title
                 VStack(spacing: BryqoTheme.Spacing.xs) {
                     Text("Lição Concluída!")
-                        .font(.system(size: 34, weight: .black, design: .rounded))
+                        .bryqoFont(34, relativeTo: .largeTitle, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.textPrimary)
 
                     Text(lesson.title)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .bryqoFont(16, weight: .semibold, design: .rounded)
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
                 .opacity(contentVisible ? 1 : 0)
@@ -111,7 +111,7 @@ struct LessonCompletionView: View {
                 .foregroundStyle(color)
 
             Text(value)
-                .font(.system(size: 22, weight: .black, design: .rounded))
+                .bryqoFont(22, relativeTo: .title2, weight: .black, design: .rounded)
                 .foregroundStyle(BryqoTheme.textPrimary)
 
             Text(label)

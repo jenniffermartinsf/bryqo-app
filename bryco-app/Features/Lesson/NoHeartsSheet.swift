@@ -10,7 +10,7 @@ struct NoHeartsSheet: View {
 
             VStack(spacing: BryqoTheme.Spacing.sm) {
                 Text("Sem corações!")
-                    .font(.system(size: 24, weight: .black, design: .rounded))
+                    .bryqoFont(24, relativeTo: .title2, weight: .black, design: .rounded)
                     .foregroundStyle(BryqoTheme.error)
 
                 Text("Seus corações se regeneram com o tempo.\nEstude mais rápido com o Premium.")
@@ -24,7 +24,7 @@ struct NoHeartsSheet: View {
             HStack(spacing: BryqoTheme.Spacing.md) {
                 ForEach(0..<5, id: \.self) { _ in
                     Image(systemName: "heart")
-                        .font(.system(size: 28))
+                        .bryqoFont(28, relativeTo: .largeTitle)
                         .foregroundStyle(BryqoTheme.border)
                 }
             }
@@ -39,12 +39,12 @@ struct NoHeartsSheet: View {
 
                     VStack(spacing: 4) {
                         Text("PRÓXIMO CORAÇÃO EM")
-                            .font(.system(size: 11, weight: .black))
+                            .bryqoFont(11, weight: .black)
                             .tracking(1.2)
                             .foregroundStyle(BryqoTheme.textSecondary)
 
                         Text(String(format: "%02d:%02d", mins, secs))
-                            .font(.system(size: 38, weight: .black, design: .monospaced))
+                            .bryqoFont(38, relativeTo: .largeTitle, weight: .black, design: .monospaced)
                             .foregroundStyle(BryqoTheme.warning)
                             .contentTransition(.numericText())
                     }

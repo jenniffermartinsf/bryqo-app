@@ -89,12 +89,12 @@ private struct LockedUnitCard: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("UNIDADE")
-                    .font(.system(size: 11, weight: .black))
+                    .bryqoFont(11, weight: .black)
                     .tracking(1.5)
                     .foregroundStyle(BryqoTheme.textSecondary)
 
                 Text(unit.title)
-                    .font(.system(size: 17, weight: .black, design: .rounded))
+                    .bryqoFont(17, weight: .black, design: .rounded)
                     .foregroundStyle(BryqoTheme.textSecondary)
 
                 Text("Conclua a unidade anterior para desbloquear")
@@ -120,7 +120,7 @@ private struct LockedUnitCard: View {
 private struct LockedLessonToast: View {
     var body: some View {
         Label("Complete a lição anterior para desbloquear", systemImage: "lock.fill")
-            .font(.system(size: 14, weight: .semibold, design: .rounded))
+            .bryqoFont(14, weight: .semibold, design: .rounded)
             .foregroundStyle(BryqoTheme.textPrimary)
             .padding(.horizontal, BryqoTheme.Spacing.xl)
             .padding(.vertical, BryqoTheme.Spacing.md)

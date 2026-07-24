@@ -27,7 +27,7 @@ struct LessonMapNodeView: View {
                     .frame(width: nodeSize + 32, height: nodeSize + 14)
 
                 Text(lesson.title)
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .bryqoFont(12, weight: .bold, design: .rounded)
                     .foregroundStyle(
                         status == .locked ? BryqoTheme.textSecondary : BryqoTheme.textPrimary
                     )
@@ -46,7 +46,7 @@ struct LessonMapNodeView: View {
         .overlay(alignment: .topTrailing) {
             if status == .completed {
                 Text("+\(lesson.xpReward) XP")
-                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .bryqoFont(9, weight: .black, design: .rounded)
                     .foregroundStyle(BryqoTheme.sun)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)

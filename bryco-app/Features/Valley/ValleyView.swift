@@ -121,7 +121,7 @@ struct ValleyView: View {
                     .foregroundStyle(BryqoTheme.textSecondary)
 
                 Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
-                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .bryqoFont(22, relativeTo: .title2, weight: .black, design: .rounded)
                     .foregroundStyle(BryqoTheme.textPrimary)
                     .contentTransition(.numericText())
                     .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progress.dailyXpEarned)
@@ -157,7 +157,7 @@ struct ValleyView: View {
                     .foregroundStyle(BryqoTheme.textSecondary)
 
                 Text(appState.profile?.displayName ?? "construtor")
-                    .font(.system(size: 30, weight: .black))
+                    .bryqoFont(30, relativeTo: .largeTitle, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
             }
 
@@ -197,7 +197,7 @@ struct ValleyView: View {
                     .foregroundStyle(BryqoTheme.river)
 
                 Text(nextLesson?.title ?? "Toda a trilha foi concluída!")
-                    .font(.system(size: 22, weight: .black))
+                    .bryqoFont(22, relativeTo: .title2, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
                     .multilineTextAlignment(.leading)
 
@@ -289,7 +289,7 @@ extension ValleyView {
             HStack(spacing: 5) {
                 ForEach(0..<BryqoAppState.heartsMax, id: \.self) { index in
                     Image(systemName: index < progress.hearts ? "heart.fill" : "heart")
-                        .font(.system(size: 20))
+                        .bryqoFont(20, relativeTo: .title2)
                         .foregroundStyle(index < progress.hearts ? BryqoTheme.error : BryqoTheme.border)
                 }
             }
@@ -307,7 +307,7 @@ extension ValleyView {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(BryqoTheme.textSecondary)
                         Text(String(format: "%d:%02d", mins, secs))
-                            .font(.system(size: 18, weight: .black, design: .monospaced))
+                            .bryqoFont(18, weight: .black, design: .monospaced)
                             .foregroundStyle(BryqoTheme.warning)
                             .contentTransition(.numericText())
                     }
@@ -354,18 +354,18 @@ private struct DailyGoalRing: View {
 
             if isDone {
                 Image(systemName: "checkmark")
-                    .font(.system(size: 22, weight: .black))
+                    .bryqoFont(22, relativeTo: .title2, weight: .black)
                     .foregroundStyle(BryqoTheme.success)
                     .transition(.scale.combined(with: .opacity))
             } else {
                 VStack(spacing: 0) {
                     Text("\(earnedXp)")
-                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .bryqoFont(20, relativeTo: .title2, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.textPrimary)
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: earnedXp)
                     Text("XP")
-                        .font(.system(size: 10, weight: .bold))
+                        .bryqoFont(10, weight: .bold)
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
                 .transition(.scale.combined(with: .opacity))

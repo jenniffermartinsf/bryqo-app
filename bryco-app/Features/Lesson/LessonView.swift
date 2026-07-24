@@ -25,7 +25,7 @@ struct LessonView: View {
 
                         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
                             Text(viewModel.currentStep.title)
-                                .font(.system(size: 28, weight: .black, design: .rounded))
+                                .bryqoFont(28, relativeTo: .largeTitle, weight: .black, design: .rounded)
                                 .foregroundStyle(BryqoTheme.textPrimary)
 
                             if !viewModel.currentStep.body.isEmpty {
@@ -105,7 +105,7 @@ struct LessonView: View {
                 dismiss()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .bold))
+                    .bryqoFont(14, weight: .bold)
                     .foregroundStyle(BryqoTheme.textSecondary)
                     .frame(width: 34, height: 34)
                     .background(BryqoTheme.border.opacity(0.5))
@@ -143,7 +143,7 @@ struct LessonView: View {
 
     private var xpFloatBadge: some View {
         Label("+10 XP", systemImage: "bolt.fill")
-            .font(.system(size: 16, weight: .black, design: .rounded))
+            .bryqoFont(16, weight: .black, design: .rounded)
             .foregroundStyle(BryqoTheme.sun)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -202,7 +202,7 @@ struct LessonView: View {
 
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xs) {
                     Text(isCorrect ? "Correto! 🎉" : "Ops! Quase lá. 🐛")
-                        .font(.system(size: 18, weight: .black, design: .rounded))
+                        .bryqoFont(18, weight: .black, design: .rounded)
                         .foregroundStyle(accentColor)
 
                     Text(exercise.explanation)
@@ -276,7 +276,7 @@ struct LessonView: View {
         default:
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
                 Text(exercise.prompt)
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .bryqoFont(19, weight: .bold, design: .rounded)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
                 if let snippet = exercise.codeSnippet {
@@ -349,7 +349,7 @@ private struct NoHeartsView: View {
 
                 VStack(spacing: BryqoTheme.Spacing.sm) {
                     Text("Sem vidas! 💀")
-                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .bryqoFont(28, relativeTo: .largeTitle, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.error)
 
                     Text("Você ficou sem corações nessa lição.\nPratique outra para continuar.")
@@ -434,7 +434,7 @@ private struct OptionCard: View {
                     .animation(.spring(response: 0.22, dampingFraction: 0.7), value: iconName)
 
                 Text(option.text)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .bryqoFont(17, weight: .semibold, design: .rounded)
                     .foregroundStyle(BryqoTheme.textPrimary)
                     .multilineTextAlignment(.leading)
 
@@ -490,13 +490,13 @@ private struct HeartsView: View {
                 ZStack {
                     // Outline heart (always visible underneath)
                     Image(systemName: "heart")
-                        .font(.system(size: 17))
+                        .bryqoFont(17)
                         .foregroundStyle(BryqoTheme.border)
 
                     // Filled heart (disappears with animation when lost)
                     if index < hearts || index == lostIndex {
                         Image(systemName: "heart.fill")
-                            .font(.system(size: 17))
+                            .bryqoFont(17)
                             .foregroundStyle(BryqoTheme.error)
                             .scaleEffect(index == lostIndex ? lostScale : 1.0)
                             .opacity(index == lostIndex ? lostOpacity : 1.0)

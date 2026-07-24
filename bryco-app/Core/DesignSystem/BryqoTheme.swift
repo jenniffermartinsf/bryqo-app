@@ -317,7 +317,7 @@ struct BryqoSectionTitle: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 24, weight: .bold, design: .default))
+            .bryqoFont(24, relativeTo: .title2, weight: .bold, design: .default)
             .foregroundStyle(BryqoTheme.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
