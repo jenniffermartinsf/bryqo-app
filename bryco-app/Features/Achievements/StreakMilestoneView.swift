@@ -62,6 +62,7 @@ struct StreakMilestoneView: View {
             .animation(reduceMotion ? nil : .spring(response: 0.45, dampingFraction: 0.72), value: contentVisible)
         }
         .overlay(alignment: .top) { ConfettiView() }
+        .sensoryFeedback(.success, trigger: contentVisible)
         .onAppear {
             mascotScale = 1.0
             contentVisible = true

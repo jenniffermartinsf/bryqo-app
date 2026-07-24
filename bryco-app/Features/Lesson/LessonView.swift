@@ -51,6 +51,9 @@ struct LessonView: View {
         .onAppear {
             BryqoAnalytics.lessonStarted(lessonId: lesson.id)
         }
+        // Haptics: reinforce correct/wrong answers (triggers only fire on change).
+        .sensoryFeedback(.success, trigger: viewModel.xpFloatTrigger)
+        .sensoryFeedback(.error, trigger: viewModel.shakeTrigger)
         // XP float badge overlay
         .overlay(alignment: .bottom) {
             xpFloatBadge

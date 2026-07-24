@@ -93,6 +93,7 @@ struct LessonCompletionView: View {
             }
         }
         .overlay(alignment: .top) { ConfettiView() }
+        .sensoryFeedback(.success, trigger: contentVisible)
         .onAppear {
             mascotScale = 1.0
             contentVisible = true
