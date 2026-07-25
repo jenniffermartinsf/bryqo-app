@@ -1,6 +1,7 @@
 import SwiftUI
 import Observation
 import SwiftData
+import WidgetKit
 
 @Observable
 final class BryqoAppState {
@@ -263,10 +264,26 @@ final class BryqoAppState {
         persistedState.accountCreatedDate = profile?.accountCreatedDate ?? Date()
         try? modelContext.save()
 
+        mirrorToWidget()
+
         if let uid = authManager.currentUID {
             let snapshot = buildSnapshot()
             Task { await firestoreService.saveUserData(uid: uid, snapshot: snapshot) }
         }
+    }
+
+    /// Pushes a small snapshot to the App Group so the widget can render streak/goal without
+    /// touching SwiftData or Firestore, then asks WidgetKit to refresh.
+    private func mirrorToWidget() {
+        BryqoSharedStore.write(
+            BryqoWidgetSnapshot(
+                streakDays: progress.streakDays,
+                dailyXpEarned: progress.dailyXpEarned,
+                dailyGoalXp: dailyGoalXp,
+                updatedAt: Date()
+            )
+        )
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - Static Definitions

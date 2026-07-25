@@ -12,9 +12,19 @@
 		3F5A7F68300FF1E900E8A9B2 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F67300FF1E900E8A9B2 /* FirebaseFirestore */; };
 		3F5A7F6A300FF1F500E8A9B2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F69300FF1F500E8A9B2 /* FirebaseAnalytics */; };
 		3F5A7F6C300FF20200E8A9B2 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F6B300FF20200E8A9B2 /* FirebaseCrashlytics */; };
+		3F5A7F9E30156B2000E8A9B2 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F5A7F9D30156B2000E8A9B2 /* WidgetKit.framework */; };
+		3F5A7FA030156B2000E8A9B2 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F5A7F9F30156B2000E8A9B2 /* SwiftUI.framework */; };
+		3F5A7FAD30156B2100E8A9B2 /* BryqoWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3F5A7F9C30156B2000E8A9B2 /* BryqoWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3F5A7FAB30156B2100E8A9B2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3FC61E3D30073512005F52B0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F5A7F9B30156B1F00E8A9B2;
+			remoteInfo = BryqoWidgetExtension;
+		};
 		3FC61E5530073514005F52B0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3FC61E3D30073512005F52B0 /* Project object */;
@@ -31,15 +41,61 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3F5A7FB230156B2100E8A9B2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3F5A7FAD30156B2100E8A9B2 /* BryqoWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		3F5A7F9C30156B2000E8A9B2 /* BryqoWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BryqoWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F5A7F9D30156B2000E8A9B2 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		3F5A7F9F30156B2000E8A9B2 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		3F5A7FB530156C7A00E8A9B2 /* BryqoWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BryqoWidgetExtension.entitlements; sourceTree = "<group>"; };
 		3FC61E4530073512005F52B0 /* bryco-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bryco-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC61E5430073514005F52B0 /* bryco-appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "bryco-appTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC61E5E30073514005F52B0 /* bryco-appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "bryco-appUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3F5A7FAE30156B2100E8A9B2 /* Exceptions for "BryqoWidget" folder in "BryqoWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */;
+		};
+		3F5A7FB730156D4C00E8A9B2 /* Exceptions for "bryco-app" folder in "BryqoWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Shared/BryqoWidgetShared.swift,
+			);
+			target = 3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3F5A7FA130156B2000E8A9B2 /* BryqoWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F5A7FAE30156B2100E8A9B2 /* Exceptions for "BryqoWidget" folder in "BryqoWidgetExtension" target */,
+			);
+			path = BryqoWidget;
+			sourceTree = "<group>";
+		};
 		3FC61E4730073512005F52B0 /* bryco-app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F5A7FB730156D4C00E8A9B2 /* Exceptions for "bryco-app" folder in "BryqoWidgetExtension" target */,
+			);
 			path = "bryco-app";
 			sourceTree = "<group>";
 		};
@@ -56,6 +112,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3F5A7F9930156B1F00E8A9B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3F5A7FA030156B2000E8A9B2 /* SwiftUI.framework in Frameworks */,
+				3F5A7F9E30156B2000E8A9B2 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3FC61E4230073512005F52B0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -88,6 +153,8 @@
 		3F5A7F62300FF1D100E8A9B2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3F5A7F9D30156B2000E8A9B2 /* WidgetKit.framework */,
+				3F5A7F9F30156B2000E8A9B2 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,9 +162,11 @@
 		3FC61E3C30073512005F52B0 = {
 			isa = PBXGroup;
 			children = (
+				3F5A7FB530156C7A00E8A9B2 /* BryqoWidgetExtension.entitlements */,
 				3FC61E4730073512005F52B0 /* bryco-app */,
 				3FC61E5730073514005F52B0 /* bryco-appTests */,
 				3FC61E6130073514005F52B0 /* bryco-appUITests */,
+				3F5A7FA130156B2000E8A9B2 /* BryqoWidget */,
 				3F5A7F62300FF1D100E8A9B2 /* Frameworks */,
 				3FC61E4630073512005F52B0 /* Products */,
 			);
@@ -109,6 +178,7 @@
 				3FC61E4530073512005F52B0 /* bryco-app.app */,
 				3FC61E5430073514005F52B0 /* bryco-appTests.xctest */,
 				3FC61E5E30073514005F52B0 /* bryco-appUITests.xctest */,
+				3F5A7F9C30156B2000E8A9B2 /* BryqoWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +186,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F5A7FAF30156B2100E8A9B2 /* Build configuration list for PBXNativeTarget "BryqoWidgetExtension" */;
+			buildPhases = (
+				3F5A7F9830156B1F00E8A9B2 /* Sources */,
+				3F5A7F9930156B1F00E8A9B2 /* Frameworks */,
+				3F5A7F9A30156B1F00E8A9B2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3F5A7FA130156B2000E8A9B2 /* BryqoWidget */,
+			);
+			name = BryqoWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BryqoWidgetExtension;
+			productReference = 3F5A7F9C30156B2000E8A9B2 /* BryqoWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		3FC61E4430073512005F52B0 /* bryco-app */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3FC61E6830073514005F52B0 /* Build configuration list for PBXNativeTarget "bryco-app" */;
@@ -123,10 +215,12 @@
 				3FC61E4130073512005F52B0 /* Sources */,
 				3FC61E4230073512005F52B0 /* Frameworks */,
 				3FC61E4330073512005F52B0 /* Resources */,
+				3F5A7FB230156B2100E8A9B2 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3F5A7FAC30156B2100E8A9B2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3FC61E4730073512005F52B0 /* bryco-app */,
@@ -199,6 +293,9 @@
 				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
+					3F5A7F9B30156B1F00E8A9B2 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					3FC61E4430073512005F52B0 = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -232,11 +329,19 @@
 				3FC61E4430073512005F52B0 /* bryco-app */,
 				3FC61E5330073514005F52B0 /* bryco-appTests */,
 				3FC61E5D30073514005F52B0 /* bryco-appUITests */,
+				3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3F5A7F9A30156B1F00E8A9B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3FC61E4330073512005F52B0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -261,6 +366,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3F5A7F9830156B1F00E8A9B2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3FC61E4130073512005F52B0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -285,6 +397,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3F5A7FAC30156B2100E8A9B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */;
+			targetProxy = 3F5A7FAB30156B2100E8A9B2 /* PBXContainerItemProxy */;
+		};
 		3FC61E5630073514005F52B0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3FC61E4430073512005F52B0 /* bryco-app */;
@@ -298,6 +415,70 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3F5A7FB030156B2100E8A9B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BryqoWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3MX8K5DT3M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BryqoWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BryqoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jenniffermartinsf.bryco-app.BryqoWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3F5A7FB130156B2100E8A9B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = BryqoWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3MX8K5DT3M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BryqoWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BryqoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "jenniffermartinsf.bryco-app.BryqoWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		3FC61E6630073514005F52B0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -576,6 +757,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3F5A7FAF30156B2100E8A9B2 /* Build configuration list for PBXNativeTarget "BryqoWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F5A7FB030156B2100E8A9B2 /* Debug */,
+				3F5A7FB130156B2100E8A9B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3FC61E4030073512005F52B0 /* Build configuration list for PBXProject "bryco-app" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
