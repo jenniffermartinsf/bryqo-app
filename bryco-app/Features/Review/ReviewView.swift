@@ -1,67 +1,87 @@
 import SwiftUI
 
+/// Spaced-repetition hub: lists the lessons whose SM-2 schedule is due and lets the user
+/// re-play them in review mode. Reached from the "revisões pendentes" card on the Learn screen.
 struct ReviewView: View {
     let appState: BryqoAppState
-    let unit: LearningUnit
 
-    private var completedLessons: [Lesson] {
-        unit.lessons.filter(appState.isLessonCompleted)
-    }
+    private var dueLessons: [Lesson] { appState.dueReviews() }
 
     var body: some View {
-        NavigationStack {
+        BryqoScreen {
             ScrollView {
-                VStack(alignment: .leading, spacing: BryqoTheme.spacing) {
-                    Text("Vamos reforçar alguns pontos da barragem?")
-                        .font(.headline.bold())
-                        .foregroundStyle(BryqoTheme.forest)
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                    BrixSpeechBubble(
+                        text: dueLessons.isEmpty
+                            ? "Tudo em dia! Volte quando alguma lição precisar de reforço."
+                            : "Reforçar o que você já aprendeu fixa de vez. Bora revisar?"
+                    )
 
-                    if completedLessons.isEmpty {
+                    if dueLessons.isEmpty {
                         emptyState
                     } else {
-                        reviewList
+                        ForEach(dueLessons) { lesson in
+                            NavigationLink(value: lesson) {
+                                reviewCard(lesson)
+                            }
+                            .buttonStyle(PressScaleButtonStyle())
+                        }
                     }
                 }
-                .padding()
+                .padding(BryqoTheme.Spacing.xl)
             }
-            .background(BryqoTheme.softBackground.ignoresSafeArea())
-            .navigationTitle("Revisar")
+        }
+        .navigationTitle("Revisar")
+        .navigationBarTitleDisplayMode(.large)
+        .navigationDestination(for: Lesson.self) { lesson in
+            LessonView(appState: appState, lesson: lesson, mode: .review)
         }
     }
 
-    private var emptyState: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Nenhuma revisão pendente", systemImage: "leaf.fill")
-                .font(.headline)
-            Text("Conclua uma lição para liberar uma revisão rápida dos conceitos estudados.")
-                .foregroundStyle(.secondary)
+    private func reviewCard(_ lesson: Lesson) -> some View {
+        HStack(spacing: BryqoTheme.Spacing.lg) {
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .bryqoFont(22, relativeTo: .title2, weight: .bold)
+                .foregroundStyle(BryqoTheme.river)
+                .frame(width: 48, height: 48)
+                .background(BryqoTheme.river.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(lesson.title)
+                    .font(.headline.bold())
+                    .foregroundStyle(BryqoTheme.textPrimary)
+                Text("Revisão rápida · reforça a memória")
+                    .font(.subheadline)
+                    .foregroundStyle(BryqoTheme.textSecondary)
+            }
+            .layoutPriority(1)
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(BryqoTheme.textSecondary)
         }
+        .frame(maxWidth: .infinity)
         .bryqoCard()
     }
 
-    private var reviewList: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Pronto para reforçar")
-                .font(.headline)
-
-            ForEach(completedLessons) { lesson in
-                HStack {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(BryqoTheme.river)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(lesson.title)
-                            .font(.headline)
-                        Text("Revisão curta: 3 minutos")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding()
-                .background(BryqoTheme.river.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: BryqoTheme.cornerRadius, style: .continuous))
-            }
+    private var emptyState: some View {
+        VStack(spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: "checkmark.seal.fill")
+                .bryqoFont(44, relativeTo: .largeTitle)
+                .foregroundStyle(BryqoTheme.success)
+            Text("Nenhuma revisão pendente")
+                .font(.headline.bold())
+                .foregroundStyle(BryqoTheme.textPrimary)
+            Text("Conclua novas lições — elas voltam aqui na hora certa para você fixar.")
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(BryqoTheme.textSecondary)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, BryqoTheme.Spacing.xxl)
         .bryqoCard()
     }
 }

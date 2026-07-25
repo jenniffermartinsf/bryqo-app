@@ -1,16 +1,23 @@
 import SwiftUI
 
+enum LessonMode {
+    case learn    // first-time completion — awards full XP, advances the trail
+    case review   // spaced-repetition session on an already-completed lesson
+}
+
 struct LessonView: View {
     let appState: BryqoAppState
     let lesson: Lesson
+    let mode: LessonMode
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: LessonViewModel
     @State private var showCompletion = false
     @State private var xpFloatVisible = false
-    init(appState: BryqoAppState, lesson: Lesson) {
+    init(appState: BryqoAppState, lesson: Lesson, mode: LessonMode = .learn) {
         self.appState = appState
         self.lesson = lesson
+        self.mode = mode
         _viewModel = State(wrappedValue: LessonViewModel(lesson: lesson, initialHearts: appState.progress.hearts))
     }
 
@@ -68,7 +75,10 @@ struct LessonView: View {
                     totalQuestions: lesson.steps.filter { $0.exercise != nil }.count,
                     streakDays: appState.progress.streakDays
                 ) {
-                    appState.completeLesson(lesson, mistakeCount: viewModel.mistakeCount)
+                    switch mode {
+                    case .learn:  appState.completeLesson(lesson, mistakeCount: viewModel.mistakeCount)
+                    case .review: appState.completeReview(lesson, mistakeCount: viewModel.mistakeCount)
+                    }
                     dismiss()
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
