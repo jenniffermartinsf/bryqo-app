@@ -87,17 +87,45 @@ enum BryqoSchemaV4: VersionedSchema {
     }
 }
 
-typealias PersistedUserState = BryqoSchemaV4.PersistedUserState
+enum BryqoSchemaV5: VersionedSchema {
+    static let versionIdentifier = Schema.Version(5, 0, 0)
+    static var models: [any PersistentModel.Type] { [BryqoSchemaV5.PersistedUserState.self] }
+    @Model final class PersistedUserState {
+        var completedLessonIds: [String]; var xp: Int; var streakDays: Int
+        var earnedMaterials: [String]; var hearts: Int; var lastActivityDate: Date?
+        var earnedAchievementIds: [String]; var perfectLessonCount: Int
+        var streakFreezeCount: Int
+        var dailyMinutesStudied: Int   // real session time, used for the daily goal ring
+        var dailyXpEarned: Int         // XP earned today, kept for Firestore analytics
+        var heartsUpdatedAt: Date
+        var reviewStatesData: Data = Data()   // JSON-encoded [ReviewState] for spaced repetition
+        var displayName: String?; var experience: String?; var goal: String?
+        var dailyGoalMinutes: Int; var accountCreatedDate: Date
+        init() {
+            completedLessonIds = []; xp = 0; streakDays = 0; earnedMaterials = []
+            hearts = 5; lastActivityDate = nil; earnedAchievementIds = []
+            perfectLessonCount = 0; streakFreezeCount = 1
+            dailyMinutesStudied = 0; dailyXpEarned = 0
+            heartsUpdatedAt = Date()
+            reviewStatesData = Data()
+            displayName = nil; experience = nil; goal = nil
+            dailyGoalMinutes = 20; accountCreatedDate = Date()
+        }
+    }
+}
+
+typealias PersistedUserState = BryqoSchemaV5.PersistedUserState
 
 enum BryqoMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [BryqoSchemaV1.self, BryqoSchemaV2.self, BryqoSchemaV3.self, BryqoSchemaV4.self]
+        [BryqoSchemaV1.self, BryqoSchemaV2.self, BryqoSchemaV3.self, BryqoSchemaV4.self, BryqoSchemaV5.self]
     }
     static var stages: [MigrationStage] {
         [
             MigrationStage.lightweight(fromVersion: BryqoSchemaV1.self, toVersion: BryqoSchemaV2.self),
             MigrationStage.lightweight(fromVersion: BryqoSchemaV2.self, toVersion: BryqoSchemaV3.self),
-            MigrationStage.lightweight(fromVersion: BryqoSchemaV3.self, toVersion: BryqoSchemaV4.self)
+            MigrationStage.lightweight(fromVersion: BryqoSchemaV3.self, toVersion: BryqoSchemaV4.self),
+            MigrationStage.lightweight(fromVersion: BryqoSchemaV4.self, toVersion: BryqoSchemaV5.self)
         ]
     }
 }

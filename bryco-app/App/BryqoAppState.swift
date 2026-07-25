@@ -84,7 +84,8 @@ final class BryqoAppState {
             streakFreezeCount: persistedState.streakFreezeCount,
             dailyMinutesStudied: persistedState.dailyMinutesStudied,
             dailyXpEarned: persistedState.dailyXpEarned,
-            heartsUpdatedAt: persistedState.heartsUpdatedAt
+            heartsUpdatedAt: persistedState.heartsUpdatedAt,
+            reviewStates: BryqoAppState.decodeReviewStates(persistedState.reviewStatesData)
         )
 
         if let last = progress.lastActivityDate,
@@ -248,6 +249,7 @@ final class BryqoAppState {
         persistedState.earnedMaterials = progress.earnedMaterials
         persistedState.hearts = progress.hearts
         persistedState.heartsUpdatedAt = progress.heartsUpdatedAt
+        persistedState.reviewStatesData = BryqoAppState.encodeReviewStates(progress.reviewStates)
         persistedState.lastActivityDate = progress.lastActivityDate
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
@@ -407,6 +409,7 @@ final class BryqoAppState {
 
         updateStreak()
         progress.dailyXpEarned += lesson.xpReward
+        scheduleReview(lessonId: lesson.id, mistakeCount: mistakeCount)
         checkAchievements()
         save()
         BryqoAnalytics.lessonCompleted(lessonId: lesson.id, xpEarned: lesson.xpReward, perfect: !hasMistakes)
@@ -445,6 +448,58 @@ final class BryqoAppState {
         } else {
             notificationManager.cancel()
         }
+    }
+
+    // MARK: - Spaced Repetition (SM-2)
+
+    /// Global lookup of a lesson across every unit — reviews reference lessons by id.
+    func lesson(for id: String) -> Lesson? {
+        for unit in BryqoContent.allUnits {
+            if let lesson = unit.lessons.first(where: { $0.id == id }) { return lesson }
+        }
+        return nil
+    }
+
+    /// Lessons whose next review date has arrived, soonest first.
+    func dueReviews(at date: Date = Date()) -> [Lesson] {
+        progress.reviewStates.values
+            .filter { $0.isDue(at: date) }
+            .sorted { $0.nextReviewAt < $1.nextReviewAt }
+            .compactMap { lesson(for: $0.lessonId) }
+    }
+
+    var dueReviewCount: Int { dueReviews().count }
+
+    /// Updates the SM-2 schedule for a lesson after it is completed or reviewed.
+    func scheduleReview(lessonId: String, mistakeCount: Int, now: Date = Date()) {
+        let quality = SM2Scheduler.quality(forMistakes: mistakeCount)
+        progress.reviewStates[lessonId] = SM2Scheduler.schedule(
+            quality: quality,
+            for: lessonId,
+            from: progress.reviewStates[lessonId],
+            now: now
+        )
+    }
+
+    /// Called when the user finishes a *review* session (a lesson already completed).
+    /// Reschedules via SM-2 and awards a small XP bonus, without re-adding to completed lessons.
+    func completeReview(_ lesson: Lesson, mistakeCount: Int = 0) {
+        scheduleReview(lessonId: lesson.id, mistakeCount: mistakeCount)
+        if mistakeCount == 0 {
+            progress.xp += 5
+            progress.dailyXpEarned += 5
+        }
+        save()
+        BryqoAnalytics.lessonCompleted(lessonId: lesson.id, xpEarned: mistakeCount == 0 ? 5 : 0, perfect: mistakeCount == 0)
+    }
+
+    private static func encodeReviewStates(_ states: [String: ReviewState]) -> Data {
+        (try? JSONEncoder().encode(Array(states.values))) ?? Data()
+    }
+
+    private static func decodeReviewStates(_ data: Data) -> [String: ReviewState] {
+        guard let array = try? JSONDecoder().decode([ReviewState].self, from: data) else { return [:] }
+        return Dictionary(uniqueKeysWithValues: array.map { ($0.lessonId, $0) })
     }
 
     // MARK: - Private

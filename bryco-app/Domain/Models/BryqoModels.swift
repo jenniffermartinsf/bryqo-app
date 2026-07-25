@@ -93,6 +93,8 @@ struct UserProgress: Equatable {
     var dailyXpEarned: Int = 0
     // Hearts regeneration baseline — updated when a heart is lost
     var heartsUpdatedAt: Date = Date()
+    // Spaced repetition (SM-2) — one entry per reviewed lesson, keyed by lessonId
+    var reviewStates: [String: ReviewState] = [:]
 }
 
 // MARK: - Achievement
