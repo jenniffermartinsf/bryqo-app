@@ -164,6 +164,8 @@ struct VariableTraceView: View {
                 RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous)
                     .stroke(color, lineWidth: 1.5)
             }
+            // Make the whole card tappable, not just the text (background can be transparent).
+            .contentShape(RoundedRectangle(cornerRadius: BryqoTheme.Radius.input, style: .continuous))
         }
         .buttonStyle(PressScaleButtonStyle())
         .disabled(vm.hasAnswered)
