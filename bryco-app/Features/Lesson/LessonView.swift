@@ -26,32 +26,16 @@ struct LessonView: View {
             VStack(spacing: 0) {
                 lessonTopBar
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
-                        stepBadge
-
-                        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                            Text(viewModel.currentStep.title)
-                                .bryqoFont(28, relativeTo: .largeTitle, weight: .black, design: .rounded)
-                                .foregroundStyle(BryqoTheme.textPrimary)
-
-                            if !viewModel.currentStep.body.isEmpty {
-                                Text(viewModel.currentStep.body)
-                                    .font(.body)
-                                    .lineSpacing(5)
-                                    .foregroundStyle(BryqoTheme.textSecondary)
-                            }
-                        }
-                        .bryqoCard()
-
-                        if let exercise = viewModel.currentStep.exercise {
-                            exerciseView(exercise)
-                        }
+                if let trace = viewModel.currentStep.variableTrace {
+                    // "Pense como a máquina" is a self-contained multi-prediction step; it owns its
+                    // own scroll + bottom button and reports the outcome back to the lesson.
+                    VariableTraceView(exercise: trace) { mistakes, correct in
+                        viewModel.applyTraceResult(mistakes: mistakes, correct: correct)
                     }
-                    .padding(BryqoTheme.Spacing.xl)
+                } else {
+                    standardStepContent
+                    bottomBar
                 }
-
-                bottomBar
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -107,6 +91,35 @@ struct LessonView: View {
                 try? await Task.sleep(for: .milliseconds(900))
                 xpFloatVisible = false
             }
+        }
+    }
+
+    // MARK: - Standard Step Content
+
+    private var standardStepContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
+                stepBadge
+
+                VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+                    Text(viewModel.currentStep.title)
+                        .bryqoFont(28, relativeTo: .largeTitle, weight: .black, design: .rounded)
+                        .foregroundStyle(BryqoTheme.textPrimary)
+
+                    if !viewModel.currentStep.body.isEmpty {
+                        Text(viewModel.currentStep.body)
+                            .font(.body)
+                            .lineSpacing(5)
+                            .foregroundStyle(BryqoTheme.textSecondary)
+                    }
+                }
+                .bryqoCard()
+
+                if let exercise = viewModel.currentStep.exercise {
+                    exerciseView(exercise)
+                }
+            }
+            .padding(BryqoTheme.Spacing.xl)
         }
     }
 
@@ -328,6 +341,7 @@ struct LessonView: View {
         case .trueFalse: return "VERDADEIRO OU FALSO"
         case .ordering: return "ORDENAR"
         case .codeCompletion: return "COMPLETAR"
+        case .variableTrace: return "PENSE COMO A MÁQUINA"
         case .summary: return "RESUMO"
         }
     }
@@ -340,6 +354,7 @@ struct LessonView: View {
         case .trueFalse: return "questionmark.circle.fill"
         case .ordering: return "arrow.up.arrow.down"
         case .codeCompletion: return "square.and.pencil"
+        case .variableTrace: return "cpu.fill"
         case .summary: return "seal.fill"
         }
     }

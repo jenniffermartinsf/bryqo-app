@@ -86,4 +86,16 @@ final class LessonViewModel {
         selectedOptionIds = []
         hasAnswered = false
     }
+
+    /// Folds the outcome of a self-contained variable-trace step into the lesson totals,
+    /// then advances. Each wrong prediction costs a heart, like a normal exercise.
+    func applyTraceResult(mistakes: Int, correct: Int) {
+        mistakeCount += mistakes
+        correctCount += correct
+        xpEarned += correct * 10
+        hearts = max(0, hearts - mistakes)
+        advance()
+    }
+
+    var isVariableTraceStep: Bool { currentStep.variableTrace != nil }
 }

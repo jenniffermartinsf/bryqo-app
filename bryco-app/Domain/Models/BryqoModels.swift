@@ -23,6 +23,17 @@ struct LessonStep: Identifiable, Equatable, Hashable {
     let title: String
     let body: String
     let exercise: Exercise?
+    let variableTrace: VariableTraceExercise?
+
+    init(id: String, kind: LessonStepKind, title: String, body: String,
+         exercise: Exercise? = nil, variableTrace: VariableTraceExercise? = nil) {
+        self.id = id
+        self.kind = kind
+        self.title = title
+        self.body = body
+        self.exercise = exercise
+        self.variableTrace = variableTrace
+    }
 }
 
 enum LessonStepKind: Equatable, Hashable {
@@ -32,7 +43,29 @@ enum LessonStepKind: Equatable, Hashable {
     case trueFalse
     case ordering
     case codeCompletion
+    case variableTrace   // "Pense como a máquina" — predict variable state line by line
     case summary
+}
+
+// MARK: - Variable Trace ("think like the machine")
+
+/// One prediction inside a variable-trace exercise: after a given line runs, what does a
+/// variable hold?
+struct VariableTraceStep: Equatable, Hashable {
+    let highlightedLine: Int   // 0-based index into `codeLines` to spotlight
+    let prompt: String
+    let variable: String
+    let options: [String]
+    let correctAnswer: String
+    let explanation: String
+}
+
+/// A pseudocode snippet the learner "executes" in their head, predicting the running state.
+struct VariableTraceExercise: Equatable, Hashable {
+    let intro: String
+    let codeLines: [String]
+    let language: CodeLanguage
+    let steps: [VariableTraceStep]
 }
 
 struct CodeSnippet: Equatable, Hashable {

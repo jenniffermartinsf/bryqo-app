@@ -72,6 +72,25 @@ enum BryqoContent {
                                  options: [option("a","4"), option("b","5"), option("c","6"), option("d","infinito")],
                                  correctOptionIds: ["b"],
                                  explanation: "x passa por 0,1,2,3,4 — cinco valores onde x < 5 é verdadeiro."),
+                    variableTrace(id: "ll-vt", title: "Rastreie o loop",
+                                  exercise: VariableTraceExercise(
+                                    intro: "Execute o código na sua cabeça, linha por linha, e diga o valor de `total` a cada passo.",
+                                    codeLines: ["total = 0", "para cada n em [1, 2, 3]:", "    total = total + n"],
+                                    language: .generic,
+                                    steps: [
+                                        VariableTraceStep(highlightedLine: 0, prompt: "Após a linha 1, quanto vale `total`?",
+                                                          variable: "total", options: ["0", "1", "6"], correctAnswer: "0",
+                                                          explanation: "`total` acabou de ser criado com 0."),
+                                        VariableTraceStep(highlightedLine: 2, prompt: "1ª iteração (n = 1): quanto vale `total`?",
+                                                          variable: "total", options: ["1", "2", "3"], correctAnswer: "1",
+                                                          explanation: "0 + 1 = 1."),
+                                        VariableTraceStep(highlightedLine: 2, prompt: "2ª iteração (n = 2): quanto vale `total`?",
+                                                          variable: "total", options: ["2", "3", "5"], correctAnswer: "3",
+                                                          explanation: "1 + 2 = 3."),
+                                        VariableTraceStep(highlightedLine: 2, prompt: "3ª iteração (n = 3): quanto vale `total`?",
+                                                          variable: "total", options: ["5", "6", "9"], correctAnswer: "6",
+                                                          explanation: "3 + 3 = 6. O loop terminou — a soma é 6.")
+                                    ])),
                     summary(id: "ll-sm", title: "Ciclo fechado",
                             body: "Loops eliminam repetição manual. São o motivo de computadores serem mais rápidos que humanos em tarefas repetitivas.")
                    ])
@@ -807,6 +826,10 @@ enum BryqoContent {
         LessonStep(id: id, kind: .ordering, title: title, body: "Toque nas opcoes na ordem correta.",
                    exercise: Exercise(prompt: prompt, options: options,
                                       correctOptionIds: correctOptionIds, explanation: explanation))
+    }
+
+    private static func variableTrace(id: String, title: String, exercise: VariableTraceExercise) -> LessonStep {
+        LessonStep(id: id, kind: .variableTrace, title: title, body: "", variableTrace: exercise)
     }
 
     private static func option(_ id: String, _ text: String) -> ExerciseOption {
