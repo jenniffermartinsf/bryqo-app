@@ -147,6 +147,11 @@ enum BryqoContent {
                              options: [option("a","Veja o elemento do meio"), option("b","Compare com o alvo"), option("c","Descarte a metade errada"), option("d","Repita com a metade restante")],
                              correctOptionIds: ["a","b","c","d"],
                              explanation: "Cada passo elimina metade do problema até encontrar ou confirmar ausência."),
+                    binarySearch(id: "abb-bs", title: "Busque você mesmo",
+                                 exercise: BinarySearchExercise(
+                                    intro: "Guie a busca: a cada passo, diga se o alvo é menor, igual ou maior que o meio. Veja metade da lista desaparecer.",
+                                    array: [3, 7, 11, 18, 25, 34, 42, 58, 65],
+                                    target: 58)),
                     summary(id: "abb-sm", title: "Logarítmica",
                             body: "Busca binária é O(log n) — exponencialmente mais rápida que linear em listas grandes.")
                    ]),
@@ -830,6 +835,10 @@ enum BryqoContent {
 
     private static func variableTrace(id: String, title: String, exercise: VariableTraceExercise) -> LessonStep {
         LessonStep(id: id, kind: .variableTrace, title: title, body: "", variableTrace: exercise)
+    }
+
+    private static func binarySearch(id: String, title: String, exercise: BinarySearchExercise) -> LessonStep {
+        LessonStep(id: id, kind: .binarySearch, title: title, body: "", binarySearch: exercise)
     }
 
     private static func option(_ id: String, _ text: String) -> ExerciseOption {

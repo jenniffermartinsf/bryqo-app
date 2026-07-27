@@ -24,15 +24,18 @@ struct LessonStep: Identifiable, Equatable, Hashable {
     let body: String
     let exercise: Exercise?
     let variableTrace: VariableTraceExercise?
+    let binarySearch: BinarySearchExercise?
 
     init(id: String, kind: LessonStepKind, title: String, body: String,
-         exercise: Exercise? = nil, variableTrace: VariableTraceExercise? = nil) {
+         exercise: Exercise? = nil, variableTrace: VariableTraceExercise? = nil,
+         binarySearch: BinarySearchExercise? = nil) {
         self.id = id
         self.kind = kind
         self.title = title
         self.body = body
         self.exercise = exercise
         self.variableTrace = variableTrace
+        self.binarySearch = binarySearch
     }
 }
 
@@ -44,6 +47,7 @@ enum LessonStepKind: Equatable, Hashable {
     case ordering
     case codeCompletion
     case variableTrace   // "Pense como a máquina" — predict variable state line by line
+    case binarySearch    // interactive binary-search playground
     case summary
 }
 

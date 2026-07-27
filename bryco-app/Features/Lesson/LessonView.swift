@@ -32,6 +32,10 @@ struct LessonView: View {
                     VariableTraceView(exercise: trace) { mistakes, correct in
                         viewModel.applyTraceResult(mistakes: mistakes, correct: correct)
                     }
+                } else if let search = viewModel.currentStep.binarySearch {
+                    BinarySearchPlaygroundView(exercise: search) { mistakes in
+                        viewModel.applyTraceResult(mistakes: mistakes, correct: 1)
+                    }
                 } else {
                     standardStepContent
                     bottomBar
@@ -342,6 +346,7 @@ struct LessonView: View {
         case .ordering: return "ORDENAR"
         case .codeCompletion: return "COMPLETAR"
         case .variableTrace: return "PENSE COMO A MÁQUINA"
+        case .binarySearch: return "VISUALIZAR"
         case .summary: return "RESUMO"
         }
     }
@@ -355,6 +360,7 @@ struct LessonView: View {
         case .ordering: return "arrow.up.arrow.down"
         case .codeCompletion: return "square.and.pencil"
         case .variableTrace: return "cpu.fill"
+        case .binarySearch: return "chart.bar.xaxis"
         case .summary: return "seal.fill"
         }
     }
