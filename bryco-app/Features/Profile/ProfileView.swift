@@ -5,8 +5,7 @@ struct ProfileView: View {
     let appState: BryqoAppState
 
     @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var isSigningIn = false
-    @State private var signInErrorMessage: String?
+    @State private var linkState: AccountLinkState = .idle
 
     var body: some View {
         ScrollView {
@@ -208,86 +207,100 @@ struct ProfileView: View {
         }
     }
 
+    /// The card's displayed state. `.linked` comes straight from the auth manager (the source
+    /// of truth for the account); every other case reflects the current link attempt.
+    private var accountState: AccountLinkState {
+        let auth = appState.authManager
+        return auth.isSignedIn && !auth.isAnonymous ? .linked : linkState
+    }
+
     @ViewBuilder
     private var accountAuthCard: some View {
-        let auth = appState.authManager
-        if auth.isAnonymous || !auth.isSignedIn {
-            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                HStack(spacing: BryqoTheme.Spacing.md) {
-                    Image(systemName: "exclamationmark.icloud.fill")
-                        .font(.title2)
-                        .foregroundStyle(BryqoTheme.warning)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Progresso sem backup")
-                            .font(.headline.bold())
-                            .foregroundStyle(BryqoTheme.textPrimary)
-                        Text("Reinstalar o app apaga tudo. Vincule sua Apple ID para salvar.")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(BryqoTheme.textSecondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
+        switch accountState {
+        case .linked:
+            linkedAccountCard
+        case .idle, .failed:
+            unlinkedAccountCard(isLinking: false)
+        case .linking:
+            unlinkedAccountCard(isLinking: true)
+        }
+    }
 
-                Button {
-                    isSigningIn = true
-                    Task {
-                        do {
-                            try await auth.signInWithApple()
-                        } catch {
-                            let nsErr = error as NSError
-                            // ASAuthorizationError.canceled (1001) is user dismissal — not an error to show
-                            if nsErr.domain != "com.apple.AuthenticationServices.AuthorizationError" || nsErr.code != 1001 {
-                                signInErrorMessage = error.localizedDescription
-                            }
-                        }
-                        isSigningIn = false
-                    }
-                } label: {
-                    HStack(spacing: BryqoTheme.Spacing.sm) {
-                        if isSigningIn {
-                            ProgressView()
-                                .tint(.white)
-                                .scaleEffect(0.85)
-                        } else {
-                            Image(systemName: "apple.logo")
-                        }
-                        Text(isSigningIn ? "Vinculando…" : "Salvar com Apple")
-                            .font(.headline.bold())
-                    }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.black)
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(isSigningIn)
-            }
-            .bryqoCard()
-            .alert("Erro ao vincular conta", isPresented: .init(
-                get: { signInErrorMessage != nil },
-                set: { if !$0 { signInErrorMessage = nil } }
-            )) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(signInErrorMessage ?? "")
-            }
-        } else {
+    private func unlinkedAccountCard(isLinking: Bool) -> some View {
+        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             HStack(spacing: BryqoTheme.Spacing.md) {
-                Image(systemName: "checkmark.icloud.fill")
+                Image(systemName: "exclamationmark.icloud.fill")
                     .font(.title2)
-                    .foregroundStyle(BryqoTheme.success)
+                    .foregroundStyle(BryqoTheme.warning)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Conta vinculada")
+                    Text("Progresso sem backup")
                         .font(.headline.bold())
                         .foregroundStyle(BryqoTheme.textPrimary)
-                    Text("Progresso salvo com sua Apple ID.")
+                    Text("Reinstalar o app apaga tudo. Vincule sua Apple ID para salvar.")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(BryqoTheme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Spacer()
             }
-            .bryqoCard()
+
+            Button(action: linkWithApple) {
+                HStack(spacing: BryqoTheme.Spacing.sm) {
+                    if isLinking {
+                        ProgressView()
+                            .tint(.white)
+                            .scaleEffect(0.85)
+                    } else {
+                        Image(systemName: "apple.logo")
+                    }
+                    Text(isLinking ? "Vinculando…" : "Salvar com Apple")
+                        .font(.headline.bold())
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 48)
+                .background(Color.black)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .disabled(isLinking)
+        }
+        .bryqoCard()
+        .alert("Erro ao vincular conta", isPresented: .init(
+            get: { linkState.errorMessage != nil },
+            set: { if !$0 { linkState = .idle } }
+        )) {
+        } message: {
+            Text(linkState.errorMessage ?? "")
+        }
+    }
+
+    private var linkedAccountCard: some View {
+        HStack(spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: "checkmark.icloud.fill")
+                .font(.title2)
+                .foregroundStyle(BryqoTheme.success)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Conta vinculada")
+                    .font(.headline.bold())
+                    .foregroundStyle(BryqoTheme.textPrimary)
+                Text("Progresso salvo com sua Apple ID.")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+            }
+            Spacer()
+        }
+        .bryqoCard()
+    }
+
+    private func linkWithApple() {
+        linkState = .linking
+        Task {
+            do {
+                try await appState.authManager.signInWithApple()
+                linkState = .idle
+            } catch {
+                linkState = .afterFailure(error)
+            }
         }
     }
 
