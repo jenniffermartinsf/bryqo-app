@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LearnView: View {
     let appState: BryqoAppState
+    @Bindable var router: AppRouter
     let units: [LearningUnit]
 
     private var nextLesson: Lesson? {
@@ -14,7 +15,7 @@ struct LearnView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.learnPath) {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: BryqoTheme.Spacing.lg) {
@@ -23,11 +24,14 @@ struct LearnView: View {
                                 .padding(.horizontal, BryqoTheme.Spacing.xl)
                                 .padding(.top, BryqoTheme.Spacing.lg)
                         }
-                        LessonMapView(units: units, appState: appState)
-                            .padding(BryqoTheme.Spacing.xl)
+                        LessonMapView(units: units, appState: appState) { lesson in
+                            router.learnPath.append(.lesson(lesson))
+                        }
+                        .padding(BryqoTheme.Spacing.xl)
                     }
                 }
                 .background(BryqoTheme.background)
+                .learnRouteDestinations(appState: appState)
                 .onAppear {
                     guard let id = nextLesson?.id else { return }
                     Task {
@@ -42,9 +46,7 @@ struct LearnView: View {
     }
 
     private func reviewBanner(count: Int) -> some View {
-        NavigationLink {
-            ReviewView(appState: appState)
-        } label: {
+        NavigationLink(value: LearnRoute.review) {
             HStack(spacing: BryqoTheme.Spacing.lg) {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .bryqoFont(22, relativeTo: .title2, weight: .bold)

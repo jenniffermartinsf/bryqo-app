@@ -2,18 +2,25 @@ import SwiftUI
 
 struct MainTabView: View {
     let appState: BryqoAppState
-    @State private var selectedTab: BryqoTab = .learn
+    @State private var router = AppRouter()
 
     var body: some View {
         BryqoScreen {
             ZStack(alignment: .bottom) {
                 selectedView
-                    .padding(.bottom, 96)
+                    .padding(.bottom, router.hidesTabBar ? 0 : 96)
 
-                FloatingTabBar(selectedTab: $selectedTab)
-                    .padding(.horizontal, BryqoTheme.Spacing.lg)
-                    .padding(.bottom, BryqoTheme.Spacing.md)
+                if !router.hidesTabBar {
+                    FloatingTabBar(selectedTab: $router.selectedTab)
+                        .padding(.horizontal, BryqoTheme.Spacing.lg)
+                        .padding(.bottom, BryqoTheme.Spacing.md)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
+            .animation(.easeOut(duration: 0.25), value: router.hidesTabBar)
+        }
+        .onOpenURL { url in
+            router.handle(url)
         }
         .overlay {
             if let milestone = appState.pendingStreakMilestone {
@@ -37,42 +44,17 @@ struct MainTabView: View {
 
     @ViewBuilder
     private var selectedView: some View {
-        switch selectedTab {
+        switch router.selectedTab {
         case .valley:
-            ValleyView(appState: appState, unit: BryqoContent.allUnits[0], units: BryqoContent.allUnits)
+            ValleyView(appState: appState, router: router, unit: BryqoContent.allUnits[0], units: BryqoContent.allUnits)
         case .learn:
-            LearnView(appState: appState, units: BryqoContent.allUnits)
+            LearnView(appState: appState, router: router, units: BryqoContent.allUnits)
         case .backpack:
             BackpackView(appState: appState, unit: BryqoContent.allUnits[0])
         case .achievements:
             AchievementsView(appState: appState)
         case .profile:
             ProfileView(appState: appState)
-        }
-    }
-}
-
-private enum BryqoTab: String, CaseIterable, Identifiable {
-    case valley = "Vale"
-    case learn = "Aprender"
-    case backpack = "Mochila"
-    case achievements = "Conquistas"
-    case profile = "Perfil"
-
-    var id: String { rawValue }
-
-    var icon: String {
-        switch self {
-        case .valley:
-            return "mountain.2.fill"
-        case .learn:
-            return "map.fill"
-        case .backpack:
-            return "backpack.fill"
-        case .achievements:
-            return "rosette"
-        case .profile:
-            return "person.crop.circle"
         }
     }
 }

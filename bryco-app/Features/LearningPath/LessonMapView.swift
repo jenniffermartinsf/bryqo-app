@@ -3,8 +3,8 @@ import SwiftUI
 struct LessonMapView: View {
     let units: [LearningUnit]
     let appState: BryqoAppState
+    let onOpenLesson: (Lesson) -> Void
 
-    @State private var selectedLesson: Lesson? = nil
     @State private var showLockedToast = false
     @State private var showNoHeartsSheet = false
 
@@ -29,7 +29,7 @@ struct LessonMapView: View {
                             if appState.progress.hearts == 0 {
                                 showNoHeartsSheet = true
                             } else {
-                                selectedLesson = lesson
+                                onOpenLesson(lesson)
                             }
                         },
                         onLockedTap: showLockedMessage
@@ -38,9 +38,6 @@ struct LessonMapView: View {
                     LockedUnitCard(unit: unit, icon: cfg.icon)
                 }
             }
-        }
-        .navigationDestination(item: $selectedLesson) { lesson in
-            LessonView(appState: appState, lesson: lesson)
         }
         .sheet(isPresented: $showNoHeartsSheet) {
             NoHeartsSheet(appState: appState)
