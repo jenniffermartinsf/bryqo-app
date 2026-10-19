@@ -1,3 +1,4 @@
+import BryqoDomain
 import SwiftUI
 
 /// Interactive binary-search playground: the learner drives the search by comparing the target to

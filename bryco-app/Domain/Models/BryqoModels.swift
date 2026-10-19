@@ -1,3 +1,4 @@
+import BryqoDomain
 import Foundation
 
 struct LearningUnit: Identifiable, Equatable {

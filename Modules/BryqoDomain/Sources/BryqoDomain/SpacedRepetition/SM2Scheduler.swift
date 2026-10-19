@@ -4,15 +4,15 @@ import Foundation
 ///
 /// Pure and deterministic: given a quality grade and the previous `ReviewState`, it returns the
 /// next schedule. All time math goes through the injected `now`/`calendar`, so tests can pin dates.
-enum SM2Scheduler {
+public enum SM2Scheduler {
     /// Lowest allowed easiness factor.
-    static let minEase = 1.3
+    public static let minEase = 1.3
     /// Starting easiness factor for a brand-new item.
-    static let defaultEase = 2.5
+    public static let defaultEase = 2.5
 
     /// Maps a finished lesson's mistake count to an SM-2 quality grade (0–5).
     /// A grade below 3 is treated as a lapse and forces the lesson to be relearned.
-    static func quality(forMistakes mistakes: Int) -> Int {
+    public static func quality(forMistakes mistakes: Int) -> Int {
         switch mistakes {
         case 0: return 5   // flawless
         case 1: return 4
@@ -22,7 +22,7 @@ enum SM2Scheduler {
     }
 
     /// Applies one review with `quality` to `existing` (or a fresh item) and returns the new schedule.
-    static func schedule(
+    public static func schedule(
         quality: Int,
         for lessonId: String,
         from existing: ReviewState?,

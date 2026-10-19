@@ -4,13 +4,14 @@ import SwiftUI
 enum LearnRoute: Hashable {
     case lesson(Lesson)
     case review
+    case reviewSchedule
     case reviewLesson(Lesson)
 
     /// Lessons are focused, full-screen flows: the tab bar hides while one is on top.
     var isLesson: Bool {
         switch self {
         case .lesson, .reviewLesson: true
-        case .review: false
+        case .review, .reviewSchedule: false
         }
     }
 }
@@ -25,6 +26,8 @@ extension View {
                 LessonView(appState: appState, lesson: lesson)
             case .review:
                 ReviewView(appState: appState)
+            case .reviewSchedule:
+                ReviewScheduleView(appState: appState)
             case .reviewLesson(let lesson):
                 LessonView(appState: appState, lesson: lesson, mode: .review)
             }

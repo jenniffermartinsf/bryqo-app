@@ -1,3 +1,4 @@
+import BryqoDomain
 import SwiftUI
 import Observation
 import SwiftData

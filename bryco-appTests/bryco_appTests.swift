@@ -12,7 +12,7 @@ import SwiftUI
 struct bryco_appTests {
 
     @Test func completingLessonAwardsXpOnce() {
-        let state = BryqoAppState()
+        let state = BryqoAppState(inMemory: true)
         let lesson = BryqoContent.sampleUnit.lessons[0]
 
         state.completeLesson(lesson)
@@ -23,7 +23,7 @@ struct bryco_appTests {
     }
 
     @Test func lessonsUnlockSequentially() {
-        let state = BryqoAppState()
+        let state = BryqoAppState(inMemory: true)
         let unit = BryqoContent.sampleUnit
 
         #expect(state.canStartLesson(unit.lessons[0], in: unit))
@@ -35,7 +35,7 @@ struct bryco_appTests {
     }
 
     @Test func onboardingStoresProfile() {
-        let state = BryqoAppState()
+        let state = BryqoAppState(inMemory: true)
 
         state.completeOnboarding(
             displayName: "Jenniffer",
@@ -50,7 +50,7 @@ struct bryco_appTests {
     }
 
     @Test func themePreferenceSwitchesColorScheme() {
-        let state = BryqoAppState()
+        let state = BryqoAppState(inMemory: true)
 
         // Set the value explicitly rather than assuming a default — `isLightMode` is
         // backed by shared UserDefaults, so the starting value isn't test-isolated.
