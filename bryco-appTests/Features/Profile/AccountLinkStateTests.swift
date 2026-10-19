@@ -4,6 +4,7 @@ import Testing
 @testable import bryco_app
 
 /// Covers how a failed "Salvar com Apple" attempt maps to what the Profile card shows.
+@MainActor
 @Suite("Account link state")
 struct AccountLinkStateTests {
 

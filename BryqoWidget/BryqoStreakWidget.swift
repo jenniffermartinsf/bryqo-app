@@ -69,6 +69,7 @@ struct BryqoWidgetView: View {
 
     var body: some View {
         content
+            .widgetURL(BryqoDeepLink.review.url)
             .containerBackground(for: .widget) {
                 if family == .accessoryCircular {
                     Color.clear

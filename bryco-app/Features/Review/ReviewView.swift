@@ -21,7 +21,7 @@ struct ReviewView: View {
                         emptyState
                     } else {
                         ForEach(dueLessons) { lesson in
-                            NavigationLink(value: lesson) {
+                            NavigationLink(value: LearnRoute.reviewLesson(lesson)) {
                                 reviewCard(lesson)
                             }
                             .buttonStyle(PressScaleButtonStyle())
@@ -33,9 +33,6 @@ struct ReviewView: View {
         }
         .navigationTitle("Revisar")
         .navigationBarTitleDisplayMode(.large)
-        .navigationDestination(for: Lesson.self) { lesson in
-            LessonView(appState: appState, lesson: lesson, mode: .review)
-        }
     }
 
     private func reviewCard(_ lesson: Lesson) -> some View {

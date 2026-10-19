@@ -76,6 +76,7 @@
 		3F5A7FB730156D4C00E8A9B2 /* Exceptions for "bryco-app" folder in "BryqoWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Core/Shared/BryqoDeepLink.swift,
 				Core/Shared/BryqoWidgetShared.swift,
 			);
 			target = 3F5A7F9B30156B1F00E8A9B2 /* BryqoWidgetExtension */;
@@ -612,6 +613,7 @@
 				DEVELOPMENT_TEAM = 3MX8K5DT3M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "bryco-app-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -647,6 +649,7 @@
 				DEVELOPMENT_TEAM = 3MX8K5DT3M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "bryco-app-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -2,10 +2,10 @@ import SwiftUI
 
 struct ValleyView: View {
     let appState: BryqoAppState
+    @Bindable var router: AppRouter
     let unit: LearningUnit
     let units: [LearningUnit]
 
-    @State private var selectedLesson: Lesson?
     @State private var showNoHeartsSheet = false
 
     private var nextLesson: Lesson? {
@@ -27,7 +27,7 @@ struct ValleyView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.valleyPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: BryqoTheme.Spacing.xl) {
                     header
@@ -51,9 +51,7 @@ struct ValleyView: View {
                 .padding(BryqoTheme.Spacing.xl)
             }
             .background(BryqoTheme.background)
-            .navigationDestination(item: $selectedLesson) { lesson in
-                LessonView(appState: appState, lesson: lesson)
-            }
+            .learnRouteDestinations(appState: appState)
             .sheet(isPresented: $showNoHeartsSheet) {
                 NoHeartsSheet(appState: appState)
             }
@@ -186,7 +184,7 @@ struct ValleyView: View {
                 if appState.progress.hearts == 0 {
                     showNoHeartsSheet = true
                 } else {
-                    selectedLesson = lesson
+                    router.valleyPath.append(.lesson(lesson))
                 }
             }
         } label: {
