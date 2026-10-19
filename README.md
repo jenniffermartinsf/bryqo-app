@@ -2,18 +2,19 @@
 
 # 🦫 Bryqo
 
-**Aprenda a pensar como programador — um conceito por vez.**
+**Aprenda a pensar como programador, um conceito por vez.**
 
-Um app iOS nativo, no estilo Duolingo, para ensinar os **fundamentos da ciência da computação** (lógica, algoritmos, estruturas de dados, Big O, redes e mais) através de micro-lições gamificadas, em português.
+App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da computação** (lógica, algoritmos, estruturas de dados, Big O, redes e mais) com micro-lições gamificadas, em português.
 
 <br/>
 
+[![CI](https://github.com/jenniffermartinsf/bryqo-app/actions/workflows/ci.yml/badge.svg)](https://github.com/jenniffermartinsf/bryqo-app/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/Platform-iOS%2026.5-000000?logo=apple&logoColor=white)
-![Swift](https://img.shields.io/badge/Swift-5%20%2F%20SwiftUI-F05138?logo=swift&logoColor=white)
+![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-52%20testes-brightgreen)
-![Arch](https://img.shields.io/badge/Arquitetura-MVVM-8A2BE2)
+![Tests](https://img.shields.io/badge/Swift%20Testing-94%20testes-brightgreen)
+![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
 
@@ -21,16 +22,20 @@ Um app iOS nativo, no estilo Duolingo, para ensinar os **fundamentos da ciência
 
 ## 📑 Índice
 
+- [Destaques técnicos](#-destaques-técnicos)
 - [Sobre o projeto](#-sobre-o-projeto)
 - [Screenshots](#-screenshots)
 - [Funcionalidades](#-funcionalidades)
 - [Tecnologias](#-tecnologias)
 - [Arquitetura](#-arquitetura)
+- [Navegação e deep links](#-navegação-e-deep-links)
+- [Interoperabilidade com UIKit](#-interoperabilidade-com-uikit)
 - [Design System](#-design-system)
-- [Persistência & sincronização](#-persistência--sincronização)
+- [Persistência e sincronização](#-persistência-e-sincronização)
 - [Gamificação](#-gamificação)
 - [Acessibilidade](#-acessibilidade)
 - [Testes](#-testes)
+- [CI/CD](#-cicd)
 - [Estrutura de pastas](#-estrutura-de-pastas)
 - [Como rodar](#-como-rodar)
 - [Roadmap](#-roadmap)
@@ -38,27 +43,46 @@ Um app iOS nativo, no estilo Duolingo, para ensinar os **fundamentos da ciência
 
 ---
 
+## ⚡ Destaques técnicos
+
+Para quem quer avaliar o projeto rapidamente:
+
+| Tema | O que tem no Bryqo |
+|---|---|
+| **Arquitetura** | MVVM com Observation (`@Observable`), organização por feature e um estado central como fonte única da verdade |
+| **Modularização** | Regras de domínio puras em um **pacote Swift local** (`BryqoDomain`), testável com `swift test`, sem simulador |
+| **Injeção de dependência** | Dependências passadas pelo inicializador; os testes usam um banco SwiftData em memória e datas/calendário injetados |
+| **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
+| **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
+| **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V4) e sincronização com Firestore |
+| **Testes** | **94 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
+| **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
+| **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
+
+---
+
 ## 🎯 Sobre o projeto
 
-**Bryqo** é um aplicativo de aprendizado mobile construído 100% de forma nativa para o ecossistema Apple. A proposta é ensinar **fundamentos antes de frameworks**: em vez de decorar sintaxe, o usuário constrói uma base sólida de raciocínio computacional, guiado pelo mascote **Brix** através de um "vale" que se completa conforme as lições avançam.
+O **Bryqo** é um app de aprendizado construído 100% de forma nativa para o ecossistema Apple. A proposta é ensinar **fundamentos antes de frameworks**: em vez de decorar sintaxe, a pessoa constrói uma base sólida de raciocínio computacional, guiada pelo mascote **Brix** em um "vale" que se completa conforme as lições avançam.
 
-O conteúdo está organizado em **12 unidades** e **41 lições** que cobrem desde lógica de programação até arquitetura de computadores, cada uma dividida em passos curtos: história → conceito → exercício → resumo.
+O conteúdo está organizado em **12 unidades** e **41 lições** que vão de lógica de programação até arquitetura de computadores. Cada lição é dividida em passos curtos: história → conceito → exercício → resumo. Depois de concluída, a lição entra na **revisão espaçada** (algoritmo SM-2), que traz o conteúdo de volta no momento certo para fixar a memória.
 
 | | |
 |---|---|
 | **Plataforma** | iOS 26.5+ (iPhone) |
-| **Linguagem** | Swift (modo de linguagem 5) com concorrência moderna |
-| **UI** | SwiftUI declarativo, sem Storyboards |
+| **Linguagem** | Swift, com concorrência moderna e isolamento padrão no `MainActor` |
+| **UI** | SwiftUI declarativo, com uma tela em UIKit (View Code); sem Storyboards |
 | **Conteúdo** | 12 unidades · 41 lições · pt-BR |
-| **Código** | ~6.7k linhas de Swift |
+| **Código** | ~8,4 mil linhas de Swift no app, widget e pacote, mais ~1,4 mil linhas de testes |
 
 ---
 
 ## 📸 Screenshots
 
-O app suporta **light mode** e **dark mode** de forma nativa e adaptativa, controlados por um toggle no perfil.
+O app suporta **light mode** e **dark mode** de forma nativa, controlados por um toggle no perfil.
 
-### Trilha de aprendizado & lições
+### Trilha de aprendizado e lições
 
 | Aprender (Light) | Aprender (Dark) |
 |:---:|:---:|
@@ -72,7 +96,7 @@ O app suporta **light mode** e **dark mode** de forma nativa e adaptativa, contr
 |:---:|:---:|
 | ![Completion Light](docs/screenshots/06-completion-light.png) | ![Completion Dark](docs/screenshots/06-completion-dark.png) |
 
-### Progresso & perfil
+### Progresso, perfil e revisão
 
 | Conquistas (Light) | Conquistas (Dark) |
 |:---:|:---:|
@@ -82,27 +106,28 @@ O app suporta **light mode** e **dark mode** de forma nativa e adaptativa, contr
 |:---:|:---:|
 | ![Profile Light](docs/screenshots/08-profile-light.png) | ![Profile Dark](docs/screenshots/08-profile-dark.png) |
 
-### Onboarding & feedback
-
-| Boas-vindas | Contexto da lição | Feedback de acerto |
+| Agenda de revisões (UIKit) | Boas-vindas | Feedback de acerto |
 |:---:|:---:|:---:|
-| ![Onboarding](docs/screenshots/01-onboarding-light.png) | ![Lesson](docs/screenshots/03-lesson-light.png) | ![Feedback](docs/screenshots/05-feedback-light.png) |
+| ![Review schedule](docs/screenshots/09-review-schedule-light.png) | ![Onboarding](docs/screenshots/01-onboarding-light.png) | ![Feedback](docs/screenshots/05-feedback-light.png) |
 
 ---
 
 ## ✨ Funcionalidades
 
-- 🗺️ **Trilha de aprendizado** estilo mapa, com lições que desbloqueiam em sequência.
-- 📚 **Lições multi-passo**: história, conceito, escolha única, verdadeiro/falso, ordenação e complete-o-código.
+- 🗺️ **Trilha de aprendizado** em formato de mapa, com lições que desbloqueiam em sequência.
+- 📚 **Lições multi-passo**: história, conceito, escolha única, verdadeiro/falso, ordenação, complete-o-código, "pense como a máquina" (rastreio de variáveis) e um playground interativo de busca binária.
+- 🔁 **Revisão espaçada (SM-2)**: lições concluídas voltam para revisão em intervalos crescentes, de acordo com o desempenho.
+- 📅 **Agenda de revisões**: mostra o que pode ser revisado agora e quando cada lição volta.
 - 🎮 **Gamificação completa**: XP, níveis, corações (vidas), sequência (streak), conquistas e materiais colecionáveis.
 - 🔥 **Proteção de sequência** (streak freeze) e **regeneração de corações** ao longo do tempo.
-- 🎯 **Meta diária** configurável por perfil (Casual · Regular · Sério · Intenso).
-- 🏔️ **Vale do progresso** — uma cena viva que evolui com o avanço do usuário.
-- 🎒 **Mochila** de materiais e **Conquistas** com ranking.
+- 🎯 **Meta diária** configurável (Casual · Regular · Sério · Intenso).
+- 🏔️ **Vale do progresso**: uma cena que evolui com o avanço da pessoa.
+- 🧩 **Widget** de sequência e meta diária, que abre o app direto nas revisões do dia.
+- 🔗 **Deep links** (`bryqo://review`, `bryqo://learn`).
 - 👤 **Onboarding** conversacional em 7 passos com o mascote Brix.
-- ☁️ **Sincronização em nuvem** com login anônimo + **Sign in with Apple**.
+- ☁️ **Sincronização em nuvem** com login anônimo e **Sign in with Apple**.
 - 🔔 **Lembrete diário** local para manter o hábito.
-- 🌗 **Light / Dark mode** e **acessibilidade** completa (Dynamic Type, VoiceOver, Reduce Motion, háptica).
+- 🌗 **Light / Dark mode** e **acessibilidade** (Dynamic Type, VoiceOver, Reduce Motion, háptica).
 
 ---
 
@@ -110,79 +135,120 @@ O app suporta **light mode** e **dark mode** de forma nativa e adaptativa, contr
 
 | Camada | Tecnologia |
 |---|---|
-| **Linguagem** | Swift (modo 5) · concorrência estruturada (`async/await`, `Task`, `@MainActor`) |
-| **Interface** | SwiftUI (100% declarativo) |
+| **Linguagem** | Swift · concorrência estruturada (`async/await`, `Task`, `@MainActor`) |
+| **Interface** | SwiftUI · UIKit (View Code, `UICollectionView`, diffable data source) |
 | **Estado** | Observation framework (`@Observable`) |
-| **Persistência local** | **SwiftData** (`@Model`, `ModelContainer`) com migração de schema versionada (V1→V4) |
-| **Backend / nuvem** | **Firebase** — Auth, Firestore, Analytics, Crashlytics |
+| **Navegação** | `NavigationStack(path:)` com rotas tipadas · deep links por URL scheme |
+| **Persistência local** | **SwiftData** (`@Model`, `ModelContainer`) com migração de schema versionada (V1 → V4) |
+| **Backend / nuvem** | **Firebase**: Auth, Firestore, Analytics, Crashlytics |
 | **Autenticação** | Firebase Auth anônimo + **Sign in with Apple** (`AuthenticationServices` + `CryptoKit`) |
+| **Extensões** | WidgetKit (App Group para compartilhar dados com o app) |
 | **Notificações** | `UserNotifications` (lembrete diário local) |
-| **Gerência de pacotes** | Swift Package Manager (`firebase-ios-sdk`) |
-| **Testes** | **Swift Testing** (`@Test`, `@Suite`) |
+| **Dependências** | Swift Package Manager: `firebase-ios-sdk` e o pacote local `BryqoDomain` |
+| **Testes** | **Swift Testing** (`@Test`, `@Suite`, testes parametrizados) |
+| **CI/CD** | **Fastlane** + **GitHub Actions** |
 
 ---
 
 ## 🏗 Arquitetura
 
-O Bryqo segue **MVVM** com uma **camada de estado central observável** (`BryqoAppState`) como *single source of truth*, injetada por toda a árvore de views.
+O Bryqo segue **MVVM** com uma **camada de estado central observável** (`BryqoAppState`) como fonte única da verdade. As regras de domínio que não dependem de UI nem de persistência vivem em um **pacote Swift separado**, e a navegação é coordenada por um **roteador** fora das Views.
 
 ```mermaid
 flowchart TD
-    subgraph UI["🖼️ SwiftUI Views (Features)"]
-        V["OnboardingView · LearnView · LessonView · ProfileView …"]
+    subgraph UI["🖼️ Features (SwiftUI + UIKit)"]
+        V["LearnView · LessonView · ReviewView · ProfileView …"]
+        UK["ReviewScheduleViewController (UIKit · View Code)"]
     end
-    subgraph VM["🧠 ViewModels / Estado"]
+    subgraph APP["🧭 App"]
+        R["AppRouter (@Observable)\naba + pilhas de navegação"]
         AS["BryqoAppState (@Observable)\nfonte única da verdade"]
-        LVM["LessonViewModel (@Observable)"]
+        VM["ViewModels (@Observable)\nLessonViewModel …"]
     end
-    subgraph DOM["📦 Domain (structs)"]
-        M["Lesson · Exercise · UserProgress · Achievement"]
+    subgraph PKG["📦 Pacote BryqoDomain (SPM)"]
+        D["SM2Scheduler · ReviewState\nBinarySearchEngine"]
     end
-    subgraph CORE["⚙️ Core (serviços)"]
-        FS["BryqoFirestoreService"]
-        AU["BryqoAuthManager"]
-        AN["BryqoAnalytics"]
-        NO["BryqoNotificationManager"]
-        DS["Design System (BryqoTheme)"]
+    subgraph CORE["⚙️ Core"]
+        FS["Firebase (Auth · Firestore · Analytics)"]
+        NO["Notifications"]
+        DS["Design System"]
+        SH["Shared (App Group · deep links)"]
     end
-    subgraph PERSIST["💾 Persistência"]
-        SD[("SwiftData\nPersistedUserState")]
-        FB[("Firebase\nFirestore")]
+    subgraph STORE["💾 Armazenamento"]
+        SD[("SwiftData")]
+        FB[("Firestore")]
+        WG["Widget (WidgetKit)"]
     end
 
+    V --> R
     V --> AS
-    V --> LVM
-    AS --> M
-    LVM --> M
+    V --> VM
+    UK --> AS
+    AS --> D
+    VM --> D
     AS --> FS --> FB
-    AS --> AU
     AS --> NO
     AS --> SD
+    AS --> SH --> WG
     V --> DS
 ```
 
 ### Decisões arquiteturais
 
-- **Estado central único (`BryqoAppState`)** — coordena SwiftData ↔ Firestore, regras de gamificação, streak, corações e onboarding. Usa `@Observable` (Observation framework) em vez de `ObservableObject`, aproveitando a API mais recente e performática.
-- **Separação de modelos por camada** — cada camada tem seu próprio tipo, com mapeamento explícito:
-  - `UserProgress` (struct em memória) → estado de runtime
-  - `PersistedUserState` (`@Model` SwiftData) → persistência local
-  - `FirestoreUserSnapshot` (DTO) → nuvem
-- **ViewModels isolados** — lógica de fluxo (ex.: `LessonViewModel`) fora das Views, o que a torna testável de forma unitária.
-- **Organização por feature** — `Features/<Tela>/` mantém cada tela e seus componentes coesos.
-- **Concorrência moderna** — `async/await` para I/O, `@MainActor` para atualização de UI, isolamento controlado no `BryqoAuthManager`.
+| Decisão | Por quê | Trade-off |
+|---|---|---|
+| **Estado central único** (`BryqoAppState`) | Coordena SwiftData ↔ Firestore, gamificação, streak e widget em um só lugar, com `@Observable` | O arquivo cresce; o próximo passo é extrair uma camada de repositório |
+| **Um modelo por camada** | `UserProgress` (memória), `PersistedUserState` (`@Model`) e `FirestoreUserSnapshot` (DTO) evoluem de forma independente | Exige mapeamento explícito entre os tipos |
+| **Pacote `BryqoDomain`** | Algoritmos puros (SM-2, busca binária) compilam e são testados sem simulador; o pacote não conhece SwiftUI, SwiftData nem Firebase | Tipos públicos exigem `public` e `Sendable` explícitos |
+| **Roteador fora das Views** | A pilha de cada aba sobrevive à troca de abas, e deep links viram uma simples mudança de estado | Destinos centralizados em `LearnRoute` |
+| **Injeção de dependência pelo inicializador** | `BryqoAppState(inMemory:)` e funções com `now`/`calendar` injetados deixam os testes determinísticos | Parâmetros a mais nas assinaturas |
+| **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
+
+---
+
+## 🧭 Navegação e deep links
+
+A navegação vive no [`AppRouter`](bryco-app/App/AppRouter.swift), um objeto `@Observable` que guarda a aba selecionada e uma pilha de rotas tipadas ([`LearnRoute`](bryco-app/App/LearnRoute.swift)) para cada aba com navegação.
+
+- **A pilha sobrevive à troca de abas**: como o estado não fica dentro das Views, a pessoa troca de aba e volta exatamente onde estava.
+- **A barra de abas some durante a lição**: o roteador sabe quando uma lição está no topo da pilha da aba visível.
+- **Destinos centralizados**: `learnRouteDestinations(appState:)` registra todas as telas que podem ser empilhadas.
+
+| Deep link | Efeito |
+|---|---|
+| `bryqo://review` | Seleciona a aba Aprender e abre a tela de revisão (usado pelo widget) |
+| `bryqo://learn` | Seleciona a aba Aprender e volta a trilha para o início |
+
+```bash
+# testar no simulador
+xcrun simctl openurl booted "bryqo://review"
+```
+
+---
+
+## 🧱 Interoperabilidade com UIKit
+
+A **Agenda de revisões** ([`ReviewScheduleViewController`](bryco-app/Features/Review/ReviewScheduleViewController.swift)) é escrita em **UIKit com View Code**:
+
+- layout 100% em código com Auto Layout (`NSLayoutConstraint`), sem Storyboard nem XIB;
+- `UICollectionView` com layout de lista composicional e **diffable data source**, que anima as mudanças de linhas;
+- células configuradas com `UIListContentConfiguration` (suportam Dynamic Type automaticamente);
+- estado vazio com `UIContentUnavailableConfiguration`;
+- integração no `NavigationStack` do SwiftUI via `UIViewControllerRepresentable`.
+
+A lógica que monta as seções ([`ReviewSchedule.make`](bryco-app/Features/Review/ReviewScheduleItem.swift)) é uma função pura, coberta por testes.
 
 ---
 
 ## 🎨 Design System
 
-Todo o visual é centralizado em [`BryqoTheme`](bryco-app/Core/DesignSystem/BryqoTheme.swift), garantindo consistência e suporte nativo a light/dark.
+Todo o visual é centralizado em [`BryqoTheme`](bryco-app/Core/DesignSystem/BryqoTheme.swift), garantindo consistência e suporte nativo a light/dark, inclusive na tela UIKit.
 
 ### Tokens
 
 | Token | Exemplos |
 |---|---|
-| **Cores adaptativas** | `background`, `surface`, `primary` (verde), `river` (azul), `sun` (XP), `coral` (streak) — cada uma com variante *light* e *dark* via `Color(light:dark:)` |
+| **Cores adaptativas** | `background`, `surface`, `primary` (verde), `river` (azul), `sun` (XP), `coral` (streak), cada uma com variante *light* e *dark* via `Color(light:dark:)` |
 | **Espaçamento** | `Spacing.xs … xxxl` (4 → 40 pt) |
 | **Raio** | `Radius.card` (20) · `Radius.button` (18) · `Radius.pill` |
 
@@ -193,15 +259,15 @@ Todo o visual é centralizado em [`BryqoTheme`](bryco-app/Core/DesignSystem/Bryq
 | `BryqoPrimaryButton` + `Duo3DButtonStyle` | Botão 3D estilo Duolingo que "afunda" ao ser pressionado |
 | `BryqoCard` / `.bryqoCard()` | Cartão padrão com borda e cantos contínuos |
 | `BryqoStatPill` | Pílula de estatística (XP, streak…) |
-| `BrixAvatar` / `BrixSpeechBubble` | Mascote Brix com balão de fala estilo iMessage (via `Shape` customizado) |
+| `BrixAvatar` / `BrixSpeechBubble` | Mascote Brix com balão de fala (via `Shape` customizado) |
 | `FloatingTabBar` | Barra de navegação flutuante com `matchedGeometryEffect` |
 | `.bryqoFont(_:relativeTo:…)` | Fonte de tamanho fixo que **escala com Dynamic Type** (`@ScaledMetric`) |
 
 ---
 
-## 💾 Persistência & sincronização
+## 💾 Persistência e sincronização
 
-O Bryqo é **offline-first**: todo o progresso funciona sem rede via SwiftData, e a nuvem é uma camada de backup/sync opcional.
+O Bryqo é **offline-first**: todo o progresso funciona sem rede via SwiftData, e a nuvem é uma camada opcional de backup e sincronização.
 
 ```mermaid
 sequenceDiagram
@@ -219,9 +285,10 @@ sequenceDiagram
     App->>Cloud: saveUserData(snapshot)
 ```
 
-- **Migração de schema versionada** — [`PersistedUserState`](bryco-app/Domain/Models/PersistedUserState.swift) evolui por 4 versões (`BryqoSchemaV1…V4`) com um `SchemaMigrationPlan` de estágios *lightweight*.
-- **Merge inteligente** — na sincronização, campos numéricos usam `max()` e coleções usam união de conjuntos, evitando perda de progresso entre dispositivos.
-- **Sem bloqueio de rede** — se o login falhar, o app continua 100% funcional com os dados locais.
+- **Migração de schema versionada**: [`PersistedUserState`](bryco-app/Domain/Models/PersistedUserState.swift) evolui por 4 versões (`BryqoSchemaV1…V4`) com um `SchemaMigrationPlan` de estágios *lightweight*.
+- **Merge sem perda de progresso**: campos numéricos usam `max()` e coleções usam união de conjuntos.
+- **Sem bloqueio de rede**: se o login falhar, o app continua funcional com os dados locais.
+- **Widget**: a cada mudança de progresso, o app grava um espelho pequeno (`BryqoWidgetSnapshot`) no App Group; o widget lê só esse espelho, nunca o SwiftData ou o Firestore.
 
 ---
 
@@ -229,50 +296,76 @@ sequenceDiagram
 
 | Sistema | Regra |
 |---|---|
-| **XP & níveis** | Limiares `[0, 100, 250, 500, 1000, …]`; nomes por nível: Aprendiz → Estudante → Desenvolvedor → Arquiteto → Engenheiro |
+| **XP e níveis** | Limiares `[0, 100, 250, 500, 1000, …]`; nomes por nível: Aprendiz → Estudante → Desenvolvedor → Arquiteto → Engenheiro |
 | **Corações (vidas)** | Máximo de 5; erro consome 1; **regenera +1 a cada 30 min**; lição perfeita devolve 1 |
 | **Sequência (streak)** | +1 por dia consecutivo; marcos em 7/30/100 dias; **streak freeze** protege 1 dia perdido automaticamente |
+| **Revisão espaçada** | SM-2: 0 erros → qualidade 5; 3+ erros → a lição volta no dia seguinte; intervalos crescem com o fator de facilidade |
 | **Conquistas** | 10 conquistas (comum · rara · épica) por lições, XP, streak e perfeição |
 | **Meta diária** | Casual (15 XP) · Regular (30) · Sério (50) · Intenso (75) |
-
-> A lógica dessas regras vive em [`BryqoAppState`](bryco-app/App/BryqoAppState.swift) e é coberta por testes unitários isolados.
 
 ---
 
 ## ♿ Acessibilidade
 
-O app foi auditado contra as **Human Interface Guidelines** da Apple, com foco em acessibilidade:
+O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
-- **Dynamic Type** — todo texto escala com a preferência do usuário via o modifier `.bryqoFont` (`@ScaledMetric`), preservando o design no tamanho padrão.
-- **Áreas de toque de 44 pt** — mínimo estrito do HIG em botões de ícone.
-- **VoiceOver** — rótulos em botões de ícone e imagens; corações anunciados como "Vidas: N de 5"; imagens decorativas ocultas.
-- **Reduce Motion** — animações perpétuas (confete, mascote flutuante, cena do vale) são desativadas quando o usuário pede menos movimento.
-- **Háptica** — `.sensoryFeedback` em acertos, erros, conclusão de lição e marcos de sequência.
-- **Diferenciação sem cor** — estados de certo/errado sempre pareiam cor com ícone (`checkmark`/`xmark`) e texto.
+- **Dynamic Type**: todo texto escala com a preferência do usuário via `.bryqoFont` (`@ScaledMetric`); a tela UIKit usa estilos de texto do sistema.
+- **Áreas de toque de 44 pt** em botões de ícone.
+- **VoiceOver**: rótulos em botões de ícone e imagens; corações anunciados como "Vidas: N de 5"; imagens decorativas ocultas.
+- **Reduce Motion**: animações contínuas (confete, mascote flutuante, cena do vale) são desativadas quando o usuário pede menos movimento.
+- **Háptica**: `.sensoryFeedback` em acertos, erros, conclusão de lição e marcos de sequência.
+- **Diferenciação sem depender só de cor**: estados de certo/errado sempre combinam cor com ícone e texto.
 
 ---
 
 ## 🧪 Testes
 
-**52 testes** escritos com **Swift Testing** (`@Test` / `@Suite`), cobrindo a lógica central:
+**94 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 81 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
-| `LessonViewModelTests` | Seleção, verificação (certo/errado), corações, XP, ordenação e progressão de passos |
-| `BryqoAppStateTests` | Streak (incremento/decay/freeze), regeneração de corações, merge Firestore, níveis e meta de XP |
-| `OnboardingFlowTests` | Resultado do onboarding, fallback de nome, reset e tier da meta diária |
-| `ProfileStatsTests` | Nomes de nível, limiares de XP, contagem de lições e streak em risco |
+| `SM-2 scheduler` *(pacote)* | Mapeamento de erros para qualidade, intervalos 1 → 6 → n dias, lapsos e piso do fator de facilidade |
+| `Binary search engine` *(pacote)* | Cálculo do meio, estreitamento da janela, alvo encontrado e janela esgotada |
+| `BryqoAppState gamification` | Streak (incremento, decay, freeze), regeneração de corações, merge com Firestore, níveis e meta de XP |
+| `Review scheduling` | Agendamento após a lição, revisões vencidas e persistência dos estados |
+| `Review schedule` | Seções "agora" e "próximas", ordenação e rótulos de data da agenda |
+| `App router` | Deep links, URLs desconhecidas, pilha preservada entre abas e visibilidade da barra de abas |
+| `LessonViewModel` · `BinarySearchViewModel` · `VariableTraceViewModel` | Seleção, verificação, corações, XP e progressão de passos |
+| `Account link state` | Estados do vínculo com Apple, incluindo cancelamento tratado como não-erro |
+| `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 
-> Os testes usam um *seam* de container **in-memory** (`BryqoAppState(inMemory:)`), garantindo isolamento total (princípios FIRST) — cada caso parte de um estado limpo.
+Os testes usam um **banco SwiftData em memória** (`BryqoAppState(inMemory:)`) e datas/calendário injetados, então cada caso parte de um estado limpo e é determinístico.
 
 ```bash
-# rodar os testes
+# pacote de domínio (rápido, sem simulador)
+cd Modules/BryqoDomain && swift test
+
+# testes do app
 xcodebuild test \
   -project bryco-app.xcodeproj \
   -scheme bryco-app \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
   -only-testing:bryco-appTests
+
+# tudo de uma vez, como no CI
+bundle exec fastlane test
 ```
+
+---
+
+## 🚦 CI/CD
+
+O pipeline é definido no [`Fastfile`](fastlane/Fastfile) e executado pelo [GitHub Actions](.github/workflows/ci.yml) a cada push na `main` e em todo pull request.
+
+| Lane | O que faz |
+|---|---|
+| `fastlane test` | Roda `swift test` no pacote `BryqoDomain` e os testes unitários do app no simulador (gera relatório JUnit e `.xcresult`) |
+| `fastlane build` | Compila o app para o simulador, sem assinatura de código |
+| `fastlane ci` | `test` + `build`, o que o GitHub Actions executa |
+
+- A versão do Fastlane é fixada pelo `Gemfile.lock`.
+- O `GoogleService-Info.plist` real fica fora do Git. No CI, o workflow usa um [arquivo de exemplo](ci/GoogleService-Info.plist) com valores falsos, só para o app iniciar durante os testes.
+- Os resultados dos testes ficam disponíveis como artefato de cada execução.
 
 ---
 
@@ -280,24 +373,27 @@ xcodebuild test \
 
 ```
 bryco-app/
-├── App/                    # Ponto de entrada, ContentView, MainTabView, BryqoAppState
+├── App/                    # Entrada do app, MainTabView, BryqoAppState, AppRouter, LearnRoute
 ├── Core/
 │   ├── DesignSystem/       # BryqoTheme, ScaledFont (Dynamic Type)
 │   ├── Firebase/           # Auth, Firestore, Analytics
-│   └── Notifications/      # Lembrete diário local
+│   ├── Notifications/      # Lembrete diário local
+│   └── Shared/             # Código compartilhado com o widget (snapshot, deep links)
 ├── Domain/
 │   └── Models/             # Lesson, Exercise, UserProgress, PersistedUserState (@Model)
 ├── Features/               # Uma pasta por tela
-│   ├── Onboarding/
-│   ├── LearningPath/       # Trilha/mapa de lições
-│   ├── Lesson/             # Motor de lições + tipos de questão
-│   ├── Achievements/
-│   ├── Profile/
-│   ├── Backpack/  Valley/  Progress/  Review/
+│   ├── Onboarding/  LearningPath/  Lesson/  Review/
+│   ├── Achievements/  Profile/  Backpack/  Valley/  Progress/
 └── Resources/
-    └── Content/            # BryqoContent — 12 unidades, 41 lições
-bryco-appTests/             # Suites Swift Testing
-docs/screenshots/           # Capturas light & dark
+    └── Content/            # BryqoContent: 12 unidades, 41 lições
+BryqoWidget/                # Extensão WidgetKit
+Modules/
+└── BryqoDomain/            # Pacote SPM local: SM-2 e busca binária, com testes próprios
+bryco-appTests/             # Suites Swift Testing do app
+fastlane/                   # Lanes de teste, build e CI
+.github/workflows/          # Pipeline do GitHub Actions
+ci/                         # Configuração de exemplo usada no CI
+docs/screenshots/           # Capturas light e dark
 ```
 
 ---
@@ -305,40 +401,56 @@ docs/screenshots/           # Capturas light & dark
 ## 🚀 Como rodar
 
 ### Pré-requisitos
-- macOS com **Xcode 26+**
+
+- macOS com **Xcode 26.5+**
 - Simulador ou dispositivo com **iOS 26.5+**
-- Uma conta Firebase (para os recursos de nuvem)
+- Ruby + Bundler (apenas para as lanes do Fastlane)
 
 ### Passos
 
 ```bash
 # 1. Clonar
-git clone <url-do-repositorio>
-cd bryco-app
+git clone https://github.com/jenniffermartinsf/bryqo-app.git
+cd bryqo-app
 
-# 2. Abrir no Xcode (as dependências SPM resolvem automaticamente)
+# 2. Configurar o Firebase (escolha uma opção)
+#    a) com seu projeto Firebase: copie o seu GoogleService-Info.plist para bryco-app/
+#    b) sem Firebase: use o arquivo de exemplo (o app roda offline, sem sincronização)
+cp ci/GoogleService-Info.plist bryco-app/GoogleService-Info.plist
+
+# 3. Abrir no Xcode (as dependências SPM resolvem automaticamente)
 open bryco-app.xcodeproj
 ```
 
-3. **Configurar o Firebase**: adicione seu próprio `GoogleService-Info.plist` em `bryco-app/` (Firebase Console → adicionar app iOS). Habilite **Authentication** (Anônimo + Apple) e **Firestore**.
 4. Selecione o scheme **bryco-app** e um simulador, e rode com **⌘R**.
 
-> Sem o Firebase configurado, o app ainda funciona **offline** (SwiftData) — apenas a sincronização em nuvem fica indisponível.
+> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo + Apple) e **Firestore**. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
+
+Para rodar as lanes do Fastlane:
+
+```bash
+bundle install
+bundle exec fastlane ci
+```
 
 ---
 
 ## 🗺 Roadmap
 
+- [x] Widget de sequência (WidgetKit)
+- [x] Revisão espaçada (SM-2) e agenda de revisões
+- [x] Navegação com roteador, pilhas por aba e deep links
+- [x] Pacote de domínio (SPM) e pipeline de CI com Fastlane
+- [ ] Extrair uma camada de repositório do `BryqoAppState`
 - [ ] Extrair `OnboardingViewModel` para testar a navegação do wizard
-- [ ] Testes de UI de acessibilidade (XCUITest validando rótulos VoiceOver)
-- [ ] Sincronização em tempo real (listeners Firestore)
-- [ ] Widget de sequência (WidgetKit)
-- [ ] Modo revisão espaçada (spaced repetition)
+- [ ] Testes de UI de acessibilidade (XCUITest validando rótulos de VoiceOver)
+- [ ] Sincronização em tempo real (listeners do Firestore)
+- [ ] Lane de distribuição para TestFlight
 
 ---
 
 ## 👩‍💻 Autoria
 
-Desenvolvido por **Jenniffer Martins**.
+Desenvolvido por **Jenniffer Martins** · [LinkedIn](https://www.linkedin.com/in/jennifferlinof) · [GitHub](https://github.com/jenniffermartinsf)
 
-Mascote **Brix** 🦫 e identidade visual **Bryqo** — construindo fundamentos, um bloco por vez.
+Mascote **Brix** 🦫 e identidade visual **Bryqo**: construindo fundamentos, um bloco por vez.

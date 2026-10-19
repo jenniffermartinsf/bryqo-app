@@ -1,0 +1,44 @@
+# Lanes de automação do Bryqo. Rode a partir da raiz do repositório:
+#   bundle exec fastlane test   -> testes do pacote BryqoDomain e do app
+#   bundle exec fastlane build  -> compila o app para o simulador, sem assinatura
+#   bundle exec fastlane ci     -> test + build (o que o GitHub Actions executa)
+
+default_platform(:ios)
+
+PROJECT = "bryco-app.xcodeproj"
+SCHEME = "bryco-app"
+DEVICE = ENV.fetch("BRYQO_TEST_DEVICE", "iPhone 17")
+
+platform :ios do
+  desc "Roda os testes do pacote BryqoDomain (swift test) e os testes unitários do app"
+  lane :test do
+    sh("cd ../Modules/BryqoDomain && swift test")
+
+    run_tests(
+      project: PROJECT,
+      scheme: SCHEME,
+      device: DEVICE,
+      only_testing: ["bryco-appTests"],
+      result_bundle: true,
+      output_directory: "fastlane/test_output",
+      clean: false
+    )
+  end
+
+  desc "Compila o app para o simulador iOS, sem assinatura de código"
+  lane :build do
+    xcodebuild(
+      project: PROJECT,
+      scheme: SCHEME,
+      destination: "generic/platform=iOS Simulator",
+      build: true,
+      xcargs: "CODE_SIGNING_ALLOWED=NO"
+    )
+  end
+
+  desc "Pipeline de integração contínua: testes e build"
+  lane :ci do
+    test
+    build
+  end
+end

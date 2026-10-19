@@ -21,3 +21,8 @@ Packages/
 *.ipa
 *.dSYM.zip
 *.dSYM
+
+# Fastlane outputs
+fastlane/report.xml
+fastlane/test_output/
+fastlane/README.md

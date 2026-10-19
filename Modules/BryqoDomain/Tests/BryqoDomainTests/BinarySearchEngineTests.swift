@@ -1,7 +1,7 @@
 import Testing
-@testable import bryco_app
+@testable import BryqoDomain
 
-@Suite("Binary search engine", .tags(.gamification))
+@Suite("Binary search engine")
 struct BinarySearchEngineTests {
 
     private let sorted = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]  // 10 elements, mid index 4 → 16

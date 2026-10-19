@@ -32,6 +32,13 @@ struct ReviewView: View {
             }
         }
         .navigationTitle("Revisar")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink(value: LearnRoute.reviewSchedule) {
+                    Label("Agenda de revisões", systemImage: "calendar")
+                }
+            }
+        }
         .navigationBarTitleDisplayMode(.large)
     }
 

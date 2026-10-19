@@ -1,10 +1,10 @@
 import Foundation
 import Testing
-@testable import bryco_app
+@testable import BryqoDomain
 
 /// The SM-2 scheduler is pure and deterministic, so every case pins `now` and asserts the exact
 /// resulting schedule.
-@Suite("SM-2 scheduler", .tags(.gamification))
+@Suite("SM-2 scheduler")
 struct SM2SchedulerTests {
 
     private let anchor = Date(timeIntervalSince1970: 1_700_000_000)
