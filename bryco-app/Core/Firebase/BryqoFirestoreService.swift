@@ -21,7 +21,7 @@ struct FirestoreUserSnapshot {
     var accountCreatedDate: Date = Date()
 }
 
-final class BryqoFirestoreService {
+final class BryqoFirestoreService: UserCloudStore {
     private let db = Firestore.firestore()
 
     func saveUserData(uid: String, snapshot: FirestoreUserSnapshot) async {
@@ -49,11 +49,20 @@ final class BryqoFirestoreService {
         try? await db.collection("users").document(uid).setData(data, merge: true)
     }
 
-    func loadUserData(uid: String) async -> FirestoreUserSnapshot? {
-        guard let doc = try? await db.collection("users").document(uid).getDocument(),
-              doc.exists,
-              let data = doc.data() else { return nil }
-        return decode(data)
+    func loadUserData(uid: String) async -> CloudLoadResult {
+        let doc: DocumentSnapshot
+        do {
+            doc = try await db.collection("users").document(uid).getDocument()
+        } catch {
+            // Offline with nothing cached, timeout, permission: we don't know what is there.
+            return .unavailable
+        }
+        if doc.exists, let data = doc.data() {
+            return .found(decode(data))
+        }
+        // "Missing" is only trustworthy when the server said so. A miss from the offline
+        // cache just means this device never downloaded the document.
+        return doc.metadata.isFromCache ? .unavailable : .notFound
     }
 
     func saveLessonProgress(uid: String, lessonId: String, mistakes: Int) async {

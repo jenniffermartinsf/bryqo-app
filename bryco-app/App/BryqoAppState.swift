@@ -15,7 +15,21 @@ final class BryqoAppState {
     @ObservationIgnored private var persistedState: PersistedUserState
     @ObservationIgnored let notificationManager = BryqoNotificationManager()
     @ObservationIgnored let authManager = BryqoAuthManager()
-    @ObservationIgnored private let firestoreService = BryqoFirestoreService()
+    @ObservationIgnored private let cloudStore: any UserCloudStore
+    /// Prevents overlapping syncs when launch and "back to foreground" fire close together.
+    @ObservationIgnored private var isSyncing = false
+    /// The cloud account this session has reconciled with. Writes go to the cloud only after
+    /// that: until then local progress may be empty (a reinstall opened offline) and pushing it
+    /// would overwrite the real backup. Everything is still saved locally in the meantime.
+    @ObservationIgnored private var reconciledCloudUID: String?
+    /// The signed-in account; injectable so tests can act as a signed-in user.
+    @ObservationIgnored private var signedInUID: () -> String? = { nil }
+
+    /// Where local saves are mirrored, or `nil` while the cloud hasn't been reconciled.
+    private var cloudUIDForWrites: String? {
+        guard let uid = signedInUID(), uid == reconciledCloudUID else { return nil }
+        return uid
+    }
 
     var profile: OnboardingProfile?
     var progress = UserProgress()
@@ -54,9 +68,12 @@ final class BryqoAppState {
     init(
         inMemory: Bool = false,
         openStore: (() throws -> ModelContainer)? = nil,
-        reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError
+        reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError,
+        cloudStore: (any UserCloudStore)? = nil,
+        signedInUID: (() -> String?)? = nil
     ) {
         self.reportPersistenceError = reportPersistenceError
+        self.cloudStore = cloudStore ?? BryqoFirestoreService()
         let schema = Schema(versionedSchema: BryqoSchemaV6.self)
         let makeInMemoryContainer = {
             try! ModelContainer(
@@ -148,6 +165,10 @@ final class BryqoAppState {
 
         applyStreakDecay()
         applyHeartRegeneration()
+
+        // Set last: the default captures self, which needs every stored property initialized.
+        let authManager = self.authManager
+        self.signedInUID = signedInUID ?? { authManager.currentUID }
     }
 
     // MARK: - Streak Decay
@@ -194,14 +215,41 @@ final class BryqoAppState {
 
     // MARK: - Firestore sync
 
-    func syncFromFirestore() async {
-        guard let uid = authManager.currentUID else { return }
-        let remote = await firestoreService.loadUserData(uid: uid)
-        guard let remote else {
-            await firestoreService.saveUserData(uid: uid, snapshot: buildSnapshot())
-            return
+    /// Signs in if needed and reconciles local progress with the cloud backup. Called on launch
+    /// and every time the app comes back to the foreground, so a launch without internet
+    /// catches up as soon as the connection returns.
+    func syncWithCloud() async {
+        guard !isSyncing else { return }
+        isSyncing = true
+        defer { isSyncing = false }
+        await authManager.signInAnonymouslyIfNeeded()
+        guard let uid = signedInUID() else { return }
+        await sync(uid: uid)
+    }
+
+    /// `syncWithCloud` without the Firebase Auth sign-in step.
+    func syncWithCloudForTesting() async {
+        guard let uid = signedInUID() else { return }
+        await sync(uid: uid)
+    }
+
+    /// Local progress is the source of truth; the cloud is a backup. Separate from
+    /// `syncWithCloud` so tests can run it without Firebase Auth.
+    func sync(uid: String) async {
+        switch await cloudStore.loadUserData(uid: uid) {
+        case .found(let remote):
+            reconciledCloudUID = uid
+            mergeRemote(remote)   // saves, which now also pushes the merged result
+            await cloudStore.saveUserData(uid: uid, snapshot: buildSnapshot())
+        case .notFound:
+            // Confirmed by the server: first backup for this account.
+            reconciledCloudUID = uid
+            await cloudStore.saveUserData(uid: uid, snapshot: buildSnapshot())
+        case .unavailable:
+            // Offline or unknown. Writing now could overwrite a real backup with empty local
+            // progress (e.g. a reinstall opened without internet), so wait for the next sync.
+            break
         }
-        mergeRemote(remote)
     }
 
     // Non-private so tests can exercise the local↔remote merge in isolation.
@@ -295,9 +343,9 @@ final class BryqoAppState {
 
         mirrorToWidget()
 
-        if let uid = authManager.currentUID {
+        if let uid = cloudUIDForWrites {
             let snapshot = buildSnapshot()
-            Task { await firestoreService.saveUserData(uid: uid, snapshot: snapshot) }
+            Task { await cloudStore.saveUserData(uid: uid, snapshot: snapshot) }
         }
     }
 
@@ -476,10 +524,10 @@ final class BryqoAppState {
         save()
         BryqoAnalytics.lessonCompleted(lessonId: lesson.id, xpEarned: lesson.xpReward, perfect: !hasMistakes)
 
-        if let uid = authManager.currentUID {
+        if let uid = cloudUIDForWrites {
             let mc = mistakeCount
             let lessonId = lesson.id
-            Task { await firestoreService.saveLessonProgress(uid: uid, lessonId: lessonId, mistakes: mc) }
+            Task { await cloudStore.saveLessonProgress(uid: uid, lessonId: lessonId, mistakes: mc) }
         }
 
         if notificationsEnabled {

@@ -17,12 +17,12 @@ struct bryco_appApp: App {
             ContentView(appState: appState)
                 .modelContainer(appState.modelContainer)
                 .task {
-                    await appState.authManager.signInAnonymouslyIfNeeded()
-                    await appState.syncFromFirestore()
+                    await appState.syncWithCloud()
                 }
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
+            Task { await appState.syncWithCloud() }
             appState.applyStreakDecay()
             appState.applyHeartRegeneration()
             if appState.notificationsEnabled {
