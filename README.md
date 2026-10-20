@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-102%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-108%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -55,7 +55,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **102 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **108 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -290,6 +290,7 @@ sequenceDiagram
 - **Migração de schema versionada**: 6 versões (`BryqoSchemaV1…V6`). Os estágios até a V5 são *lightweight*; a V6 tem uma etapa personalizada que lê as revisões guardadas como JSON na V5 e cria uma linha `LessonReview` para cada uma. A migração é testada com um banco V5 real gravado em disco.
 - **Merge sem perda de progresso**: campos numéricos usam `max()` e coleções usam união de conjuntos.
 - **Sem bloqueio de rede**: se o login falhar, o app continua funcional com os dados locais.
+- **Voltar para a rede sem destruir nada**: a leitura do backup distingue três casos (encontrado, não existe e "não deu para saber"). Só um "não existe" confirmado pelo servidor cria o backup a partir do progresso local, e o app só espelha gravações na nuvem depois de se reconciliar com ela na sessão. Assim, um app reinstalado e aberto sem internet nunca sobrescreve o backup com progresso vazio. A sincronização roda na abertura e sempre que o app volta ao primeiro plano.
 - **Falhas nunca são silenciosas**: erros ao abrir, ler ou salvar o banco são registrados no Crashlytics. Se o banco não abrir (por exemplo, numa migração com erro), o app continua usável num armazenamento temporário e mostra um aviso de que o progresso não será guardado ao fechar.
 - **Widget**: a cada mudança de progresso, o app grava um espelho pequeno (`BryqoWidgetSnapshot`) no App Group; o widget lê só esse espelho, nunca o SwiftData ou o Firestore.
 
@@ -323,7 +324,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**102 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 89 no app e 13 no pacote `BryqoDomain`.
+**108 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 95 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -336,6 +337,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `App router` | Deep links, URLs desconhecidas, pilha preservada entre abas e visibilidade da barra de abas |
 | `LessonViewModel` · `BinarySearchViewModel` · `VariableTraceViewModel` | Seleção, verificação, corações, XP e progressão de passos |
 | `Persistence health` | Banco que não abre (fallback em memória com aviso e registro do erro) e mensagens do aviso |
+| `Offline sync` | Backup indisponível não grava nada, backup ausente é criado, backup existente é mesclado, e nada vai para a nuvem antes da reconciliação |
 | `Account link state` | Estados do vínculo com Apple, incluindo cancelamento tratado como não-erro |
 | `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 

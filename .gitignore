@@ -26,3 +26,6 @@ Packages/
 fastlane/report.xml
 fastlane/test_output/
 fastlane/README.md
+
+# Firebase config (real values stay local; CI uses ci/GoogleService-Info.plist)
+bryco-app/GoogleService-Info.plist
