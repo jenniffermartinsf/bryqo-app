@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-108%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-109%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -55,7 +55,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **108 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **109 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -125,7 +125,7 @@ O app suporta **light mode** e **dark mode** de forma nativa, controlados por um
 - 🧩 **Widget** de sequência e meta diária, que abre o app direto nas revisões do dia.
 - 🔗 **Deep links** (`bryqo://review`, `bryqo://learn`).
 - 👤 **Onboarding** conversacional em 7 passos com o mascote Brix.
-- ☁️ **Sincronização em nuvem** com login anônimo e **Sign in with Apple**.
+- ☁️ **Sincronização em nuvem** com login anônimo, **Sign in with Apple** ou **Google**; a conta vinculada mantém o mesmo progresso.
 - 🔔 **Lembrete diário** local para manter o hábito.
 - 🌗 **Light / Dark mode** e **acessibilidade** (Dynamic Type, VoiceOver, Reduce Motion, háptica).
 
@@ -141,10 +141,10 @@ O app suporta **light mode** e **dark mode** de forma nativa, controlados por um
 | **Navegação** | `NavigationStack(path:)` com rotas tipadas · deep links por URL scheme |
 | **Persistência local** | **SwiftData** (`@Model`, `ModelContainer`) com migração de schema versionada (V1 → V6), `#Predicate`, `@Query`, `#Unique` e `#Index` |
 | **Backend / nuvem** | **Firebase**: Auth, Firestore, Analytics, Crashlytics |
-| **Autenticação** | Firebase Auth anônimo + **Sign in with Apple** (`AuthenticationServices` + `CryptoKit`) |
+| **Autenticação** | Firebase Auth anônimo, vinculado depois a **Sign in with Apple** (`AuthenticationServices` + `CryptoKit`) ou **Google Sign-In** (SPM `GoogleSignIn-iOS`) |
 | **Extensões** | WidgetKit (App Group para compartilhar dados com o app) |
 | **Notificações** | `UserNotifications` (lembrete diário local) |
-| **Dependências** | Swift Package Manager: `firebase-ios-sdk` e o pacote local `BryqoDomain` |
+| **Dependências** | Swift Package Manager: `firebase-ios-sdk`, `GoogleSignIn-iOS` e o pacote local `BryqoDomain` |
 | **Testes** | **Swift Testing** (`@Test`, `@Suite`, testes parametrizados) |
 | **CI/CD** | **Fastlane** + **GitHub Actions** |
 
@@ -324,7 +324,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**108 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 95 no app e 13 no pacote `BryqoDomain`.
+**109 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 96 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -431,7 +431,7 @@ open bryco-app.xcodeproj
 
 4. Selecione o scheme **bryco-app** e um simulador, e rode com **⌘R**.
 
-> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo + Apple) e **Firestore**. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
+> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo, Apple e Google) e crie o banco do **Firestore**, com regras que deixem cada usuário ler e gravar só o próprio `users/{uid}`. O login com Google também precisa do `REVERSED_CLIENT_ID` do seu `GoogleService-Info.plist` como URL scheme em `bryco-app-Info.plist`. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
 
 Para rodar as lanes do Fastlane:
 

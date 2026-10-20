@@ -7,6 +7,10 @@ struct ProfileView: View {
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var linkState: AccountLinkState = .idle
     @State private var isConfirmingReviewReset = false
+    /// Which provider the current link attempt uses, so only its button shows progress.
+    @State private var linkingProvider: AccountProvider?
+
+    private enum AccountProvider { case apple, google }
 
     var body: some View {
         ScrollView {
@@ -269,33 +273,28 @@ struct ProfileView: View {
                     Text("Progresso sem backup")
                         .font(.headline.bold())
                         .foregroundStyle(BryqoTheme.textPrimary)
-                    Text("Reinstalar o app apaga tudo. Vincule sua Apple ID para salvar.")
+                    Text("Reinstalar o app apaga tudo. Vincule uma conta para salvar.")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(BryqoTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
 
-            Button(action: linkWithApple) {
-                HStack(spacing: BryqoTheme.Spacing.sm) {
-                    if isLinking {
-                        ProgressView()
-                            .tint(.white)
-                            .scaleEffect(0.85)
-                    } else {
-                        Image(systemName: "apple.logo")
-                    }
-                    Text(isLinking ? "Vinculando…" : "Salvar com Apple")
-                        .font(.headline.bold())
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Color.black)
-                .clipShape(Capsule())
+            BryqoAuthButton(
+                provider: .apple,
+                isLoading: isLinking && linkingProvider == .apple,
+                isDisabled: isLinking,
+                action: linkWithApple
+            )
+
+            if appState.authManager.isGoogleSignInAvailable {
+                BryqoAuthButton(
+                    provider: .google,
+                    isLoading: isLinking && linkingProvider == .google,
+                    isDisabled: isLinking,
+                    action: linkWithGoogle
+                )
             }
-            .buttonStyle(.plain)
-            .disabled(isLinking)
         }
         .bryqoCard()
         .alert("Erro ao vincular conta", isPresented: .init(
@@ -316,7 +315,7 @@ struct ProfileView: View {
                 Text("Conta vinculada")
                     .font(.headline.bold())
                     .foregroundStyle(BryqoTheme.textPrimary)
-                Text("Progresso salvo com sua Apple ID.")
+                Text("Progresso salvo com sua conta \(appState.authManager.linkedProviderName ?? "vinculada").")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
@@ -326,14 +325,26 @@ struct ProfileView: View {
     }
 
     private func linkWithApple() {
+        link(.apple) { try await appState.authManager.signInWithApple() }
+    }
+
+    private func linkWithGoogle() {
+        link(.google) { try await appState.authManager.signInWithGoogle() }
+    }
+
+    private func link(_ provider: AccountProvider, signIn: @escaping () async throws -> Void) {
+        linkingProvider = provider
         linkState = .linking
         Task {
             do {
-                try await appState.authManager.signInWithApple()
+                try await signIn()
                 linkState = .idle
+                // The account may have switched to an existing user: reconcile with its backup.
+                await appState.syncWithCloud()
             } catch {
                 linkState = .afterFailure(error)
             }
+            linkingProvider = nil
         }
     }
 
@@ -365,8 +376,8 @@ struct ProfileView: View {
             BryqoSectionTitle(title: "Suporte")
 
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-                Label("Login anônimo + Sign in with Apple", systemImage: "person.badge.shield.checkmark.fill")
-                Label("Sincronização com Firestore em breve", systemImage: "icloud")
+                Label("Login anônimo, Apple ou Google", systemImage: "person.badge.shield.checkmark.fill")
+                Label("Backup na nuvem quando há internet", systemImage: "icloud")
                 Label("Dados não são compartilhados com terceiros", systemImage: "lock.fill")
             }
             .font(.body.weight(.semibold))

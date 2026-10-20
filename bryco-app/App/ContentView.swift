@@ -1,3 +1,4 @@
+import GoogleSignIn
 import SwiftUI
 
 struct ContentView: View {
@@ -22,6 +23,10 @@ struct ContentView: View {
             }
         }
         .animation(.easeOut(duration: 0.25), value: appState.persistenceHealth)
+        // Returns control to Google Sign-In after the user signs in on Google's page.
+        .onOpenURL { url in
+            GIDSignIn.sharedInstance.handle(url)
+        }
         .tint(BryqoTheme.forest)
         .preferredColorScheme(appState.preferredColorScheme)
     }
