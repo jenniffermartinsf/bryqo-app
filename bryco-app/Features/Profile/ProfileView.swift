@@ -1,4 +1,3 @@
-import GoogleSignInSwift
 import SwiftUI
 import PhotosUI
 
@@ -281,37 +280,20 @@ struct ProfileView: View {
                 }
             }
 
-            Button(action: linkWithApple) {
-                HStack(spacing: BryqoTheme.Spacing.sm) {
-                    if isLinking && linkingProvider == .apple {
-                        ProgressView()
-                            .tint(.white)
-                            .scaleEffect(0.85)
-                    } else {
-                        Image(systemName: "apple.logo")
-                    }
-                    Text(isLinking && linkingProvider == .apple ? "Vinculando…" : "Salvar com Apple")
-                        .font(.headline.bold())
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
-                .background(Color.black)
-                .clipShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .disabled(isLinking)
+            BryqoAuthButton(
+                provider: .apple,
+                isLoading: isLinking && linkingProvider == .apple,
+                isDisabled: isLinking,
+                action: linkWithApple
+            )
 
             if appState.authManager.isGoogleSignInAvailable {
-                // Google's own button, so the logo and colors follow their branding guidelines.
-                GoogleSignInButton(
-                    scheme: .light,
-                    style: .wide,
-                    state: isLinking ? .disabled : .normal,
+                BryqoAuthButton(
+                    provider: .google,
+                    isLoading: isLinking && linkingProvider == .google,
+                    isDisabled: isLinking,
                     action: linkWithGoogle
                 )
-                .frame(maxWidth: .infinity)
-                .accessibilityLabel("Salvar com Google")
             }
         }
         .bryqoCard()
