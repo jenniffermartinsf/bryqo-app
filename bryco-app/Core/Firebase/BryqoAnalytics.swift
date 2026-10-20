@@ -35,6 +35,12 @@ enum BryqoAnalytics {
         Analytics.logEvent("paywall_view", parameters: [:])
     }
 
+    /// Records a non-fatal persistence failure (opening, reading or saving the local store)
+    /// in Crashlytics, tagged with the operation that failed.
+    nonisolated static func recordPersistenceError(_ error: Error, operation: String) {
+        Crashlytics.crashlytics().record(error: error, userInfo: ["operation": operation])
+    }
+
     static func identifyUser(_ uid: String) {
         Crashlytics.crashlytics().setUserID(uid)
     }

@@ -20,6 +20,9 @@ final class BryqoAppState {
         didSet { UserDefaults.standard.set(isLightMode, forKey: "bryqo.isLightMode") }
     }
     var notificationsEnabled: Bool = false
+    /// Whether progress is reaching disk; drives the warning banner.
+    private(set) var persistenceHealth: PersistenceHealth = .healthy
+    @ObservationIgnored private let reportPersistenceError: (Error, String) -> Void
     var pendingStreakMilestone: Int? = nil
 
     var avatarImageData: Data? = nil {
@@ -37,41 +40,63 @@ final class BryqoAppState {
             .appendingPathComponent("bryqo_avatar.jpg")
     }
 
-    /// - Parameter inMemory: when `true`, uses a throwaway in-memory store instead of the
-    ///   on-disk one. Kept out of production call sites (defaults to `false`) and used by tests
-    ///   so each case starts from a clean, isolated state.
-    init(inMemory: Bool = false) {
+    /// - Parameters:
+    ///   - inMemory: when `true`, uses a throwaway in-memory store instead of the on-disk one.
+    ///     Kept out of production call sites (defaults to `false`) and used by tests so each case
+    ///     starts from a clean, isolated state.
+    ///   - openStore: opens the on-disk store. Injected so tests can simulate a store that fails
+    ///     to open (for example, a migration error).
+    ///   - reportPersistenceError: where persistence failures are reported (Crashlytics by default).
+    init(
+        inMemory: Bool = false,
+        openStore: (() throws -> ModelContainer)? = nil,
+        reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError
+    ) {
+        self.reportPersistenceError = reportPersistenceError
         let schema = Schema([PersistedUserState.self])
-
-        if inMemory {
-            modelContainer = try! ModelContainer(
-                for: schema,
-                configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-            )
-        } else if let container = try? ModelContainer(
-            for: schema,
-            migrationPlan: BryqoMigrationPlan.self,
-            configurations: ModelConfiguration(schema: schema)
-        ) {
-            modelContainer = container
-        } else {
-            modelContainer = try! ModelContainer(
+        let makeInMemoryContainer = {
+            try! ModelContainer(
                 for: schema,
                 configurations: ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
             )
         }
+        let openOnDiskStore = openStore ?? {
+            try ModelContainer(
+                for: schema,
+                migrationPlan: BryqoMigrationPlan.self,
+                configurations: ModelConfiguration(schema: schema)
+            )
+        }
+
+        if inMemory {
+            modelContainer = makeInMemoryContainer()
+        } else {
+            do {
+                modelContainer = try openOnDiskStore()
+            } catch {
+                // Keep the app usable, but never silently: report it and warn the user that
+                // nothing will survive closing the app.
+                reportPersistenceError(error, "open_store")
+                modelContainer = makeInMemoryContainer()
+                persistenceHealth = .temporaryStorage
+            }
+        }
 
         modelContext = ModelContext(modelContainer)
 
-        let descriptor = FetchDescriptor<PersistedUserState>()
-        let results = (try? modelContext.fetch(descriptor)) ?? []
+        var results: [PersistedUserState] = []
+        do {
+            results = try modelContext.fetch(FetchDescriptor<PersistedUserState>())
+        } catch {
+            reportPersistenceError(error, "fetch_user_state")
+        }
         if let existing = results.first {
             persistedState = existing
         } else {
             let newState = PersistedUserState()
             modelContext.insert(newState)
             persistedState = newState
-            try? modelContext.save()
+            saveContext(operation: "create_user_state")
         }
 
         progress = UserProgress(
@@ -96,7 +121,7 @@ final class BryqoAppState {
             progress.dailyXpEarned = 0
             persistedState.dailyMinutesStudied = 0
             persistedState.dailyXpEarned = 0
-            try? modelContext.save()
+            saveContext(operation: "reset_daily_progress")
         }
 
         if let name = persistedState.displayName,
@@ -263,13 +288,29 @@ final class BryqoAppState {
         persistedState.goal = profile?.goal
         persistedState.dailyGoalMinutes = profile?.dailyGoalMinutes ?? 20
         persistedState.accountCreatedDate = profile?.accountCreatedDate ?? Date()
-        try? modelContext.save()
+        saveContext(operation: "save_progress")
 
         mirrorToWidget()
 
         if let uid = authManager.currentUID {
             let snapshot = buildSnapshot()
             Task { await firestoreService.saveUserData(uid: uid, snapshot: snapshot) }
+        }
+    }
+
+    /// Writes pending changes to disk, reporting failures instead of swallowing them.
+    /// A temporary in-memory store keeps its warning: a successful save there still loses data.
+    private func saveContext(operation: String) {
+        do {
+            try modelContext.save()
+            if persistenceHealth == .saveFailed {
+                persistenceHealth = .healthy
+            }
+        } catch {
+            reportPersistenceError(error, operation)
+            if persistenceHealth == .healthy {
+                persistenceHealth = .saveFailed
+            }
         }
     }
 
