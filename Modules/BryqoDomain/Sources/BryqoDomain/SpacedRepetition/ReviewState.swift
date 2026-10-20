@@ -2,9 +2,8 @@ import Foundation
 
 /// Per-lesson spaced-repetition state, following the SM-2 algorithm.
 ///
-/// Persisted locally as JSON inside SwiftData (`PersistedUserState.reviewStatesData`) and
-/// mirrored to Firestore `lessonProgress/{lessonId}`. Kept as a plain `Codable` value type so
-/// scheduling stays pure and unit-testable, independent of persistence.
+/// A plain `Codable` value type so scheduling stays pure and unit-testable, independent of
+/// persistence. The app stores it as one SwiftData `LessonReview` row per lesson.
 public struct ReviewState: Codable, Equatable, Identifiable, Sendable {
     public let lessonId: String
     /// Number of consecutive successful reviews.

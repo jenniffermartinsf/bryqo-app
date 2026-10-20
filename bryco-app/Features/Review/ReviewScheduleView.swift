@@ -1,12 +1,16 @@
+import SwiftData
 import SwiftUI
 
 /// Bridges the UIKit review schedule into the SwiftUI navigation stack.
 struct ReviewScheduleView: View {
     let appState: BryqoAppState
 
+    /// Every lesson in spaced repetition, soonest first.
+    @Query(sort: \LessonReview.nextReviewAt) private var reviews: [LessonReview]
+
     private var schedule: ReviewSchedule {
         ReviewSchedule.make(
-            from: Array(appState.progress.reviewStates.values),
+            from: reviews.map(\.reviewState),
             lessonTitle: { appState.lesson(for: $0)?.title }
         )
     }

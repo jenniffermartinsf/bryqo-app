@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 /// Spaced-repetition hub: lists the lessons whose SM-2 schedule is due and lets the user
@@ -5,7 +6,15 @@ import SwiftUI
 struct ReviewView: View {
     let appState: BryqoAppState
 
-    private var dueLessons: [Lesson] { appState.dueReviews() }
+    /// Filtered and sorted by SwiftData; the view re-renders when review rows change.
+    @Query private var dueReviews: [LessonReview]
+
+    init(appState: BryqoAppState, now: Date = Date()) {
+        self.appState = appState
+        _dueReviews = Query(BryqoAppState.dueReviewsDescriptor(at: now))
+    }
+
+    private var dueLessons: [Lesson] { dueReviews.compactMap { appState.lesson(for: $0.lessonId) } }
 
     var body: some View {
         BryqoScreen {

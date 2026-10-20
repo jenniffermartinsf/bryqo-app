@@ -6,6 +6,7 @@ struct ProfileView: View {
 
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var linkState: AccountLinkState = .idle
+    @State private var isConfirmingReviewReset = false
 
     var body: some View {
         ScrollView {
@@ -183,6 +184,38 @@ struct ProfileView: View {
                 .padding(.top, BryqoTheme.Spacing.md)
 
             accountAuthCard
+
+            Button {
+                isConfirmingReviewReset = true
+            } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
+                        Text("Recomeçar revisões")
+                            .font(.headline.bold())
+                            .foregroundStyle(BryqoTheme.textPrimary)
+                        Text("Limpa a agenda de revisão espaçada. Lições e XP continuam.")
+                            .font(.body)
+                            .foregroundStyle(BryqoTheme.textSecondary)
+                    }
+                    Spacer()
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(BryqoTheme.textSecondary)
+                }
+                .bryqoCard()
+            }
+            .buttonStyle(.plain)
+            .confirmationDialog(
+                "Recomeçar as revisões?",
+                isPresented: $isConfirmingReviewReset,
+                titleVisibility: .visible
+            ) {
+                Button("Recomeçar revisões", role: .destructive) {
+                    appState.resetReviews()
+                }
+            } message: {
+                Text("A agenda de revisões será apagada. Suas lições concluídas e seu XP não mudam.")
+            }
 
             Button {
                 appState.resetOnboarding()
