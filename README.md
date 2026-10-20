@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-98%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-102%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -54,8 +54,8 @@ Para quem quer avaliar o projeto rapidamente:
 | **Injeção de dependência** | Dependências passadas pelo inicializador; os testes usam um banco SwiftData em memória e datas/calendário injetados |
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
-| **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V5) e sincronização com Firestore |
-| **Testes** | **98 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
+| **Testes** | **102 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -139,7 +139,7 @@ O app suporta **light mode** e **dark mode** de forma nativa, controlados por um
 | **Interface** | SwiftUI · UIKit (View Code, `UICollectionView`, diffable data source) |
 | **Estado** | Observation framework (`@Observable`) |
 | **Navegação** | `NavigationStack(path:)` com rotas tipadas · deep links por URL scheme |
-| **Persistência local** | **SwiftData** (`@Model`, `ModelContainer`) com migração de schema versionada (V1 → V5) |
+| **Persistência local** | **SwiftData** (`@Model`, `ModelContainer`) com migração de schema versionada (V1 → V6), `#Predicate`, `@Query`, `#Unique` e `#Index` |
 | **Backend / nuvem** | **Firebase**: Auth, Firestore, Analytics, Crashlytics |
 | **Autenticação** | Firebase Auth anônimo + **Sign in with Apple** (`AuthenticationServices` + `CryptoKit`) |
 | **Extensões** | WidgetKit (App Group para compartilhar dados com o app) |
@@ -285,7 +285,9 @@ sequenceDiagram
     App->>Cloud: saveUserData(snapshot)
 ```
 
-- **Migração de schema versionada**: [`PersistedUserState`](bryco-app/Domain/Models/PersistedUserState.swift) evolui por 5 versões (`BryqoSchemaV1…V5`) com um `SchemaMigrationPlan` de estágios *lightweight*.
+- **Dois modelos `@Model`**: `PersistedUserState` (progresso e perfil, um registro por usuário) e `LessonReview` (um registro por lição em revisão espaçada, com `#Unique` em `lessonId` e `#Index` em `nextReviewAt`). Veja [`PersistedUserState.swift`](bryco-app/Domain/Models/PersistedUserState.swift).
+- **Consultas no banco**: as revisões vencidas vêm de um `FetchDescriptor` com `#Predicate` (`nextReviewAt <= agora`) e `SortDescriptor`; o aviso da trilha usa `fetchCount`, sem carregar as linhas; as telas de Revisão e Agenda usam `@Query`, sobre o mesmo `mainContext` do app.
+- **Migração de schema versionada**: 6 versões (`BryqoSchemaV1…V6`). Os estágios até a V5 são *lightweight*; a V6 tem uma etapa personalizada que lê as revisões guardadas como JSON na V5 e cria uma linha `LessonReview` para cada uma. A migração é testada com um banco V5 real gravado em disco.
 - **Merge sem perda de progresso**: campos numéricos usam `max()` e coleções usam união de conjuntos.
 - **Sem bloqueio de rede**: se o login falhar, o app continua funcional com os dados locais.
 - **Falhas nunca são silenciosas**: erros ao abrir, ler ou salvar o banco são registrados no Crashlytics. Se o banco não abrir (por exemplo, numa migração com erro), o app continua usável num armazenamento temporário e mostra um aviso de que o progresso não será guardado ao fechar.
@@ -321,14 +323,15 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**98 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 85 no app e 13 no pacote `BryqoDomain`.
+**102 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 89 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
 | `SM-2 scheduler` *(pacote)* | Mapeamento de erros para qualidade, intervalos 1 → 6 → n dias, lapsos e piso do fator de facilidade |
 | `Binary search engine` *(pacote)* | Cálculo do meio, estreitamento da janela, alvo encontrado e janela esgotada |
 | `BryqoAppState gamification` | Streak (incremento, decay, freeze), regeneração de corações, merge com Firestore, níveis e meta de XP |
-| `Review scheduling` | Agendamento após a lição, revisões vencidas e persistência dos estados |
+| `Review scheduling` | Agendamento após a lição, uma linha por lição, revisões vencidas ordenadas no banco e exclusão |
+| `Review migration V5 → V6` | Banco V5 real em disco migrado para V6: cada revisão do JSON vira uma linha, com todos os campos |
 | `Review schedule` | Seções "agora" e "próximas", ordenação e rótulos de data da agenda |
 | `App router` | Deep links, URLs desconhecidas, pilha preservada entre abas e visibilidade da barra de abas |
 | `LessonViewModel` · `BinarySearchViewModel` · `VariableTraceViewModel` | Seleção, verificação, corações, XP e progressão de passos |

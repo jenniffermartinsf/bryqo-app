@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 import FirebaseCore
 
@@ -14,6 +15,7 @@ struct bryco_appApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(appState: appState)
+                .modelContainer(appState.modelContainer)
                 .task {
                     await appState.authManager.signInAnonymouslyIfNeeded()
                     await appState.syncFromFirestore()

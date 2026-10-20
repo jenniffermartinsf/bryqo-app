@@ -6,8 +6,12 @@ import WidgetKit
 
 @Observable
 final class BryqoAppState {
-    @ObservationIgnored private let modelContainer: ModelContainer
+    /// Shared with SwiftUI (`.modelContainer`) so `@Query` views read the same store.
+    @ObservationIgnored let modelContainer: ModelContainer
     @ObservationIgnored private let modelContext: ModelContext
+    /// Bumped whenever review rows change, so views reading review counts re-render.
+    /// SwiftData fetches are not observed by the Observation framework on their own.
+    private var reviewsRevision = 0
     @ObservationIgnored private var persistedState: PersistedUserState
     @ObservationIgnored let notificationManager = BryqoNotificationManager()
     @ObservationIgnored let authManager = BryqoAuthManager()
@@ -53,7 +57,7 @@ final class BryqoAppState {
         reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError
     ) {
         self.reportPersistenceError = reportPersistenceError
-        let schema = Schema([PersistedUserState.self])
+        let schema = Schema(versionedSchema: BryqoSchemaV6.self)
         let makeInMemoryContainer = {
             try! ModelContainer(
                 for: schema,
@@ -82,7 +86,8 @@ final class BryqoAppState {
             }
         }
 
-        modelContext = ModelContext(modelContainer)
+        // The main context is the one `@Query` uses, so app writes show up in views immediately.
+        modelContext = modelContainer.mainContext
 
         var results: [PersistedUserState] = []
         do {
@@ -111,8 +116,7 @@ final class BryqoAppState {
             streakFreezeCount: persistedState.streakFreezeCount,
             dailyMinutesStudied: persistedState.dailyMinutesStudied,
             dailyXpEarned: persistedState.dailyXpEarned,
-            heartsUpdatedAt: persistedState.heartsUpdatedAt,
-            reviewStates: BryqoAppState.decodeReviewStates(persistedState.reviewStatesData)
+            heartsUpdatedAt: persistedState.heartsUpdatedAt
         )
 
         if let last = progress.lastActivityDate,
@@ -276,7 +280,6 @@ final class BryqoAppState {
         persistedState.earnedMaterials = progress.earnedMaterials
         persistedState.hearts = progress.hearts
         persistedState.heartsUpdatedAt = progress.heartsUpdatedAt
-        persistedState.reviewStatesData = BryqoAppState.encodeReviewStates(progress.reviewStates)
         persistedState.lastActivityDate = progress.lastActivityDate
         persistedState.earnedAchievementIds = Array(progress.earnedAchievementIds)
         persistedState.perfectLessonCount = progress.perfectLessonCount
@@ -519,25 +522,81 @@ final class BryqoAppState {
         return nil
     }
 
-    /// Lessons whose next review date has arrived, soonest first.
-    func dueReviews(at date: Date = Date()) -> [Lesson] {
-        progress.reviewStates.values
-            .filter { $0.isDue(at: date) }
-            .sorted { $0.nextReviewAt < $1.nextReviewAt }
-            .compactMap { lesson(for: $0.lessonId) }
+    // MARK: - Spaced repetition (SwiftData)
+
+    /// Reviews whose date has arrived, most overdue first. Filtering and sorting run in the store.
+    static func dueReviewsDescriptor(at date: Date) -> FetchDescriptor<LessonReview> {
+        FetchDescriptor(
+            predicate: #Predicate { $0.nextReviewAt <= date },
+            sortBy: [SortDescriptor(\.nextReviewAt)]
+        )
     }
 
-    var dueReviewCount: Int { dueReviews().count }
+    /// Lessons whose next review date has arrived, most overdue first.
+    func dueReviews(at date: Date = Date()) -> [Lesson] {
+        _ = reviewsRevision
+        return fetchReviews(Self.dueReviewsDescriptor(at: date)).compactMap { lesson(for: $0.lessonId) }
+    }
 
-    /// Updates the SM-2 schedule for a lesson after it is completed or reviewed.
+    /// Counted in the store, without loading the rows.
+    var dueReviewCount: Int {
+        _ = reviewsRevision
+        do {
+            return try modelContext.fetchCount(Self.dueReviewsDescriptor(at: Date()))
+        } catch {
+            reportPersistenceError(error, "count_due_reviews")
+            return 0
+        }
+    }
+
+    /// The review row for one lesson, if it has entered spaced repetition.
+    func review(for lessonId: String) -> LessonReview? {
+        var descriptor = FetchDescriptor<LessonReview>(predicate: #Predicate { $0.lessonId == lessonId })
+        descriptor.fetchLimit = 1
+        return fetchReviews(descriptor).first
+    }
+
+    /// Updates the SM-2 schedule for a lesson after it is completed or reviewed:
+    /// creates its row the first time, updates it afterwards.
     func scheduleReview(lessonId: String, mistakeCount: Int, now: Date = Date()) {
-        let quality = SM2Scheduler.quality(forMistakes: mistakeCount)
-        progress.reviewStates[lessonId] = SM2Scheduler.schedule(
-            quality: quality,
+        let existing = review(for: lessonId)
+        let next = SM2Scheduler.schedule(
+            quality: SM2Scheduler.quality(forMistakes: mistakeCount),
             for: lessonId,
-            from: progress.reviewStates[lessonId],
+            from: existing?.reviewState,
             now: now
         )
+        if let existing {
+            existing.apply(next)
+        } else {
+            modelContext.insert(LessonReview(next))
+        }
+        reviewsChanged()
+    }
+
+    /// Deletes every review row. Completed lessons and XP stay; lessons simply leave the review queue.
+    func resetReviews() {
+        do {
+            try modelContext.delete(model: LessonReview.self)
+        } catch {
+            reportPersistenceError(error, "delete_reviews")
+        }
+        reviewsChanged()
+        saveContext(operation: "delete_reviews")
+    }
+
+    /// Call after editing review rows directly, so views reading review counts refresh.
+    func reviewsChanged() {
+        reviewsRevision += 1
+    }
+
+    private func fetchReviews(_ descriptor: FetchDescriptor<LessonReview>) -> [LessonReview] {
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            reportPersistenceError(error, "fetch_reviews")
+            return []
+        }
     }
 
     /// Called when the user finishes a *review* session (a lesson already completed).
@@ -550,15 +609,6 @@ final class BryqoAppState {
         }
         save()
         BryqoAnalytics.lessonCompleted(lessonId: lesson.id, xpEarned: mistakeCount == 0 ? 5 : 0, perfect: mistakeCount == 0)
-    }
-
-    private static func encodeReviewStates(_ states: [String: ReviewState]) -> Data {
-        (try? JSONEncoder().encode(Array(states.values))) ?? Data()
-    }
-
-    private static func decodeReviewStates(_ data: Data) -> [String: ReviewState] {
-        guard let array = try? JSONDecoder().decode([ReviewState].self, from: data) else { return [:] }
-        return Dictionary(uniqueKeysWithValues: array.map { ($0.lessonId, $0) })
     }
 
     // MARK: - Private
