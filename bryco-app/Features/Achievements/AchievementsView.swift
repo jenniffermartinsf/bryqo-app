@@ -66,19 +66,11 @@ struct AchievementsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
 
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(BryqoTheme.border).frame(height: 12)
-                    Capsule()
-                        .fill(LinearGradient(
-                            colors: [BryqoTheme.river, BryqoTheme.primary],
-                            startPoint: .leading, endPoint: .trailing
-                        ))
-                        .frame(width: max(12, geo.size.width * appState.xpProgressInLevel), height: 12)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: appState.xpProgressInLevel)
-                }
-            }
-            .frame(height: 12)
+            BryqoProgressBar(
+                progress: appState.xpProgressInLevel,
+                colors: [BryqoTheme.river, BryqoTheme.primary],
+                accessibilityLabel: "Progresso do nível"
+            )
 
             Text(levelCaption)
                 .font(.caption.weight(.semibold))

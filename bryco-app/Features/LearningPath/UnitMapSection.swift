@@ -98,26 +98,12 @@ struct UnitMapSection: View {
                 }
             }
 
-            // Animated progress bar
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(BryqoTheme.border)
-                        .frame(height: 8)
-
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [tint, tint.opacity(0.65)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: max(8, geo.size.width * progress), height: 8)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: completedCount)
-                }
-            }
-            .frame(height: 8)
+            BryqoProgressBar(
+                progress: progress,
+                colors: [tint, tint.opacity(0.65)],
+                height: 8,
+                accessibilityLabel: "Progresso da unidade"
+            )
 
             if completedCount == unit.lessons.count, let firstLesson = unit.lessons.first {
                 Button { onSelectLesson(firstLesson) } label: {

@@ -266,8 +266,12 @@ struct ValleyView: View {
                     .font(.headline)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
-                ProgressView(value: Double(min(progress, target)), total: Double(target))
-                    .tint(BryqoTheme.primary)
+                BryqoProgressBar(
+                    progress: Double(progress) / Double(max(target, 1)),
+                    tint: BryqoTheme.primary,
+                    height: 8,
+                    accessibilityLabel: title
+                )
 
                 Text("\(min(progress, target))/\(target) blocos")
                     .font(.caption.weight(.semibold))

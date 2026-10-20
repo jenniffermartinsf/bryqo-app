@@ -33,8 +33,7 @@ struct BryqoProgressView: View {
                 .font(.headline.bold())
                 .foregroundStyle(BryqoTheme.forest)
 
-            ProgressView(value: unitProgress)
-                .tint(BryqoTheme.forest)
+            BryqoProgressBar(progress: unitProgress, tint: BryqoTheme.forest, accessibilityLabel: "Progresso da unidade")
 
             Text("\(appState.completedLessonCount) de \(unit.lessons.count) lições concluídas")
                 .foregroundStyle(.secondary)
