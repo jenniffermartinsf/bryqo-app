@@ -1,4 +1,6 @@
 import FirebaseAuth
+import FirebaseCore
+import GoogleSignIn
 import AuthenticationServices
 import CryptoKit
 
@@ -7,6 +9,8 @@ final class BryqoAuthManager: NSObject, @unchecked Sendable {
     var currentUID: String? = nil
     var isAnonymous: Bool = true
     var isSignedIn: Bool = false
+    /// The provider the account is linked to ("Apple" or "Google"), or nil while anonymous.
+    var linkedProviderName: String? = nil
 
     @ObservationIgnored private var authStateHandle: AuthStateDidChangeListenerHandle?
     // Accessed only from main thread via delegate callbacks
@@ -20,6 +24,7 @@ final class BryqoAuthManager: NSObject, @unchecked Sendable {
                 self?.currentUID = user?.uid
                 self?.isAnonymous = user?.isAnonymous ?? true
                 self?.isSignedIn = user != nil
+                self?.linkedProviderName = BryqoAuthManager.providerName(for: user)
                 if let uid = user?.uid {
                     BryqoAnalytics.identifyUser(uid)
                 }
@@ -74,6 +79,73 @@ final class BryqoAuthManager: NSObject, @unchecked Sendable {
         }
     }
 
+    /// Whether this build has a Google OAuth client configured (the CI placeholder config doesn't).
+    var isGoogleSignInAvailable: Bool {
+        FirebaseApp.app()?.options.clientID != nil
+    }
+
+    // Presents Google Sign-In and links the account to the anonymous user, exactly like Apple:
+    // progress stays on the same Firebase user. Throws on failure (caller shows an alert).
+    @MainActor
+    func signInWithGoogle() async throws {
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            throw BryqoAuthError.googleNotConfigured
+        }
+        guard let presenter = Self.topViewController() else {
+            throw BryqoAuthError.noPresenter
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw BryqoAuthError.invalidCredential
+        }
+        let credential = GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: result.user.accessToken.tokenString
+        )
+        try await linkOrSignIn(with: credential)
+    }
+
+    /// Links `credential` to the anonymous account so progress stays on the same user. If the
+    /// provider account already belongs to another Firebase user, signs in to that user instead.
+    private func linkOrSignIn(with credential: AuthCredential) async throws {
+        do {
+            if let user = Auth.auth().currentUser, user.isAnonymous {
+                _ = try await user.link(with: credential)
+            } else {
+                _ = try await Auth.auth().signIn(with: credential)
+            }
+        } catch let error as NSError where error.code == AuthErrorCode.credentialAlreadyInUse.rawValue {
+            let existing = (error.userInfo[AuthErrorUserInfoUpdatedCredentialKey] as? AuthCredential) ?? credential
+            _ = try await Auth.auth().signIn(with: existing)
+        }
+        await MainActor.run {
+            let user = Auth.auth().currentUser
+            currentUID = user?.uid
+            isAnonymous = user?.isAnonymous ?? true
+            isSignedIn = user != nil
+            linkedProviderName = Self.providerName(for: user)
+        }
+    }
+
+    private static func providerName(for user: User?) -> String? {
+        let ids = Set(user?.providerData.map(\.providerID) ?? [])
+        if ids.contains("google.com") { return "Google" }
+        if ids.contains("apple.com") { return "Apple" }
+        return nil
+    }
+
+    @MainActor
+    private static func topViewController() -> UIViewController? {
+        let scene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        var top = scene?.keyWindow?.rootViewController
+        while let presented = top?.presentedViewController { top = presented }
+        return top
+    }
+
     // MARK: - Helpers
 
     private func randomNonce(length: Int = 32) -> String {
@@ -116,21 +188,8 @@ extension BryqoAuthManager: ASAuthorizationControllerDelegate {
 
         Task {
             do {
-                if let user = Auth.auth().currentUser, user.isAnonymous {
-                    _ = try await user.link(with: firebaseCred)
-                } else {
-                    _ = try await Auth.auth().signIn(with: firebaseCred)
-                }
+                try await linkOrSignIn(with: firebaseCred)
                 pendingContinuation?.resume()
-            } catch let err as NSError where err.code == AuthErrorCode.credentialAlreadyInUse.rawValue {
-                // Apple ID already linked to another Firebase account — sign in to that account
-                let fallback = (err.userInfo[AuthErrorUserInfoUpdatedCredentialKey] as? OAuthCredential) ?? firebaseCred
-                do {
-                    _ = try await Auth.auth().signIn(with: fallback)
-                    pendingContinuation?.resume()
-                } catch {
-                    pendingContinuation?.resume(throwing: error)
-                }
             } catch {
                 pendingContinuation?.resume(throwing: error)
             }
@@ -160,5 +219,14 @@ extension BryqoAuthManager: ASAuthorizationControllerPresentationContextProvidin
 
 enum BryqoAuthError: LocalizedError {
     case invalidCredential
-    var errorDescription: String? { "Credencial Apple inválida." }
+    case googleNotConfigured
+    case noPresenter
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidCredential: "Credencial inválida."
+        case .googleNotConfigured: "O login com Google não está configurado neste app."
+        case .noPresenter: "Não foi possível abrir a tela de login."
+        }
+    }
 }

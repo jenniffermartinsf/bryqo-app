@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F5A7FE330210B0100E8A9B2 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7FE130210B0100E8A9B2 /* GoogleSignIn */; };
+		3F5A7FE430210B0100E8A9B2 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7FE230210B0100E8A9B2 /* GoogleSignInSwift */; };
 		3F5A7FD230200A0100E8A9B2 /* BryqoDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7FD130200A0100E8A9B2 /* BryqoDomain */; };
 		3F5A7F64300FF1D100E8A9B2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F63300FF1D100E8A9B2 /* FirebaseCore */; };
 		3F5A7F66300FF1DB00E8A9B2 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5A7F65300FF1DB00E8A9B2 /* FirebaseAuth */; };
@@ -128,6 +130,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F5A7FD230200A0100E8A9B2 /* BryqoDomain in Frameworks */,
+				3F5A7FE330210B0100E8A9B2 /* GoogleSignIn in Frameworks */,
+				3F5A7FE430210B0100E8A9B2 /* GoogleSignInSwift in Frameworks */,
 				3F5A7F64300FF1D100E8A9B2 /* FirebaseCore in Frameworks */,
 				3F5A7F66300FF1DB00E8A9B2 /* FirebaseAuth in Frameworks */,
 				3F5A7F6C300FF20200E8A9B2 /* FirebaseCrashlytics in Frameworks */,
@@ -231,6 +235,8 @@
 			name = "bryco-app";
 			packageProductDependencies = (
 				3F5A7FD130200A0100E8A9B2 /* BryqoDomain */,
+				3F5A7FE130210B0100E8A9B2 /* GoogleSignIn */,
+				3F5A7FE230210B0100E8A9B2 /* GoogleSignInSwift */,
 				3F5A7F63300FF1D100E8A9B2 /* FirebaseCore */,
 				3F5A7F65300FF1DB00E8A9B2 /* FirebaseAuth */,
 				3F5A7F67300FF1E900E8A9B2 /* FirebaseFirestore */,
@@ -325,6 +331,7 @@
 			packageReferences = (
 				3F5A7FD030200A0100E8A9B2 /* XCLocalSwiftPackageReference "Modules/BryqoDomain" */,
 				3F5A7F61300FF05B00E8A9B2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				3F5A7FE030210B0100E8A9B2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FC61E4630073512005F52B0 /* Products */;
@@ -827,9 +834,27 @@
 				minimumVersion = 12.16.0;
 			};
 		};
+		3F5A7FE030210B0100E8A9B2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3F5A7FE130210B0100E8A9B2 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7FE030210B0100E8A9B2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		3F5A7FE230210B0100E8A9B2 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5A7FE030210B0100E8A9B2 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		3F5A7FD130200A0100E8A9B2 /* BryqoDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BryqoDomain;

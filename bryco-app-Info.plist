@@ -12,6 +12,14 @@
 				<string>bryqo</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>google-sign-in</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.336164659452-t6af421ie6anoh4qnjg8endr7be940o1</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>
