@@ -146,8 +146,7 @@ struct LessonView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Sair da lição")
 
-            LessonProgressBar(progress: viewModel.progress)
-                .frame(height: 12)
+            BryqoProgressBar(progress: viewModel.progress, tint: BryqoTheme.success, accessibilityLabel: "Progresso da lição")
 
             HeartsView(hearts: viewModel.hearts)
         }
@@ -486,26 +485,6 @@ private struct OptionCard: View {
         .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isSelected)
         .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isCorrect)
         .animation(.spring(response: 0.22, dampingFraction: 0.82), value: isWrong)
-    }
-}
-
-// MARK: - Lesson Progress Bar
-
-private struct LessonProgressBar: View {
-    let progress: Double
-
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: BryqoTheme.Radius.pill, style: .continuous)
-                    .fill(BryqoTheme.border)
-
-                RoundedRectangle(cornerRadius: BryqoTheme.Radius.pill, style: .continuous)
-                    .fill(BryqoTheme.success)
-                    .frame(width: max(8, geometry.size.width * max(0, min(1, progress))))
-            }
-        }
-        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: progress)
     }
 }
 
