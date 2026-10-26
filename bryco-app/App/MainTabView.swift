@@ -42,15 +42,17 @@ struct MainTabView: View {
         }
     }
 
+    private var units: [LearningUnit] { appState.content.units }
+
     @ViewBuilder
     private var selectedView: some View {
         switch router.selectedTab {
         case .valley:
-            ValleyView(appState: appState, router: router, unit: BryqoContent.allUnits[0], units: BryqoContent.allUnits)
+            ValleyView(appState: appState, router: router, unit: units[0], units: units)
         case .learn:
-            LearnView(appState: appState, router: router, units: BryqoContent.allUnits)
+            LearnView(appState: appState, router: router, units: units)
         case .backpack:
-            BackpackView(appState: appState, unit: BryqoContent.allUnits[0])
+            BackpackView(appState: appState, unit: units[0])
         case .achievements:
             AchievementsView(appState: appState)
         case .profile:

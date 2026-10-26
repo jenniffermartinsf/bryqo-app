@@ -15,6 +15,8 @@ final class BryqoAppState {
     @ObservationIgnored private var persistedState: PersistedUserState
     @ObservationIgnored let notificationManager = BryqoNotificationManager()
     @ObservationIgnored let authManager = BryqoAuthManager()
+    /// Lesson catalog: bundled content, replaced by a newer remote catalog when one arrives.
+    let content: ContentRepository
     @ObservationIgnored private let cloudStore: any UserCloudStore
     /// Prevents overlapping syncs when launch and "back to foreground" fire close together.
     @ObservationIgnored private var isSyncing = false
@@ -70,8 +72,14 @@ final class BryqoAppState {
         openStore: (() throws -> ModelContainer)? = nil,
         reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError,
         cloudStore: (any UserCloudStore)? = nil,
-        signedInUID: (() -> String?)? = nil
+        signedInUID: (() -> String?)? = nil,
+        content: ContentRepository? = nil
     ) {
+        // Tests (inMemory) get a throwaway cache so they never read content saved by the app.
+        self.content = content ?? (inMemory
+            ? ContentRepository(cache: ContentCache(directory: FileManager.default.temporaryDirectory
+                .appendingPathComponent("bryqo-content-\(UUID().uuidString)")))
+            : ContentRepository())
         self.reportPersistenceError = reportPersistenceError
         self.cloudStore = cloudStore ?? BryqoFirestoreService()
         let schema = Schema(versionedSchema: BryqoSchemaV6.self)
@@ -564,10 +572,7 @@ final class BryqoAppState {
 
     /// Global lookup of a lesson across every unit — reviews reference lessons by id.
     func lesson(for id: String) -> Lesson? {
-        for unit in BryqoContent.allUnits {
-            if let lesson = unit.lessons.first(where: { $0.id == id }) { return lesson }
-        }
-        return nil
+        content.lesson(for: id)
     }
 
     // MARK: - Spaced repetition (SwiftData)
