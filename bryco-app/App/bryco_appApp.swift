@@ -17,6 +17,12 @@ struct bryco_appApp: App {
             ContentView(appState: appState)
                 .modelContainer(appState.modelContainer)
                 .task {
+                    // Back online: resume a content fetch that failed for lack of connection.
+                    for await isOnline in ConnectivityMonitor.updates() where isOnline {
+                        await appState.content.connectionRestored()
+                    }
+                }
+                .task {
                     async let content: Void = appState.content.refresh()
                     async let cloud: Void = appState.syncWithCloud()
                     _ = await (content, cloud)

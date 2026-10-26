@@ -19,6 +19,11 @@ struct LearnView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: BryqoTheme.Spacing.lg) {
+                        if appState.content.showsStaleContentNotice {
+                            staleContentNotice
+                                .padding(.horizontal, BryqoTheme.Spacing.xl)
+                                .padding(.top, BryqoTheme.Spacing.lg)
+                        }
                         if appState.dueReviewCount > 0 {
                             reviewBanner(count: appState.dueReviewCount)
                                 .padding(.horizontal, BryqoTheme.Spacing.xl)
@@ -43,6 +48,23 @@ struct LearnView: View {
                 }
             }
         }
+    }
+
+    /// The only network problem the user ever sees: a week without reaching the server.
+    private var staleContentNotice: some View {
+        HStack(spacing: BryqoTheme.Spacing.md) {
+            Image(systemName: "wifi.exclamationmark")
+                .font(.headline)
+                .foregroundStyle(BryqoTheme.textSecondary)
+                .accessibilityHidden(true)
+            Text("Conecte-se à internet para receber lições novas. Você pode continuar estudando normalmente.")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(BryqoTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .bryqoCard()
+        .accessibilityElement(children: .combine)
     }
 
     private func reviewBanner(count: Int) -> some View {

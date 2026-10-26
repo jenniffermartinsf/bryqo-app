@@ -6,7 +6,18 @@ extension ContentCatalogDTO {
     /// Valid units only. A lesson with a broken step is dropped; a unit left with no lessons
     /// is dropped. One bad lesson on the server never takes the whole app down.
     func toDomain() -> [LearningUnit] {
-        units.compactMap { $0.toDomain() }
+        mapped().units
+    }
+
+    /// The valid units plus the ids of every lesson that was dropped, so broken content can
+    /// be reported instead of disappearing silently.
+    func mapped() -> (units: [LearningUnit], droppedLessonIds: [String]) {
+        var dropped: [String] = []
+        let valid = units.compactMap { unit -> LearningUnit? in
+            dropped += unit.lessons.filter { $0.toDomain() == nil }.map(\.id)
+            return unit.toDomain()
+        }
+        return (valid, dropped)
     }
 }
 
