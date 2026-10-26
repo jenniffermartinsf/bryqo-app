@@ -1,0 +1,2476 @@
+{
+  "units" : [
+    {
+      "id" : "logica-programacao",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "logica-instrucoes",
+          "materialReward" : "Compasso",
+          "steps" : [
+            {
+              "body" : "Você pede para um robô fazer um sanduíche. Sem instruções exatas, ele coloca o pão em cima do tomate e chama de sanduíche. Computadores são assim.",
+              "id" : "li-s",
+              "kind" : "story",
+              "title" : "O robô do sanduíche"
+            },
+            {
+              "body" : "Um computador executa exatamente o que você escreveu, não o que você quis dizer. Instruções precisam ser ordenadas, completas e sem duplo sentido.",
+              "id" : "li-c",
+              "kind" : "concept",
+              "title" : "Sem ambiguidade"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "'5 gramas' é exato. As demais são subjetivas e ambíguas para uma máquina.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Adicione sal a gosto"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Adicione 5 gramas de sal"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Tempere bem"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Coloque um pouco"
+                  }
+                ],
+                "prompt" : "Qual instrução um computador consegue seguir sem ambiguidade?"
+              },
+              "id" : "li-e",
+              "kind" : "singleChoice",
+              "title" : "Identifique a instrução precisa"
+            },
+            {
+              "body" : "Programar é comunicar instruções sem ambiguidade. Toda ambiguidade vira bug.",
+              "id" : "li-sm",
+              "kind" : "summary",
+              "title" : "Precisão é tudo"
+            }
+          ],
+          "subtitle" : "Computadores fazem exatamente o que você disse.",
+          "title" : "Instruções Precisas",
+          "xpReward" : 15
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "logica-decisoes",
+          "materialReward" : "Bússola",
+          "steps" : [
+            {
+              "body" : "Toda manhã você toma decisões baseadas em condições. O código faz o mesmo com desvios condicionais.",
+              "id" : "ld-s",
+              "kind" : "story",
+              "title" : "Se chover, guarda-chuva"
+            },
+            {
+              "body" : "Uma condição é uma pergunta com resposta verdadeira ou falsa. Quando verdadeira, um caminho é seguido; quando falsa, outro. Só um dos dois executa.",
+              "id" : "ld-c",
+              "kind" : "concept",
+              "title" : "Verdadeiro ou Falso"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Correto. Condições são binárias: verdadeiro XOR falso.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Uma condição sempre produz um resultado verdadeiro ou falso — nunca os dois ao mesmo tempo."
+              },
+              "id" : "ld-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Decisões controlam o fluxo de qualquer algoritmo. São a base da lógica computacional.",
+              "id" : "ld-sm",
+              "kind" : "summary",
+              "title" : "Bifurcação construída"
+            }
+          ],
+          "subtitle" : "Quando o fluxo muda de direção.",
+          "title" : "Decisões e Condições",
+          "xpReward" : 15
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "logica-loops",
+          "materialReward" : "Engrenagem",
+          "steps" : [
+            {
+              "body" : "Imagine precisar escrever 'Olá' mil vezes. Um loop faz isso em uma instrução — o computador é o operário, você é o arquiteto.",
+              "id" : "ll-s",
+              "kind" : "story",
+              "title" : "1000 vezes em 1 instrução"
+            },
+            {
+              "body" : "Um loop repete um bloco de instruções enquanto uma condição for verdadeira. Cada repetição se chama iteração. O loop para quando a condição se torna falsa.",
+              "id" : "ll-c",
+              "kind" : "concept",
+              "title" : "Iteração"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "x passa por 0,1,2,3,4 — cinco valores onde x < 5 é verdadeiro.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "4"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "5"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "6"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "infinito"
+                  }
+                ],
+                "prompt" : "Um loop começa com x = 0, executa enquanto x < 5 e incrementa x em 1 a cada vez. Quantas vezes o bloco executa?"
+              },
+              "id" : "ll-e",
+              "kind" : "singleChoice",
+              "title" : "Quantas iterações?"
+            },
+            {
+              "body" : "",
+              "id" : "ll-vt",
+              "kind" : "variableTrace",
+              "title" : "Rastreie o loop",
+              "variableTrace" : {
+                "codeLines" : [
+                  "total = 0",
+                  "para cada n em [1, 2, 3]:",
+                  "    total = total + n"
+                ],
+                "intro" : "Execute o código na sua cabeça, linha por linha, e diga o valor de `total` a cada passo.",
+                "language" : "Código",
+                "steps" : [
+                  {
+                    "correctAnswer" : "0",
+                    "explanation" : "`total` acabou de ser criado com 0.",
+                    "highlightedLine" : 0,
+                    "options" : [
+                      "0",
+                      "1",
+                      "6"
+                    ],
+                    "prompt" : "Após a linha 1, quanto vale `total`?",
+                    "variable" : "total"
+                  },
+                  {
+                    "correctAnswer" : "1",
+                    "explanation" : "0 + 1 = 1.",
+                    "highlightedLine" : 2,
+                    "options" : [
+                      "1",
+                      "2",
+                      "3"
+                    ],
+                    "prompt" : "1ª iteração (n = 1): quanto vale `total`?",
+                    "variable" : "total"
+                  },
+                  {
+                    "correctAnswer" : "3",
+                    "explanation" : "1 + 2 = 3.",
+                    "highlightedLine" : 2,
+                    "options" : [
+                      "2",
+                      "3",
+                      "5"
+                    ],
+                    "prompt" : "2ª iteração (n = 2): quanto vale `total`?",
+                    "variable" : "total"
+                  },
+                  {
+                    "correctAnswer" : "6",
+                    "explanation" : "3 + 3 = 6. O loop terminou — a soma é 6.",
+                    "highlightedLine" : 2,
+                    "options" : [
+                      "5",
+                      "6",
+                      "9"
+                    ],
+                    "prompt" : "3ª iteração (n = 3): quanto vale `total`?",
+                    "variable" : "total"
+                  }
+                ]
+              }
+            },
+            {
+              "body" : "Loops eliminam repetição manual. São o motivo de computadores serem mais rápidos que humanos em tarefas repetitivas.",
+              "id" : "ll-sm",
+              "kind" : "summary",
+              "title" : "Ciclo fechado"
+            }
+          ],
+          "subtitle" : "Faça o computador trabalhar por você.",
+          "title" : "Repetição e Loops",
+          "xpReward" : 20
+        }
+      ],
+      "subtitle" : "O jeito de pensar que toda solução precisa.",
+      "title" : "Lógica de Programação"
+    },
+    {
+      "id" : "algoritmos",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "alg-conceito",
+          "materialReward" : "Planta",
+          "steps" : [
+            {
+              "body" : "Uma receita de bolo é um algoritmo: tem início, passos ordenados e um resultado esperado. Todo programa é um conjunto de algoritmos.",
+              "id" : "ac-s",
+              "kind" : "story",
+              "title" : "A receita de bolo"
+            },
+            {
+              "body" : "Um algoritmo é uma sequência finita de passos bem definidos para resolver um problema. Deve ter entrada, saída, ser preciso e terminar.",
+              "id" : "ac-c",
+              "kind" : "concept",
+              "title" : "Definição"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Algoritmos existem antes do computador — uma receita executada à mão também é um algoritmo.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Ter um fim"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Ser executado por um computador"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Ter passos definidos"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Produzir um resultado"
+                  }
+                ],
+                "prompt" : "Qual característica NÃO é obrigatória em um algoritmo?"
+              },
+              "id" : "ac-e",
+              "kind" : "singleChoice",
+              "title" : "Característica obrigatória"
+            },
+            {
+              "body" : "Você cria o algoritmo antes de escrever código. A linguagem é apenas a tradução.",
+              "id" : "ac-sm",
+              "kind" : "summary",
+              "title" : "Algoritmo primeiro"
+            }
+          ],
+          "subtitle" : "A receita antes do código.",
+          "title" : "O que é um Algoritmo?",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "alg-busca-linear",
+          "materialReward" : "Lupa",
+          "steps" : [
+            {
+              "body" : "Você perdeu as chaves. A estratégia mais simples: olhar cada lugar um por um, até encontrar ou confirmar que não estão.",
+              "id" : "abl-s",
+              "kind" : "story",
+              "title" : "Chaves perdidas"
+            },
+            {
+              "body" : "Busca linear examina cada elemento da lista em ordem. No melhor caso encontra no primeiro elemento. No pior caso, examina todos os n elementos.",
+              "id" : "abl-c",
+              "kind" : "concept",
+              "title" : "Percorrer tudo"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "false"
+                ],
+                "explanation" : "O pior caso é quando o elemento é o último — ou não existe na lista.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Na busca linear, o pior caso ocorre quando o elemento procurado é o primeiro da lista."
+              },
+              "id" : "abl-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Busca linear funciona sempre, mas é lenta em listas grandes. É O(n) — proporcional ao tamanho.",
+              "id" : "abl-sm",
+              "kind" : "summary",
+              "title" : "Simples mas custoso"
+            }
+          ],
+          "subtitle" : "A estratégia mais simples de busca.",
+          "title" : "Busca Linear",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "alg-busca-binaria",
+          "materialReward" : "Divisor",
+          "steps" : [
+            {
+              "body" : "Ao buscar uma palavra no dicionário, você não lê da página 1. Abre no meio, descarta metade e repete. Isso é busca binária.",
+              "id" : "abb-s",
+              "kind" : "story",
+              "title" : "O dicionário"
+            },
+            {
+              "body" : "Busca binária só funciona em listas ordenadas. A cada passo, compara com o elemento do meio e descarta metade. Com 1.000.000 de itens, precisa de no máximo 20 comparações.",
+              "id" : "abb-c",
+              "kind" : "concept",
+              "title" : "Divisão e conquista"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ],
+                "explanation" : "Cada passo elimina metade do problema até encontrar ou confirmar ausência.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Veja o elemento do meio"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Compare com o alvo"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Descarte a metade errada"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Repita com a metade restante"
+                  }
+                ],
+                "prompt" : "Ordene os passos da busca binária:"
+              },
+              "id" : "abb-e",
+              "kind" : "ordering",
+              "title" : "Monte a sequência"
+            },
+            {
+              "binarySearch" : {
+                "array" : [
+                  3,
+                  7,
+                  11,
+                  18,
+                  25,
+                  34,
+                  42,
+                  58,
+                  65
+                ],
+                "intro" : "Guie a busca: a cada passo, diga se o alvo é menor, igual ou maior que o meio. Veja metade da lista desaparecer.",
+                "target" : 58
+              },
+              "body" : "",
+              "id" : "abb-bs",
+              "kind" : "binarySearch",
+              "title" : "Busque você mesmo"
+            },
+            {
+              "body" : "Busca binária é O(log n) — exponencialmente mais rápida que linear em listas grandes.",
+              "id" : "abb-sm",
+              "kind" : "summary",
+              "title" : "Logarítmica"
+            }
+          ],
+          "subtitle" : "Descarte metade a cada passo.",
+          "title" : "Busca Binária",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "alg-ordenacao",
+          "materialReward" : "Sequência",
+          "steps" : [
+            {
+              "body" : "Para organizar cartas, você encontra a menor, coloca na frente, e repete com o restante. Isso é Selection Sort — intuitivo mas não o mais eficiente.",
+              "id" : "ao-s",
+              "kind" : "story",
+              "title" : "Organizando o baralho"
+            },
+            {
+              "body" : "Bubble Sort é simples mas O(n²). Merge Sort divide e conquista, chegando a O(n log n). Quick Sort é O(n log n) na média. Escolher o algoritmo certo importa em listas grandes.",
+              "id" : "ao-c",
+              "kind" : "concept",
+              "title" : "Trade-offs de ordenação"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "c"
+                ],
+                "explanation" : "O(n log n) é dramaticamente melhor que O(n²) em escala. 1M² = 1 trilhão de operações vs ~20M.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Bubble Sort — O(n²)"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Selection Sort — O(n²)"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Merge Sort — O(n log n)"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Todos são iguais em performance"
+                  }
+                ],
+                "prompt" : "Para ordenar 1 milhão de elementos, qual algoritmo você escolheria?"
+              },
+              "id" : "ao-e",
+              "kind" : "singleChoice",
+              "title" : "Qual é mais eficiente?"
+            },
+            {
+              "body" : "Dados ordenados habilitam busca binária, joins eficientes em BD e muito mais.",
+              "id" : "ao-sm",
+              "kind" : "summary",
+              "title" : "Ordem importa"
+            }
+          ],
+          "subtitle" : "Transformar caos em estrutura.",
+          "title" : "Algoritmos de Ordenação",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "Sequências que resolvem problemas de forma sistemática.",
+      "title" : "Algoritmos"
+    },
+    {
+      "id" : "big-o-notation",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "bigo-intro",
+          "materialReward" : "Medidor",
+          "steps" : [
+            {
+              "body" : "Dois algoritmos resolvem o mesmo problema. Como saber qual é melhor sem executá-los? Big O responde isso.",
+              "id" : "bi-s",
+              "kind" : "story",
+              "title" : "Dois algoritmos, mesmo problema"
+            },
+            {
+              "body" : "Big O descreve como o tempo de execução cresce conforme o tamanho da entrada (n) aumenta. Não mede segundos — mede padrão de crescimento. O(1) é constante. O(n) cresce linearmente.",
+              "id" : "bi-c",
+              "kind" : "concept",
+              "title" : "Crescimento da entrada"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Visitar cada um dos n elementos = O(n). O tempo cresce proporcionalmente ao tamanho.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "O(1)"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "O(n)"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "O(n²)"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "O(log n)"
+                  }
+                ],
+                "prompt" : "Um algoritmo que visita cada elemento da lista exatamente uma vez tem complexidade:"
+              },
+              "id" : "bi-e",
+              "kind" : "singleChoice",
+              "title" : "Identifique a complexidade"
+            },
+            {
+              "body" : "Big O é como devs comunicam eficiência. É independente de hardware ou linguagem.",
+              "id" : "bi-sm",
+              "kind" : "summary",
+              "title" : "Linguagem universal"
+            }
+          ],
+          "subtitle" : "Medindo crescimento, não segundos.",
+          "title" : "O que é Big O?",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "bigo-eficiente",
+          "materialReward" : "Raio",
+          "steps" : [
+            {
+              "body" : "Acessar uma gaveta pelo número é O(1) — não importa quantas gavetas existam. Busca binária é O(log n) — dobrar a entrada adiciona apenas 1 passo.",
+              "id" : "be-s",
+              "kind" : "story",
+              "title" : "Gaveta numerada"
+            },
+            {
+              "body" : "O(1) é constante: a entrada não afeta o tempo. O(log n) cresce tão devagar que com 1 bilhão de itens faz apenas ~30 operações. São as complexidades mais desejáveis.",
+              "id" : "be-c",
+              "kind" : "concept",
+              "title" : "Crescimento lento"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "log₂(1.000.000) ≈ 20. É por isso que busca binária é tão poderosa.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Um algoritmo O(log n) com 1.000.000 de entradas precisa de aproximadamente 20 passos."
+              },
+              "id" : "be-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "O(1) e O(log n) funcionam bem mesmo com bilhões de entradas.",
+              "id" : "be-sm",
+              "kind" : "summary",
+              "title" : "Escala ideal"
+            }
+          ],
+          "subtitle" : "As complexidades mais desejáveis.",
+          "title" : "O(1) e O(log n)",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "bigo-ruim",
+          "materialReward" : "Gráfico",
+          "steps" : [
+            {
+              "body" : "Com 10 pessoas, são 100 possíveis cumprimentos. Com 1000, são 1 milhão. O número de pares cresce ao quadrado.",
+              "id" : "br-s",
+              "kind" : "story",
+              "title" : "Pares em uma festa"
+            },
+            {
+              "body" : "O(n²) surge em loops aninhados — funciona para n pequeno, trava para n grande. O(2ⁿ) dobra a cada incremento — torna-se impraticável rapidamente. Evite ambos em problemas de escala.",
+              "id" : "br-c",
+              "kind" : "concept",
+              "title" : "Quadrático e Exponencial"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ],
+                "explanation" : "Constante → Logarítmica → Linear → Quadrática. Cada nível é drasticamente pior em escala.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "O(1)"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "O(log n)"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "O(n)"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "O(n²)"
+                  }
+                ],
+                "prompt" : "Organize as complexidades do mais eficiente ao menos eficiente:"
+              },
+              "id" : "br-e",
+              "kind" : "ordering",
+              "title" : "Ordene do mais ao menos eficiente"
+            },
+            {
+              "body" : "Código que funciona no dev com 100 itens pode travar em produção com 1 milhão. Big O prevê isso.",
+              "id" : "br-sm",
+              "kind" : "summary",
+              "title" : "Big O na prática"
+            }
+          ],
+          "subtitle" : "Quando o crescimento se torna problema.",
+          "title" : "O(n²) e O(2ⁿ)",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "A linguagem para medir e comparar eficiência.",
+      "title" : "Big O Notation"
+    },
+    {
+      "id" : "recursao",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "rec-conceito",
+          "materialReward" : "Espelho",
+          "steps" : [
+            {
+              "body" : "Para calcular 5!, você precisa de 4!. Para 4!, precisa de 3!. E assim até 1! = 1. A solução do grande depende da solução do menor.",
+              "id" : "rc-s",
+              "kind" : "story",
+              "title" : "Fatorial de 5"
+            },
+            {
+              "body" : "Recursão é quando uma função se chama dentro de si mesma com uma entrada menor. Cada chamada reduz o problema até chegar ao caso base, que retorna diretamente.",
+              "id" : "rc-c",
+              "kind" : "concept",
+              "title" : "Auto-referência controlada"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Sem caso base, a função nunca para de se chamar — causando stack overflow.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Uma função recursiva sem caso base executa para sempre (ou até estourar a memória)."
+              },
+              "id" : "rc-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Recursão transforma problemas grandes em versões menores do mesmo problema.",
+              "id" : "rc-sm",
+              "kind" : "summary",
+              "title" : "Quebrar para conquistar"
+            }
+          ],
+          "subtitle" : "O problema dentro do problema.",
+          "title" : "Uma Função que se Chama",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "rec-caso-base",
+          "materialReward" : "Âncora",
+          "steps" : [
+            {
+              "body" : "Bonecas russas: cada uma abre e tem outra dentro — até chegar na menor, que não abre mais. Essa é o caso base.",
+              "id" : "rcb-s",
+              "kind" : "story",
+              "title" : "A menor matrioska"
+            },
+            {
+              "body" : "Caso base: condição de parada — retorna um valor diretamente sem nova chamada. Caso recursivo: reduz o problema e se chama novamente. Sem caso base, recursão infinita. Sem caso recursivo, apenas uma chamada.",
+              "id" : "rcb-c",
+              "kind" : "concept",
+              "title" : "Dois casos obrigatórios"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "c"
+                ],
+                "explanation" : "fatorial(0) = fatorial(1) = 1. São os valores que param a recursão.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "n > 1"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "n * fatorial(n-1)"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "n = 0 ou n = 1, retorna 1"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "fatorial(n-1)"
+                  }
+                ],
+                "prompt" : "Numa função que calcula fatorial(n), qual é o caso base?"
+              },
+              "id" : "rcb-e",
+              "kind" : "singleChoice",
+              "title" : "Identifique o caso base"
+            },
+            {
+              "body" : "O caso base é a fundação. Sem ele: stack overflow. Com ele: elegância.",
+              "id" : "rcb-sm",
+              "kind" : "summary",
+              "title" : "Sem base, sem fim"
+            }
+          ],
+          "subtitle" : "A condição de parada é tudo.",
+          "title" : "Caso Base e Caso Recursivo",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "rec-uso",
+          "materialReward" : "Árvore",
+          "steps" : [
+            {
+              "body" : "Percorrer todos os arquivos de um computador — pastas dentro de pastas indefinidamente — com um loop iterativo seria complexo. Com recursão, são 5 linhas.",
+              "id" : "ru-s",
+              "kind" : "story",
+              "title" : "Pasta dentro de pasta"
+            },
+            {
+              "body" : "Recursão brilha em estruturas hierárquicas (árvores, grafos) e divisão-e-conquista. Para listas simples, loops iterativos são mais eficientes por não acumular chamadas na stack de memória.",
+              "id" : "ru-c",
+              "kind" : "concept",
+              "title" : "Casos ideais"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Estruturas hierárquicas são naturalmente recursivas. Loops iterativos precisariam de uma pilha manual.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Somar 100 números em uma lista"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Percorrer todos os arquivos de uma pasta e suas subpastas"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Buscar o maior número em um array"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Imprimir números de 1 a 10"
+                  }
+                ],
+                "prompt" : "Qual problema se beneficia MAIS de recursão?"
+              },
+              "id" : "ru-e",
+              "kind" : "singleChoice",
+              "title" : "Qual se beneficia mais?"
+            },
+            {
+              "body" : "Use recursão quando o problema é naturalmente hierárquico ou se divide em versões menores de si mesmo.",
+              "id" : "ru-sm",
+              "kind" : "summary",
+              "title" : "Ferramenta certa"
+            }
+          ],
+          "subtitle" : "Hierarquia pede recursão.",
+          "title" : "Quando Usar Recursão",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "Resolver o grande resolvendo o pequeno.",
+      "title" : "Recursão"
+    },
+    {
+      "id" : "estrutura-de-dados",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "ed-arrays",
+          "materialReward" : "Grade",
+          "steps" : [
+            {
+              "body" : "10 cadeiras numeradas em fila. Você sabe exatamente onde está a cadeira 7 sem precisar procurar. Arrays funcionam assim.",
+              "id" : "ea-s",
+              "kind" : "story",
+              "title" : "Cadeiras numeradas"
+            },
+            {
+              "body" : "Um array armazena elementos em posições consecutivas de memória. Acesso por índice é O(1) — instantâneo. Inserir ou remover do meio exige mover elementos: O(n).",
+              "id" : "ea-c",
+              "kind" : "concept",
+              "title" : "Índice direto"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "O índice é o endereço direto na memória. Sem busca — acesso imediato.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Buscar um valor sem saber o índice"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Acessar um elemento pelo índice"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Inserir no meio"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Remover do início"
+                  }
+                ],
+                "prompt" : "Qual operação em um array tem tempo constante O(1)?"
+              },
+              "id" : "ea-e",
+              "kind" : "singleChoice",
+              "title" : "Qual operação é O(1)?"
+            },
+            {
+              "body" : "Arrays trocam flexibilidade por velocidade de acesso. Perfeitos quando o tamanho e os índices são conhecidos.",
+              "id" : "ea-sm",
+              "kind" : "summary",
+              "title" : "Velocidade com limitações"
+            }
+          ],
+          "subtitle" : "Memória contígua e acesso por índice.",
+          "title" : "Arrays e Listas",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "ed-pilha-fila",
+          "materialReward" : "Pilha",
+          "steps" : [
+            {
+              "body" : "Pilha de pratos: o último colocado é o primeiro retirado (LIFO). Fila de banco: o primeiro que chegou é o primeiro atendido (FIFO).",
+              "id" : "epf-s",
+              "kind" : "story",
+              "title" : "Pratos e banco"
+            },
+            {
+              "body" : "Stack (pilha) segue LIFO: Last In, First Out — usado em recursão, histórico de ações, desfazer. Queue (fila) segue FIFO: First In, First Out — usado em filas de impressão, mensagens assíncronas.",
+              "id" : "epf-c",
+              "kind" : "concept",
+              "title" : "LIFO vs FIFO"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "false"
+                ],
+                "explanation" : "Pilha é LIFO: o ÚLTIMO a entrar é o PRIMEIRO a sair. Pense em pratos empilhados.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Em uma pilha (Stack), o primeiro elemento inserido é o primeiro a ser removido."
+              },
+              "id" : "epf-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Pilhas controlam execução e histórico. Filas controlam processamento em ordem.",
+              "id" : "epf-sm",
+              "kind" : "summary",
+              "title" : "Ordem define uso"
+            }
+          ],
+          "subtitle" : "LIFO e FIFO — a ordem de acesso muda tudo.",
+          "title" : "Pilhas e Filas",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "ed-hash",
+          "materialReward" : "Chave",
+          "steps" : [
+            {
+              "body" : "Para achar o número da Ana, você vai direto ao 'A' — sem varrer toda a lista. Hash tables fazem isso com código.",
+              "id" : "eh-s",
+              "kind" : "story",
+              "title" : "Agenda telefônica"
+            },
+            {
+              "body" : "Uma hash table usa uma função de hash para mapear chaves a posições de memória. Busca, inserção e remoção são O(1) na média. Dicionários em Python, objetos em JS e Maps em Java são hash tables.",
+              "id" : "eh-c",
+              "kind" : "concept",
+              "title" : "Chave → Posição"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "c"
+                ],
+                "explanation" : "Hash table mapeia o email diretamente a uma posição. Sem varrer — acesso quase instantâneo.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Array — percorre todos"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Lista encadeada — O(n)"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Hash Table — O(1)"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Pilha — LIFO"
+                  }
+                ],
+                "prompt" : "Qual estrutura é mais eficiente para buscar um usuário pelo email (chave única)?"
+              },
+              "id" : "eh-e",
+              "kind" : "singleChoice",
+              "title" : "Melhor estrutura para busca por chave"
+            },
+            {
+              "body" : "Hash tables trocam memória por velocidade. São uma das estruturas mais usadas no mundo real.",
+              "id" : "eh-sm",
+              "kind" : "summary",
+              "title" : "Espaço por velocidade"
+            }
+          ],
+          "subtitle" : "Busca em tempo constante.",
+          "title" : "Hash Tables",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "ed-arvores",
+          "materialReward" : "Galho",
+          "steps" : [
+            {
+              "body" : "Uma pasta raiz com subpastas dentro de subpastas. Isso é uma árvore — a estrutura de dados por trás do sistema de arquivos do seu computador.",
+              "id" : "ear-s",
+              "kind" : "story",
+              "title" : "Sistema de arquivos"
+            },
+            {
+              "body" : "Uma árvore tem um nó raiz e nós filhos. Em uma Árvore Binária de Busca (BST), o filho esquerdo é sempre menor e o direito maior. Busca, inserção e remoção são O(log n) em árvores balanceadas.",
+              "id" : "ear-c",
+              "kind" : "concept",
+              "title" : "Nós e filhos"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Essa é a propriedade fundamental da BST — o que permite descarte de metade a cada passo, igual à busca binária.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Em uma Árvore Binária de Busca balanceada, todos os valores à esquerda de um nó são menores que ele."
+              },
+              "id" : "ear-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Árvores organizam dados hierarquicamente. Bancos de dados usam B-trees (variação) para índices.",
+              "id" : "ear-sm",
+              "kind" : "summary",
+              "title" : "Hierarquia eficiente"
+            }
+          ],
+          "subtitle" : "Hierarquia que permite busca eficiente.",
+          "title" : "Árvores",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "Como organizamos informação determina o que conseguimos fazer com ela.",
+      "title" : "Estrutura de Dados"
+    },
+    {
+      "id" : "matematica-discreta",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "md-logica-bool",
+          "materialReward" : "Circuito",
+          "steps" : [
+            {
+              "body" : "Todo transistor do seu processador executa operações booleanas bilhões de vezes por segundo. AND, OR, NOT são a linguagem do silício.",
+              "id" : "mlb-s",
+              "kind" : "story",
+              "title" : "O chip que decide"
+            },
+            {
+              "body" : "AND: ambos verdadeiros → verdadeiro. OR: basta um verdadeiro → verdadeiro. NOT: inverte. Todo if/else em código é lógica booleana. Tabelas verdade descrevem todas as combinações possíveis.",
+              "id" : "mlb-c",
+              "kind" : "concept",
+              "title" : "AND, OR, NOT"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "AND exige que ambos sejam verdadeiros. Como false está presente, o resultado é false.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "true"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "false"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "null"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "depende da linguagem"
+                  }
+                ],
+                "prompt" : "true AND false resulta em:"
+              },
+              "id" : "mlb-e",
+              "kind" : "singleChoice",
+              "title" : "Resultado da operação"
+            },
+            {
+              "body" : "Toda decisão em código se reduz a operações booleanas no nível do hardware.",
+              "id" : "mlb-sm",
+              "kind" : "summary",
+              "title" : "Fundação do hardware"
+            }
+          ],
+          "subtitle" : "A linguagem do hardware.",
+          "title" : "Lógica Booleana",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "md-conjuntos",
+          "materialReward" : "Diagrama",
+          "steps" : [
+            {
+              "body" : "UNION (união), INTERSECT (interseção), EXCEPT (diferença) — operações SQL são direto da teoria dos conjuntos. Entender conjuntos é entender bancos de dados.",
+              "id" : "mc-s",
+              "kind" : "story",
+              "title" : "SQL é teoria dos conjuntos"
+            },
+            {
+              "body" : "Um conjunto é uma coleção sem repetição. União: todos os elementos de ambos. Interseção: apenas os comuns. Diferença: elementos do primeiro que não estão no segundo.",
+              "id" : "mc-c",
+              "kind" : "concept",
+              "title" : "União, Interseção, Diferença"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Interseção são os elementos presentes em AMBOS os conjuntos. 2 e 3 estão nos dois.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "A interseção de {1, 2, 3} e {2, 3, 4} é {2, 3}."
+              },
+              "id" : "mc-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Conjuntos são a base de SQL, álgebra relacional e teoria dos grafos.",
+              "id" : "mc-sm",
+              "kind" : "summary",
+              "title" : "Conjuntos em todo lugar"
+            }
+          ],
+          "subtitle" : "A base do modelo relacional.",
+          "title" : "Conjuntos",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "md-grafos",
+          "materialReward" : "Rede",
+          "steps" : [
+            {
+              "body" : "Amigos no LinkedIn, rotas de GPS, dependências de pacotes npm, páginas linkadas na web — todos são grafos. São a estrutura mais universal da computação.",
+              "id" : "mg-s",
+              "kind" : "story",
+              "title" : "Amizades, rotas, dependências"
+            },
+            {
+              "body" : "Um grafo tem vértices (nós) e arestas (conexões). Dirigido: conexão tem sentido (A → B). Não-dirigido: bidirecional. Árvores são um tipo especial de grafo acíclico e conectado.",
+              "id" : "mg-c",
+              "kind" : "concept",
+              "title" : "Vértices e Arestas"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "A relação de 'seguir' tem direção. A → B não implica B → A. Isso é um grafo dirigido.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Não dirigido"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Dirigido"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Árvore"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Acíclico"
+                  }
+                ],
+                "prompt" : "Uma rede social onde A segue B mas B não segue A é um grafo:"
+              },
+              "id" : "mg-e",
+              "kind" : "singleChoice",
+              "title" : "Tipo de grafo"
+            },
+            {
+              "body" : "Grafos modelam qualquer relação entre entidades. BFS e DFS são os algoritmos para percorrê-los.",
+              "id" : "mg-sm",
+              "kind" : "summary",
+              "title" : "Grafos modelam tudo"
+            }
+          ],
+          "subtitle" : "Modelando relacionamentos do mundo real.",
+          "title" : "Grafos",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "A matemática da computação: conjuntos, lógica e grafos.",
+      "title" : "Matemática Discreta"
+    },
+    {
+      "id" : "arquitetura-computadores",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "arq-cpu",
+          "materialReward" : "Chip",
+          "steps" : [
+            {
+              "body" : "A CPU é o trabalhador. A RAM é a bancada — rápida mas temporária. O disco é o armário — lento mas permanente. A eficiência depende de mover coisas da forma certa entre eles.",
+              "id" : "ac-s2",
+              "kind" : "story",
+              "title" : "A bancada de trabalho"
+            },
+            {
+              "body" : "Registradores (ns) → Cache L1/L2 (ns) → RAM (µs) → SSD (ms) → HD (ms). Quanto mais longe da CPU, mais lento e maior. Programas eficientes mantêm dados quentes próximos da CPU.",
+              "id" : "ac-c2",
+              "kind" : "concept",
+              "title" : "Hierarquia de memória"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ],
+                "explanation" : "Registradores são parte da CPU — nanossegundos. SSD acessa em milissegundos. A diferença é de milhões de vezes.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Registradores da CPU"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Cache L1"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "RAM"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "SSD"
+                  }
+                ],
+                "prompt" : "Organize as memórias da mais rápida à mais lenta:"
+              },
+              "id" : "ac-e2",
+              "kind" : "ordering",
+              "title" : "Ordene da mais rápida à mais lenta"
+            },
+            {
+              "body" : "Cache hits vs misses explicam por que o mesmo algoritmo pode ser 10x mais lento dependendo do acesso à memória.",
+              "id" : "ac-sm2",
+              "kind" : "summary",
+              "title" : "Localidade importa"
+            }
+          ],
+          "subtitle" : "O processador e onde os dados vivem.",
+          "title" : "CPU e Memória",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "arq-bits",
+          "materialReward" : "Binário",
+          "steps" : [
+            {
+              "body" : "Uma foto, um texto e um executável são todos armazenados como 0s e 1s. O que muda é como esses bits são interpretados.",
+              "id" : "ab-s",
+              "kind" : "story",
+              "title" : "Texto, imagem, código — tudo igual"
+            },
+            {
+              "body" : "1 bit é 0 ou 1. 8 bits = 1 byte = 256 valores possíveis (2⁸). Texto usa Unicode (UTF-8). Números inteiros usam complemento de dois. Cores RGB usam 3 bytes. Entender isso explica limites de tipos e overflow.",
+              "id" : "ab-c",
+              "kind" : "concept",
+              "title" : "Unidades e representação"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "2⁸ = 256. Por isso inteiros de 8 bits vão de 0 a 255 (sem sinal) ou -128 a 127 (com sinal).",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Um byte pode representar exatamente 256 valores diferentes."
+              },
+              "id" : "ab-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Entender bits e bytes explica overflow, formatos de arquivo e limites de tipos em qualquer linguagem.",
+              "id" : "ab-sm",
+              "kind" : "summary",
+              "title" : "A linguagem da máquina"
+            }
+          ],
+          "subtitle" : "Tudo é 0 e 1.",
+          "title" : "Bits e Bytes",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "arq-execucao",
+          "materialReward" : "Processador",
+          "steps" : [
+            {
+              "body" : "Você escreve código em alto nível. Mas a CPU só entende 0s e 1s. O que acontece no meio?",
+              "id" : "ape-s",
+              "kind" : "story",
+              "title" : "O caminho do código"
+            },
+            {
+              "body" : "Código fonte → Compilador/Interpretador → Código de máquina → CPU executa. O SO carrega o programa na RAM. A CPU aplica o ciclo: Fetch (busca) → Decode (decodifica) → Execute (executa) para cada instrução.",
+              "id" : "ape-c",
+              "kind" : "concept",
+              "title" : "Compilação e execução"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Compilador traduz. Não executa nem detecta bugs lógicos — apenas transforma a representação.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Executar o código diretamente"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Traduzir código fonte para código de máquina"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Verificar erros de lógica"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Gerenciar a memória em tempo de execução"
+                  }
+                ],
+                "prompt" : "A função principal de um compilador é:"
+              },
+              "id" : "ape-e",
+              "kind" : "singleChoice",
+              "title" : "O que um compilador faz?"
+            },
+            {
+              "body" : "Entender o caminho do código à CPU explica performance, erros de segmentação e comportamento inesperado.",
+              "id" : "ape-sm",
+              "kind" : "summary",
+              "title" : "Abstração em camadas"
+            }
+          ],
+          "subtitle" : "Do código à instrução de máquina.",
+          "title" : "Como um Programa Executa",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "Como a máquina pensa e executa.",
+      "title" : "Arquitetura de Computadores"
+    },
+    {
+      "id" : "sistemas-operacionais",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "so-intro",
+          "materialReward" : "Chave-inglesa",
+          "steps" : [
+            {
+              "body" : "Sem o SO, cada app precisaria saber acessar disco, gerenciar rede e controlar memória diretamente. O SO abstrai o hardware e distribui recursos com regras.",
+              "id" : "si-s",
+              "kind" : "story",
+              "title" : "O governo do computador"
+            },
+            {
+              "body" : "O SO gerencia processos, memória, sistema de arquivos e dispositivos. Expõe APIs (chamadas de sistema) para que apps não acessem hardware diretamente. Linux, macOS e Windows fazem isso de formas diferentes mas com objetivos similares.",
+              "id" : "si-c",
+              "kind" : "concept",
+              "title" : "Abstração e gerenciamento"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Isso é exatamente o papel do SO — arbitrar o acesso ao hardware entre múltiplos processos.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "O sistema operacional permite que múltiplos programas compartilhem o hardware sem conflito."
+              },
+              "id" : "si-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Todo app que você usa roda sobre um SO. Entendê-lo explica performance, segurança e comportamento de sistemas.",
+              "id" : "si-sm",
+              "kind" : "summary",
+              "title" : "Fundação invisível"
+            }
+          ],
+          "subtitle" : "O intermediário entre código e hardware.",
+          "title" : "O que é um SO?",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "so-processos",
+          "materialReward" : "Paralelismo",
+          "steps" : [
+            {
+              "body" : "Você ouve música, baixa um arquivo e navega simultaneamente. Cada um é gerenciado pelo SO como processo ou thread.",
+              "id" : "sp-s",
+              "kind" : "story",
+              "title" : "Música, download e browser ao mesmo tempo"
+            },
+            {
+              "body" : "Processo: programa em execução com memória própria e isolada. Thread: unidade de execução dentro de um processo, compartilhando memória. Threads são mais eficientes mas exigem sincronização para evitar condições de corrida.",
+              "id" : "sp-c",
+              "kind" : "concept",
+              "title" : "Processo vs Thread"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Threads compartilham o espaço de memória do processo pai — mais eficiente mas exige cuidado com acesso concorrente.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Processos são sempre mais rápidos"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Threads dentro de um processo compartilham memória"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Threads têm memória própria e isolada"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Processos não podem ser pausados pelo SO"
+                  }
+                ],
+                "prompt" : "A principal diferença entre processo e thread é:"
+              },
+              "id" : "sp-e",
+              "kind" : "singleChoice",
+              "title" : "A diferença principal"
+            },
+            {
+              "body" : "Threads permitem paralelismo dentro de um programa. Processos garantem isolamento entre programas.",
+              "id" : "sp-sm",
+              "kind" : "summary",
+              "title" : "Threads para performance"
+            }
+          ],
+          "subtitle" : "Paralelismo e isolamento.",
+          "title" : "Processos e Threads",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "so-memoria",
+          "materialReward" : "Memória",
+          "steps" : [
+            {
+              "body" : "Se cada app pedisse memória sem limite, o sistema travaria em minutos. O SO é o árbitro — define o que cada processo pode usar.",
+              "id" : "sm-s",
+              "kind" : "story",
+              "title" : "Quem controla a memória?"
+            },
+            {
+              "body" : "Stack: variáveis locais e chamadas de função — rápida, tamanho limitado, gerenciada automaticamente. Heap: alocação dinâmica — maior, mais flexível, requer gerenciamento. Linguagens modernas usam garbage collection na heap.",
+              "id" : "sm-c",
+              "kind" : "concept",
+              "title" : "Stack e Heap"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Recursão infinita ou funções muito profundas enchhem a stack até estourar — daí o nome 'stack overflow'.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Stack overflow ocorre quando a pilha de chamadas de função excede o limite de memória disponível."
+              },
+              "id" : "sm-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Entender stack e heap explica memory leaks, crashes e por que recursão sem fim mata programas.",
+              "id" : "sm-sm",
+              "kind" : "summary",
+              "title" : "Memória é recurso finito"
+            }
+          ],
+          "subtitle" : "Stack, Heap e o que pode dar errado.",
+          "title" : "Gerenciamento de Memória",
+          "xpReward" : 25
+        }
+      ],
+      "subtitle" : "O maestro que orquestra hardware e software.",
+      "title" : "Sistemas Operacionais"
+    },
+    {
+      "id" : "internet-page-delivery",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "client-server",
+          "materialReward" : "Madeira",
+          "steps" : [
+            {
+              "body" : "O app precisa buscar seus dados. Ele faz um pedido para outro computador preparado para responder.",
+              "id" : "client-server-story",
+              "kind" : "story",
+              "title" : "Voce toca em Entrar"
+            },
+            {
+              "body" : "Cliente e quem inicia o pedido. Servidor e quem recebe, processa e devolve uma resposta.",
+              "id" : "client-server-concept",
+              "kind" : "concept",
+              "title" : "Dois papeis"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a"
+                ],
+                "explanation" : "O navegador inicia a requisicao, entao atua como cliente.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Cliente"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Servidor"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Banco de dados"
+                  }
+                ],
+                "prompt" : "Quando o navegador pede uma pagina, qual papel ele exerce?"
+              },
+              "id" : "client-server-exercise",
+              "kind" : "singleChoice",
+              "title" : "Identifique o papel"
+            },
+            {
+              "body" : "Cliente pede. Servidor responde. Esse par aparece em apps, sites e APIs.",
+              "id" : "client-server-summary",
+              "kind" : "summary",
+              "title" : "Bloco colocado"
+            }
+          ],
+          "subtitle" : "Quem pede e quem responde.",
+          "title" : "Cliente e Servidor",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 4,
+          "id" : "ip-address",
+          "materialReward" : "Pedra",
+          "steps" : [
+            {
+              "body" : "Antes de enviar uma mensagem, a rede precisa saber para onde ela deve ir.",
+              "id" : "ip-story",
+              "kind" : "story",
+              "title" : "A ponte precisa de destino"
+            },
+            {
+              "body" : "Um endereco IP identifica um dispositivo ou ponto de rede para que pacotes encontrem o caminho correto.",
+              "id" : "ip-concept",
+              "kind" : "concept",
+              "title" : "Um endereco na rede"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Sim. O IP funciona como uma referencia de destino para os pacotes.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Um endereco IP ajuda a rede a encaminhar dados ate um destino."
+              },
+              "id" : "ip-exercise",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Sem endereco, a rede nao sabe para onde levar os pacotes.",
+              "id" : "ip-summary",
+              "kind" : "summary",
+              "title" : "Destino definido"
+            }
+          ],
+          "subtitle" : "Como encontrar um dispositivo na rede.",
+          "title" : "Endereco IP",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "dns",
+          "materialReward" : "Galhos",
+          "steps" : [
+            {
+              "body" : "E mais facil digitar um dominio do que memorizar um endereco numerico.",
+              "id" : "dns-story",
+              "kind" : "story",
+              "title" : "Voce lembra nomes, a rede usa numeros"
+            },
+            {
+              "body" : "DNS traduz nomes de dominio, como exemplo.com, para enderecos que a rede consegue usar.",
+              "id" : "dns-concept",
+              "kind" : "concept",
+              "title" : "A agenda da internet"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "type",
+                  "ask",
+                  "ip",
+                  "connect"
+                ],
+                "explanation" : "Primeiro vem o nome, depois a consulta, o endereco e a conexao.",
+                "options" : [
+                  {
+                    "id" : "type",
+                    "text" : "Voce digita o dominio"
+                  },
+                  {
+                    "id" : "ask",
+                    "text" : "O sistema consulta o DNS"
+                  },
+                  {
+                    "id" : "ip",
+                    "text" : "O DNS retorna um endereco IP"
+                  },
+                  {
+                    "id" : "connect",
+                    "text" : "O cliente usa o IP para se conectar"
+                  }
+                ],
+                "prompt" : "Ordene o que acontece quando voce acessa um dominio."
+              },
+              "id" : "dns-exercise",
+              "kind" : "ordering",
+              "title" : "Monte a sequencia"
+            },
+            {
+              "body" : "DNS conecta nomes amigaveis aos enderecos usados pela rede.",
+              "id" : "dns-summary",
+              "kind" : "summary",
+              "title" : "Nome encontrado"
+            }
+          ],
+          "subtitle" : "Como nomes viram enderecos.",
+          "title" : "DNS",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "request-response",
+          "materialReward" : "Blocos",
+          "steps" : [
+            {
+              "body" : "O cliente envia uma requisicao. O servidor avalia o pedido e devolve uma resposta.",
+              "id" : "request-response-story",
+              "kind" : "story",
+              "title" : "Um pedido atravessa o rio"
+            },
+            {
+              "body" : "A requisicao descreve o que o cliente quer. A resposta carrega o resultado, como uma pagina, dados ou erro.",
+              "id" : "request-response-concept",
+              "kind" : "concept",
+              "title" : "Causa e efeito"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "A resposta e o retorno do servidor para uma requisicao.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Um pedido iniciado pelo cliente"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "O retorno enviado pelo servidor"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "O nome publico de um site"
+                  }
+                ],
+                "prompt" : "Qual frase descreve melhor uma resposta?"
+              },
+              "id" : "request-response-exercise",
+              "kind" : "singleChoice",
+              "title" : "Escolha a melhor explicacao"
+            },
+            {
+              "body" : "A web funciona por muitos ciclos de pedido e retorno.",
+              "id" : "request-response-summary",
+              "kind" : "summary",
+              "title" : "Fluxo completo"
+            }
+          ],
+          "subtitle" : "O ciclo basico da web.",
+          "title" : "Requisicao e Resposta",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "http-https",
+          "materialReward" : "Cadeado",
+          "steps" : [
+            {
+              "body" : "Cliente e servidor precisam combinar o formato do pedido e da resposta.",
+              "id" : "http-story",
+              "kind" : "story",
+              "title" : "A conversa precisa de regras"
+            },
+            {
+              "body" : "HTTP define como mensagens da web sao estruturadas. HTTPS usa protecao criptografada nessa comunicacao.",
+              "id" : "http-concept",
+              "kind" : "concept",
+              "title" : "Protocolo da web"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "HTTPS adiciona uma camada de protecao para reduzir exposicao e adulteracao dos dados em transito.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "HTTPS e uma versao protegida da comunicacao HTTP."
+              },
+              "id" : "http-exercise",
+              "kind" : "trueFalse",
+              "title" : "Seguranca"
+            },
+            {
+              "body" : "HTTP organiza a conversa. HTTPS protege essa conversa durante o caminho.",
+              "id" : "http-summary",
+              "kind" : "summary",
+              "title" : "Barragem reforcada"
+            }
+          ],
+          "subtitle" : "As regras da conversa na web.",
+          "title" : "HTTP e HTTPS",
+          "xpReward" : 30
+        }
+      ],
+      "subtitle" : "Do clique ao conteúdo — o caminho invisível.",
+      "title" : "Como a Internet Funciona"
+    },
+    {
+      "id" : "redes-internet",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 5,
+          "id" : "redes-modelos",
+          "materialReward" : "Camadas",
+          "steps" : [
+            {
+              "body" : "Uma carta passa por mãos diferentes até chegar ao destino — cada uma com uma responsabilidade específica. Redes funcionam em camadas pelo mesmo motivo.",
+              "id" : "rm-s",
+              "kind" : "story",
+              "title" : "Uma carta em muitas mãos"
+            },
+            {
+              "body" : "Aplicação (HTTP, SMTP, DNS) → Transporte (TCP, UDP) → Rede (IP, roteamento) → Enlace (Ethernet, Wi-Fi). Cada camada encapsula a de baixo. HTTP não precisa saber como bits são transmitidos fisicamente.",
+              "id" : "rm-c",
+              "kind" : "concept",
+              "title" : "TCP/IP em 4 camadas"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ],
+                "explanation" : "Cada camada adiciona um cabeçalho (encapsulamento) ao pacote antes de passar para a camada abaixo.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Aplicação"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Transporte"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Rede"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Enlace"
+                  }
+                ],
+                "prompt" : "Ordene as camadas TCP/IP da mais alta (aplicação) à mais baixa (física):"
+              },
+              "id" : "rm-e",
+              "kind" : "ordering",
+              "title" : "Ordene as camadas"
+            },
+            {
+              "body" : "Camadas permitem que HTTP evolua sem mudar Ethernet, e que Wi-Fi substitua cabo sem mudar TCP.",
+              "id" : "rm-sm",
+              "kind" : "summary",
+              "title" : "Separação de responsabilidades"
+            }
+          ],
+          "subtitle" : "Camadas que separam responsabilidades.",
+          "title" : "Modelos de Rede",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "redes-tcp-udp",
+          "materialReward" : "Protocolo",
+          "steps" : [
+            {
+              "body" : "Email precisa chegar completo e em ordem — cada byte importa. Videochamada prefere velocidade a perfeição — perder 1 frame é ok.",
+              "id" : "rtu-s",
+              "kind" : "story",
+              "title" : "Email vs videochamada"
+            },
+            {
+              "body" : "TCP: cria conexão, confirma cada pacote, reordena se necessário, retransmite perdas. Confiável mas com overhead. UDP: dispara pacotes sem confirmação. Mais rápido, sem garantias. HTTP/SSH usam TCP. Streaming e games preferem UDP.",
+              "id" : "rtu-c",
+              "kind" : "concept",
+              "title" : "Garantia vs velocidade"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Em jogos, um pacote atrasado é pior que um pacote perdido. UDP elimina o overhead do TCP.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "TCP — garante que tudo chegue em ordem"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "UDP — prioriza velocidade, tolera perdas"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "HTTP — protocolo da web"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "DNS — resolve nomes"
+                  }
+                ],
+                "prompt" : "Um jogo online em tempo real onde latência importa mais que perfeição deveria usar:"
+              },
+              "id" : "rtu-e",
+              "kind" : "singleChoice",
+              "title" : "Protocolo ideal"
+            },
+            {
+              "body" : "TCP é correio registrado. UDP é panfleto. A escolha depende do que o sistema prioriza.",
+              "id" : "rtu-sm",
+              "kind" : "summary",
+              "title" : "Escolha informada"
+            }
+          ],
+          "subtitle" : "Confiabilidade ou velocidade — escolha sua batalha.",
+          "title" : "TCP vs UDP",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "redes-seguranca",
+          "materialReward" : "Criptografia",
+          "steps" : [
+            {
+              "body" : "Sem criptografia, qualquer roteador entre você e o servidor leria sua senha como texto puro. Com TLS, apenas o destino consegue decifrar.",
+              "id" : "rs-s",
+              "kind" : "story",
+              "title" : "Senha em texto puro"
+            },
+            {
+              "body" : "TLS usa par de chaves: pública (qualquer um pode usar para criptografar) e privada (só o servidor decifra). HTTPS = HTTP + TLS. O cadeado no browser confirma que a conexão é criptografada e autenticada.",
+              "id" : "rs-c",
+              "kind" : "concept",
+              "title" : "Criptografia assimétrica"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "A chave privada fica apenas no servidor. Sem ela, os dados interceptados são ilegíveis.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "TLS garante que apenas o servidor destino correto consegue decifrar os dados transmitidos."
+              },
+              "id" : "rs-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Criptografia assimétrica resolve o problema de combinar uma chave secreta em um canal público — a base de toda segurança web.",
+              "id" : "rs-sm",
+              "kind" : "summary",
+              "title" : "HTTPS é obrigatório"
+            }
+          ],
+          "subtitle" : "Por que o cadeado no browser importa.",
+          "title" : "Segurança: TLS e Criptografia",
+          "xpReward" : 30
+        }
+      ],
+      "subtitle" : "Protocolos, modelos e segurança da comunicação em rede.",
+      "title" : "Redes e Internet"
+    },
+    {
+      "id" : "bancos-de-dados",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 4,
+          "id" : "bd-intro",
+          "materialReward" : "Tabela",
+          "steps" : [
+            {
+              "body" : "Uma planilha com 1 milhão de clientes e 50 milhões de pedidos. Como buscar todos os pedidos de SP feitos em março? Banco de dados resolve isso.",
+              "id" : "bdi-s",
+              "kind" : "story",
+              "title" : "A planilha que não escala"
+            },
+            {
+              "body" : "SQL (relacional): dados em tabelas com esquema fixo e relacionamentos. Ideal para consistência. NoSQL: flexível para dados não estruturados, escala horizontal. MongoDB, Redis, Cassandra são NoSQL. Escolha depende do problema.",
+              "id" : "bdi-c",
+              "kind" : "concept",
+              "title" : "SQL e NoSQL"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "SQL foi projetado para consultas ad-hoc complexas com JOINs, filtros e agregações que seriam impraticáveis com arquivos.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Ocupa menos espaço em disco"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Permite consultas complexas e relacionamentos eficientes"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "É mais rápido para leitura sequencial de todos os dados"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Não precisa de servidor"
+                  }
+                ],
+                "prompt" : "Qual é a principal vantagem de um banco SQL sobre armazenar dados em arquivos?"
+              },
+              "id" : "bdi-e",
+              "kind" : "singleChoice",
+              "title" : "Vantagem do SQL"
+            },
+            {
+              "body" : "Bancos de dados transformam dados brutos em informação consultável, consistente e confiável.",
+              "id" : "bdi-sm",
+              "kind" : "summary",
+              "title" : "Dados como sistema"
+            }
+          ],
+          "subtitle" : "Além de arquivos e planilhas.",
+          "title" : "Por que Banco de Dados?",
+          "xpReward" : 20
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "bd-tabelas",
+          "materialReward" : "Chave-BD",
+          "steps" : [
+            {
+              "body" : "Uma tabela Pedidos com coluna cliente_id que aponta para a tabela Clientes. Isso é um relacionamento — a base do modelo relacional.",
+              "id" : "bdt-s",
+              "kind" : "story",
+              "title" : "Relacionando tabelas"
+            },
+            {
+              "body" : "Chave primária (PK): identifica cada linha de forma única. Chave estrangeira (FK): referência a uma PK em outra tabela — cria relacionamentos. Normalização elimina redundância dividindo dados em tabelas relacionadas.",
+              "id" : "bdt-c",
+              "kind" : "concept",
+              "title" : "PK e FK"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "false"
+                ],
+                "explanation" : "A PK é única por definição. Duplicidade viola a integridade da entidade.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Uma chave primária pode ter o mesmo valor em duas linhas da mesma tabela."
+              },
+              "id" : "bdt-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Tabelas + chaves = base do modelo relacional. A normalização evita inconsistências quando dados mudam.",
+              "id" : "bdt-sm",
+              "kind" : "summary",
+              "title" : "Relacionamentos sem redundância"
+            }
+          ],
+          "subtitle" : "A estrutura do modelo relacional.",
+          "title" : "Tabelas e Chaves",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "bd-indices",
+          "materialReward" : "Índice",
+          "steps" : [
+            {
+              "body" : "Buscar por email em 10 milhões de clientes sem índice: lê todas as linhas. Com índice: vai direto. A diferença pode ser de minutos para milissegundos.",
+              "id" : "bdind-s",
+              "kind" : "story",
+              "title" : "10 milhões de clientes"
+            },
+            {
+              "body" : "Um índice é uma estrutura auxiliar (geralmente B-tree) que acelera buscas numa coluna. Melhora leitura drasticamente mas tem custo em escrita (índice precisa ser atualizado). Colunas em WHERE e JOIN são candidatas.",
+              "id" : "bdind-c",
+              "kind" : "concept",
+              "title" : "B-tree por baixo"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Índices precisam ser atualizados em INSERT/UPDATE/DELETE — esse é o custo. Para leituras frequentes, o ganho compensa amplamente.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Acelerar leituras e escritas igualmente"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Acelerar leituras, com pequeno custo adicional em escritas"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Reduzir o espaço em disco"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Substituir a necessidade de chave primária"
+                  }
+                ],
+                "prompt" : "Adicionar um índice a uma coluna muito consultada vai:"
+              },
+              "id" : "bdind-e",
+              "kind" : "singleChoice",
+              "title" : "Trade-off do índice"
+            },
+            {
+              "body" : "Índices são o atalho do banco. Usados com critério, transformam consultas lentas em instantâneas.",
+              "id" : "bdind-sm",
+              "kind" : "summary",
+              "title" : "Índice com critério"
+            }
+          ],
+          "subtitle" : "O atalho que transforma segundos em milissegundos.",
+          "title" : "Índices e Performance",
+          "xpReward" : 30
+        }
+      ],
+      "subtitle" : "Armazenamento, consulta e relacionamentos de dados persistentes.",
+      "title" : "Bancos de Dados"
+    },
+    {
+      "id" : "engenharia-software",
+      "lessons" : [
+        {
+          "estimatedMinutes" : 5,
+          "id" : "eng-paradigmas",
+          "materialReward" : "Paradigma",
+          "steps" : [
+            {
+              "body" : "Orientação a Objetos organiza código como entidades que interagem. Programação Funcional compõe funções puras como peças de Lego. Nenhum é superior — cada problema tem seu paradigma ideal.",
+              "id" : "ep-s",
+              "kind" : "story",
+              "title" : "Duas escolas de pensamento"
+            },
+            {
+              "body" : "OO: encapsula dados e comportamento em classes (herança, polimorfismo, encapsulamento). FP: funções puras, sem estado mutável, imutabilidade. Linguagens modernas como Kotlin, Swift e Python combinam os dois.",
+              "id" : "ep-c",
+              "kind" : "concept",
+              "title" : "OO vs Funcional"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Sem estado externo, sem efeitos colaterais — mesma entrada sempre produz mesma saída. Isso torna funções puras previsíveis e testáveis.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Em programação funcional, uma função pura sempre retorna o mesmo resultado para os mesmos argumentos de entrada."
+              },
+              "id" : "ep-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Entender paradigmas é entender como decompor problemas. A maioria dos sistemas modernos usa os dois.",
+              "id" : "ep-sm",
+              "kind" : "summary",
+              "title" : "Ferramenta certa para o problema"
+            }
+          ],
+          "subtitle" : "OO e Funcional — duas formas de pensar.",
+          "title" : "Paradigmas de Programação",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "eng-patterns",
+          "materialReward" : "Padrão",
+          "steps" : [
+            {
+              "body" : "A Gang of Four documentou 23 padrões de design em 1994. Décadas depois, são ainda a linguagem comum de arquitetura de software.",
+              "id" : "epa-s",
+              "kind" : "story",
+              "title" : "Não reinvente a roda"
+            },
+            {
+              "body" : "Singleton: uma única instância global. Observer: notifica múltiplos objetos quando algo muda. Factory: desacopla criação de uso. SOLID: 5 princípios para código limpo e extensível. Padrões são vocabulário — dizendo o nome, todos entendem a solução.",
+              "id" : "epa-c",
+              "kind" : "concept",
+              "title" : "Padrões recorrentes"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "b"
+                ],
+                "explanation" : "Observer implementa o padrão publish/subscribe. Um subject notifica todos os observers registrados quando seu estado muda.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Você quer garantir uma única instância de uma classe"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "Múltiplos componentes precisam reagir a mudanças em um objeto"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "Você quer criar objetos sem especificar a classe exata"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "Você quer adicionar comportamento sem herança"
+                  }
+                ],
+                "prompt" : "O padrão Observer é ideal quando:"
+              },
+              "id" : "epa-e",
+              "kind" : "singleChoice",
+              "title" : "Observer Pattern"
+            },
+            {
+              "body" : "Patterns são atalhos de comunicação. Dominá-los acelera design de sistemas e revisões de código.",
+              "id" : "epa-sm",
+              "kind" : "summary",
+              "title" : "Vocabulário arquitetural"
+            }
+          ],
+          "subtitle" : "Soluções que já foram testadas pelo mundo.",
+          "title" : "Design Patterns",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "eng-git",
+          "materialReward" : "Commit",
+          "steps" : [
+            {
+              "body" : "Você alterou código que funcionava. Sem Git, não dá para recuperar. Com Git, um comando restaura qualquer estado anterior da história do projeto.",
+              "id" : "eg-s",
+              "kind" : "story",
+              "title" : "Sem Git, não tem volta"
+            },
+            {
+              "body" : "Git rastreia cada mudança como um snapshot (commit). Branches isolam trabalho em paralelo sem afetar o código principal. Merge integra branches. O histórico completo permite reverter, comparar e colaborar sem sobrescrever o trabalho alheio.",
+              "id" : "eg-c",
+              "kind" : "concept",
+              "title" : "Commits, branches e merges"
+            },
+            {
+              "body" : "Toque nas opcoes na ordem correta.",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "a",
+                  "b",
+                  "c",
+                  "d"
+                ],
+                "explanation" : "Modificar → Staged → Committed → Pushed. Cada etapa tem um propósito: trabalhar, selecionar, salvar, compartilhar.",
+                "options" : [
+                  {
+                    "id" : "a",
+                    "text" : "Modifique arquivos"
+                  },
+                  {
+                    "id" : "b",
+                    "text" : "git add — stage das mudanças"
+                  },
+                  {
+                    "id" : "c",
+                    "text" : "git commit — cria o snapshot"
+                  },
+                  {
+                    "id" : "d",
+                    "text" : "git push — envia ao servidor remoto"
+                  }
+                ],
+                "prompt" : "Ordene o fluxo básico para salvar e compartilhar uma mudança:"
+              },
+              "id" : "eg-e",
+              "kind" : "ordering",
+              "title" : "Fluxo básico do Git"
+            },
+            {
+              "body" : "Git é a base do desenvolvimento colaborativo. Commits, branches e merges são habilidades inegociáveis.",
+              "id" : "eg-sm",
+              "kind" : "summary",
+              "title" : "Obrigatório em qualquer time"
+            }
+          ],
+          "subtitle" : "O fundamento do trabalho colaborativo.",
+          "title" : "Controle de Versão com Git",
+          "xpReward" : 25
+        },
+        {
+          "estimatedMinutes" : 5,
+          "id" : "eng-testes",
+          "materialReward" : "Verificação",
+          "steps" : [
+            {
+              "body" : "Netflix deploya código centenas de vezes ao dia sem cair. Testes automatizados são a razão — cada deploy passa por milhares de verificações automáticas em segundos.",
+              "id" : "et-s",
+              "kind" : "story",
+              "title" : "Centenas de deploys por dia"
+            },
+            {
+              "body" : "Unitário: testa funções isoladas. Integração: testa componentes juntos. E2E: testa fluxos completos. TDD (Test-Driven Development): escreve o teste antes do código — o teste define o comportamento esperado. Cobertura mede o percentual do código testado.",
+              "id" : "et-c",
+              "kind" : "concept",
+              "title" : "Tipos de teste"
+            },
+            {
+              "body" : "",
+              "exercise" : {
+                "correctOptionIds" : [
+                  "true"
+                ],
+                "explanation" : "Red → Green → Refactor. Teste falho primeiro força você a definir o comportamento antes da implementação.",
+                "options" : [
+                  {
+                    "id" : "true",
+                    "text" : "Verdadeiro"
+                  },
+                  {
+                    "id" : "false",
+                    "text" : "Falso"
+                  }
+                ],
+                "prompt" : "Em TDD, você primeiro escreve o teste (que falha), e só depois escreve o código que o faz passar."
+              },
+              "id" : "et-e",
+              "kind" : "trueFalse",
+              "title" : "Verdadeiro ou falso"
+            },
+            {
+              "body" : "Testes não documentam bugs passados — são garantia de que mudanças futuras não quebram o que já funciona.",
+              "id" : "et-sm",
+              "kind" : "summary",
+              "title" : "Testes são investimento"
+            }
+          ],
+          "subtitle" : "A rede de segurança do código.",
+          "title" : "Testes Automatizados",
+          "xpReward" : 30
+        }
+      ],
+      "subtitle" : "Como construir software real, sustentável e em equipe.",
+      "title" : "Engenharia de Software"
+    }
+  ],
+  "version" : 1
+}

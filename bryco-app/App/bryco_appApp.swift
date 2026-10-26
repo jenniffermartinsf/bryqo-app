@@ -17,12 +17,15 @@ struct bryco_appApp: App {
             ContentView(appState: appState)
                 .modelContainer(appState.modelContainer)
                 .task {
-                    await appState.syncWithCloud()
+                    async let content: Void = appState.content.refresh()
+                    async let cloud: Void = appState.syncWithCloud()
+                    _ = await (content, cloud)
                 }
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task { await appState.syncWithCloud() }
+            Task { await appState.content.refresh() }
             appState.applyStreakDecay()
             appState.applyHeartRegeneration()
             if appState.notificationsEnabled {
