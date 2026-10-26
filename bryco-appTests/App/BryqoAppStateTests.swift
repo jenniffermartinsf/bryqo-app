@@ -7,6 +7,7 @@ import Testing
 /// Each case builds a fresh `BryqoAppState(inMemory: true)`, so the SwiftData store is a
 /// throwaway per test and cases never bleed into each other. No user is signed in during
 /// tests, so `currentUID` stays nil and no Firestore writes are triggered.
+@MainActor
 @Suite("BryqoAppState gamification", .tags(.gamification))
 struct BryqoAppStateTests {
 

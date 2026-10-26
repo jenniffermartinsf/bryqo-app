@@ -19,11 +19,10 @@ final class BryqoNotificationManager {
 
     // Called on app foreground: re-adds the notification if it was somehow removed
     // (e.g., user studied the previous day and the cancellation happened, or device restarted).
-    func ensureScheduledIfNeeded() {
-        center.getPendingNotificationRequests { [weak self] requests in
-            guard let self, !requests.contains(where: { $0.identifier == self.reminderID }) else { return }
-            self.schedule()
-        }
+    func ensureScheduledIfNeeded() async {
+        let requests = await center.pendingNotificationRequests()
+        guard !requests.contains(where: { $0.identifier == reminderID }) else { return }
+        schedule()
     }
 
     // Cancels today's reminder (fired after studying) and re-adds it

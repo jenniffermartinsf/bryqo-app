@@ -1,6 +1,6 @@
 import Foundation
 
-enum BryqoContent {
+nonisolated enum BryqoContent {
 
     // All units in curriculum order
     static let allUnits: [LearningUnit] = [

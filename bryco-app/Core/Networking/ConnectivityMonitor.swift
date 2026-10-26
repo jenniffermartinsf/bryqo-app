@@ -2,7 +2,7 @@ import Network
 
 /// Tells the app when the device goes back online, so work that failed offline can resume
 /// at the right moment instead of polling.
-enum ConnectivityMonitor {
+nonisolated enum ConnectivityMonitor {
     /// Emits `true` each time the network becomes reachable (and `false` when it is lost).
     /// The monitor stops when the consuming task is cancelled.
     static func updates() -> AsyncStream<Bool> {

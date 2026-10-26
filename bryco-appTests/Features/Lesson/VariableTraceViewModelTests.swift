@@ -2,6 +2,7 @@ import Testing
 @testable import bryco_app
 
 /// Covers the "Pense como a máquina" (variable trace) flow. Pure `@Observable`, fully isolated.
+@MainActor
 @Suite("VariableTraceViewModel", .tags(.gamification))
 struct VariableTraceViewModelTests {
 

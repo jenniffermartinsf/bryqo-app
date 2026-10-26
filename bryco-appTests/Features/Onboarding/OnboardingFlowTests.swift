@@ -5,6 +5,7 @@ import Testing
 /// Covers the *outcome* of onboarding — the profile that `completeOnboarding` writes and the
 /// profile-derived values the rest of the app reads. The step-by-step wizard itself lives inside
 /// `OnboardingView` as `@State`, which is intentionally not unit-tested (views are excluded).
+@MainActor
 @Suite("Onboarding outcome", .tags(.gamification))
 struct OnboardingFlowTests {
 
