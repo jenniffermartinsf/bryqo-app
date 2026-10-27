@@ -1,25 +1,35 @@
 import Foundation
+import Synchronization
 import Testing
 @testable import bryco_app
 
 // MARK: - Test doubles
 
 /// Answers requests with canned responses, in order (the last one repeats), and records them.
-final class FakeHTTPClient: HTTPClient, @unchecked Sendable {
-    enum Reply {
+/// Sendable through a lock, since the client may be called from any isolation.
+final class FakeHTTPClient: HTTPClient {
+    enum Reply: Sendable {
         case response(status: Int, body: Data = Data(), headers: [String: String] = [:])
         case failure(URLError.Code)
     }
 
-    var replies: [Reply]
-    private(set) var requests: [URLRequest] = []
+    private struct State {
+        var replies: [Reply]
+        var requests: [URLRequest] = []
+    }
 
-    init(_ reply: Reply) { replies = [reply] }
-    init(sequence: [Reply]) { replies = sequence }
+    private let state: Mutex<State>
+
+    var requests: [URLRequest] { state.withLock { $0.requests } }
+
+    init(_ reply: Reply) { state = Mutex(State(replies: [reply])) }
+    init(sequence: [Reply]) { state = Mutex(State(replies: sequence)) }
 
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-        requests.append(request)
-        let reply = replies.count > 1 ? replies.removeFirst() : replies[0]
+        let reply = state.withLock { state in
+            state.requests.append(request)
+            return state.replies.count > 1 ? state.replies.removeFirst() : state.replies[0]
+        }
         switch reply {
         case .failure(let code):
             throw URLError(code)

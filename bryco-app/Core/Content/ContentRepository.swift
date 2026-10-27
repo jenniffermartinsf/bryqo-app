@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 /// A content problem worth telling the team about (never shown to the user).
-enum ContentIssue: Equatable, Sendable {
+nonisolated enum ContentIssue: Equatable, Sendable {
     /// The fetch failed for a reason only the team can fix, after `attempts` tries.
     case fetchFailed(NetworkFailure, attempts: Int)
     /// The catalog decoded, but these lessons were invalid and dropped.

@@ -1,6 +1,7 @@
 import BryqoDomain
 import Foundation
 import SwiftData
+import Synchronization
 
 enum BryqoSchemaV1: VersionedSchema {
     static let versionIdentifier = Schema.Version(1, 0, 0)
@@ -224,8 +225,15 @@ enum BryqoMigrationPlan: SchemaMigrationPlan {
 }
 
 /// Carries decoded review states between the two halves of the V5 → V6 migration.
-enum ReviewMigrationBuffer {
-    nonisolated(unsafe) static var pending: [ReviewState] = []
+nonisolated enum ReviewMigrationBuffer {
+    /// SwiftData may run the two migration closures off the main actor, so the hand-off is
+    /// guarded by a lock instead of relying on them running on one thread.
+    private static let storage = Mutex<[ReviewState]>([])
+
+    static var pending: [ReviewState] {
+        get { storage.withLock { $0 } }
+        set { storage.withLock { $0 = newValue } }
+    }
 
     static func decode(_ data: Data) -> [ReviewState] {
         guard !data.isEmpty else { return [] }

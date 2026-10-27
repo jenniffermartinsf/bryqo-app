@@ -1,13 +1,13 @@
 import Foundation
 
-struct LearningUnit: Identifiable, Equatable {
+nonisolated struct LearningUnit: Identifiable, Equatable {
     let id: String
     let title: String
     let subtitle: String
     let lessons: [Lesson]
 }
 
-struct Lesson: Identifiable, Equatable, Hashable {
+nonisolated struct Lesson: Identifiable, Equatable, Hashable {
     let id: String
     let title: String
     let subtitle: String
@@ -17,7 +17,7 @@ struct Lesson: Identifiable, Equatable, Hashable {
     let steps: [LessonStep]
 }
 
-struct LessonStep: Identifiable, Equatable, Hashable {
+nonisolated struct LessonStep: Identifiable, Equatable, Hashable {
     let id: String
     let kind: LessonStepKind
     let title: String
@@ -39,7 +39,7 @@ struct LessonStep: Identifiable, Equatable, Hashable {
     }
 }
 
-enum LessonStepKind: Equatable, Hashable {
+nonisolated enum LessonStepKind: Equatable, Hashable {
     case story
     case concept
     case singleChoice
@@ -55,7 +55,7 @@ enum LessonStepKind: Equatable, Hashable {
 
 /// One prediction inside a variable-trace exercise: after a given line runs, what does a
 /// variable hold?
-struct VariableTraceStep: Equatable, Hashable {
+nonisolated struct VariableTraceStep: Equatable, Hashable {
     let highlightedLine: Int   // 0-based index into `codeLines` to spotlight
     let prompt: String
     let variable: String
@@ -65,26 +65,26 @@ struct VariableTraceStep: Equatable, Hashable {
 }
 
 /// A pseudocode snippet the learner "executes" in their head, predicting the running state.
-struct VariableTraceExercise: Equatable, Hashable {
+nonisolated struct VariableTraceExercise: Equatable, Hashable {
     let intro: String
     let codeLines: [String]
     let language: CodeLanguage
     let steps: [VariableTraceStep]
 }
 
-struct CodeSnippet: Equatable, Hashable {
+nonisolated struct CodeSnippet: Equatable, Hashable {
     let code: String
     let language: CodeLanguage
 }
 
-enum CodeLanguage: String, Equatable, Hashable {
+nonisolated enum CodeLanguage: String, Equatable, Hashable {
     case python = "Python"
     case swift = "Swift"
     case javascript = "JavaScript"
     case generic = "Código"
 }
 
-struct Exercise: Equatable, Hashable {
+nonisolated struct Exercise: Equatable, Hashable {
     let prompt: String
     let options: [ExerciseOption]
     let correctOptionIds: [String]
@@ -100,7 +100,7 @@ struct Exercise: Equatable, Hashable {
     }
 }
 
-struct ExerciseOption: Identifiable, Equatable, Hashable {
+nonisolated struct ExerciseOption: Identifiable, Equatable, Hashable {
     let id: String
     let text: String
 }

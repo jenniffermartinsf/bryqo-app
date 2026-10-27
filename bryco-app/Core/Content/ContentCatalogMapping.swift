@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - DTO → domain (with validation)
 
-extension ContentCatalogDTO {
+nonisolated extension ContentCatalogDTO {
     /// Valid units only. A lesson with a broken step is dropped; a unit left with no lessons
     /// is dropped. One bad lesson on the server never takes the whole app down.
     func toDomain() -> [LearningUnit] {
@@ -21,7 +21,7 @@ extension ContentCatalogDTO {
     }
 }
 
-extension UnitDTO {
+nonisolated extension UnitDTO {
     func toDomain() -> LearningUnit? {
         let lessons = lessons.compactMap { $0.toDomain() }
         guard !lessons.isEmpty else { return nil }
@@ -29,7 +29,7 @@ extension UnitDTO {
     }
 }
 
-extension LessonDTO {
+nonisolated extension LessonDTO {
     func toDomain() -> Lesson? {
         let mapped = steps.map { $0.toDomain() }
         // Every step must be valid: skipping one silently could leave a lesson that no
@@ -43,7 +43,7 @@ extension LessonDTO {
     }
 }
 
-extension StepDTO {
+nonisolated extension StepDTO {
     func toDomain() -> LessonStep? {
         guard let kind = LessonStepKind(wireValue: kind) else { return nil }
         let exercise = exercise?.toDomain()
@@ -65,7 +65,7 @@ extension StepDTO {
     }
 }
 
-extension ExerciseDTO {
+nonisolated extension ExerciseDTO {
     func toDomain() -> Exercise? {
         let optionIds = Set(options.map(\.id))
         guard !options.isEmpty, !correctOptionIds.isEmpty,
@@ -80,7 +80,7 @@ extension ExerciseDTO {
     }
 }
 
-extension VariableTraceDTO {
+nonisolated extension VariableTraceDTO {
     func toDomain() -> VariableTraceExercise? {
         let valid = !steps.isEmpty && steps.allSatisfy {
             codeLines.indices.contains($0.highlightedLine) && $0.options.contains($0.correctAnswer)
@@ -96,7 +96,7 @@ extension VariableTraceDTO {
     }
 }
 
-extension BinarySearchDTO {
+nonisolated extension BinarySearchDTO {
     func toDomain() -> BinarySearchExercise? {
         guard !array.isEmpty, array == array.sorted() else { return nil }
         return BinarySearchExercise(intro: intro, array: array, target: target)
@@ -105,7 +105,7 @@ extension BinarySearchDTO {
 
 // MARK: - Wire values
 
-extension LessonStepKind {
+nonisolated extension LessonStepKind {
     nonisolated init?(wireValue: String) {
         switch wireValue {
         case "story": self = .story
@@ -136,7 +136,7 @@ extension LessonStepKind {
     }
 }
 
-extension CodeLanguage {
+nonisolated extension CodeLanguage {
     /// Unknown languages fall back to the generic label instead of failing.
     nonisolated init(wireValue: String) {
         self = CodeLanguage(rawValue: wireValue) ?? .generic
@@ -145,7 +145,7 @@ extension CodeLanguage {
 
 // MARK: - Domain → DTO (used to publish the catalog from the bundled content)
 
-extension ContentCatalogDTO {
+nonisolated extension ContentCatalogDTO {
     init(version: Int, content units: [LearningUnit]) {
         self.init(version: version, units: units.map { unit in
             UnitDTO(id: unit.id, title: unit.title, subtitle: unit.subtitle, lessons: unit.lessons.map { lesson in

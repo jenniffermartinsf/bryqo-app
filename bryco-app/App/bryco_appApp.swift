@@ -35,7 +35,7 @@ struct bryco_appApp: App {
             appState.applyStreakDecay()
             appState.applyHeartRegeneration()
             if appState.notificationsEnabled {
-                appState.notificationManager.ensureScheduledIfNeeded()
+                Task { await appState.notificationManager.ensureScheduledIfNeeded() }
             }
         }
     }

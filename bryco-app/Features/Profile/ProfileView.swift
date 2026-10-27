@@ -5,6 +5,7 @@ struct ProfileView: View {
     let appState: BryqoAppState
 
     @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var isPickingPhoto = false
     @State private var linkState: AccountLinkState = .idle
     @State private var isConfirmingReviewReset = false
     /// Which provider the current link attempt uses, so only its button shows progress.
@@ -40,7 +41,9 @@ struct ProfileView: View {
 
     private var avatarSection: some View {
         VStack(spacing: BryqoTheme.Spacing.lg) {
-            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+            // A Button + .photosPicker keeps the label on the main actor; PhotosPicker's own
+            // label closure must be Sendable, which a view built from main-actor state isn't.
+            Button { isPickingPhoto = true } label: {
                 avatarCircle
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "camera.fill")
@@ -54,6 +57,7 @@ struct ProfileView: View {
                     }
             }
             .buttonStyle(.plain)
+            .photosPicker(isPresented: $isPickingPhoto, selection: $selectedPhotoItem, matching: .images)
             .accessibilityLabel("Alterar foto de perfil")
 
             VStack(spacing: BryqoTheme.Spacing.sm) {

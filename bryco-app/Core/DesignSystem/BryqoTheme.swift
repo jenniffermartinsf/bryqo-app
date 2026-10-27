@@ -1,7 +1,8 @@
 import SwiftUI
 import UIKit
 
-enum BryqoTheme {
+/// Colours are resolved by SwiftUI off the main thread, so nothing here is MainActor-isolated.
+nonisolated enum BryqoTheme {
     // Background & Surface — updated per design spec
     static let background = Color(light: 0xEFF3EC, dark: 0x14161A)
     static let surface = Color(light: 0xFFFFFF, dark: 0x232628)
@@ -58,7 +59,7 @@ enum BryqoTheme {
     static let spacing: CGFloat = Spacing.lg
 }
 
-extension Color {
+nonisolated extension Color {
     init(hex: UInt, alpha: Double = 1) {
         self.init(
             .sRGB,

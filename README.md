@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-130%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-134%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -56,7 +56,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **130 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **134 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -136,7 +136,7 @@ O app suporta **light mode** e **dark mode** de forma nativa, controlados por um
 
 | Camada | Tecnologia |
 |---|---|
-| **Linguagem** | Swift · concorrência estruturada (`async/await`, `Task`, `@MainActor`) |
+| **Linguagem** | Swift 6 (modo de linguagem com checagem estrita de concorrência) · `async/await`, `@MainActor` por padrão, `Mutex` |
 | **Interface** | SwiftUI · UIKit (View Code, `UICollectionView`, diffable data source) |
 | **Estado** | Observation framework (`@Observable`) |
 | **Navegação** | `NavigationStack(path:)` com rotas tipadas · deep links por URL scheme |
@@ -203,6 +203,7 @@ flowchart TD
 | **Pacote `BryqoDomain`** | Algoritmos puros (SM-2, busca binária) compilam e são testados sem simulador; o pacote não conhece SwiftUI, SwiftData nem Firebase | Tipos públicos exigem `public` e `Sendable` explícitos |
 | **Roteador fora das Views** | A pilha de cada aba sobrevive à troca de abas, e deep links viram uma simples mudança de estado | Destinos centralizados em `LearnRoute` |
 | **Injeção de dependência pelo inicializador** | `BryqoAppState(inMemory:)` e funções com `now`/`calendar` injetados deixam os testes determinísticos | Parâmetros a mais nas assinaturas |
+| **Swift 6 com `MainActor` por padrão** | Data races viram erro de compilação; delegates e callbacks viram `async/await` com uma continuação que só retoma uma vez (`OneShotContinuation`) | Tipos usados fora da main thread (modelos de domínio, cores dinâmicas, monitor de rede) precisam ser marcados `nonisolated` |
 | **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
 
 ---
@@ -355,7 +356,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**130 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 117 no app e 13 no pacote `BryqoDomain`.
+**134 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 121 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|

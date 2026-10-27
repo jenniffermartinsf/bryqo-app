@@ -9,6 +9,7 @@ import Testing
 import SwiftUI
 @testable import bryco_app
 
+@MainActor
 struct bryco_appTests {
 
     @Test func completingLessonAwardsXpOnce() {

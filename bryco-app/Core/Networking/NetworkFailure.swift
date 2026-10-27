@@ -2,7 +2,7 @@ import Foundation
 
 /// What went wrong with a network call, in the terms that matter for deciding what to do next:
 /// should we try again, and does anyone need to know?
-enum NetworkFailure: Error, Equatable, Sendable {
+nonisolated enum NetworkFailure: Error, Equatable, Sendable {
     /// No connection. Retrying now is pointless; wait for the connection to come back.
     case offline
     /// The request took too long. Probably transient.
@@ -78,7 +78,7 @@ enum NetworkFailure: Error, Equatable, Sendable {
 }
 
 /// Exponential backoff with jitter, so thousands of devices don't retry in the same instant.
-struct RetryPolicy: Sendable {
+nonisolated struct RetryPolicy: Sendable {
     var maxAttempts = 3
     var baseDelay: TimeInterval = 1
     var maxDelay: TimeInterval = 30

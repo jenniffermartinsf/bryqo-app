@@ -3,6 +3,7 @@ import Testing
 
 /// Covers the in-lesson gamification loop. `LessonViewModel` is a plain `@Observable`
 /// with no external dependencies, so every case is fully isolated and repeatable.
+@MainActor
 @Suite("LessonViewModel", .tags(.gamification))
 struct LessonViewModelTests {
 

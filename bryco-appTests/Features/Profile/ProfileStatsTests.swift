@@ -5,6 +5,7 @@ import Testing
 /// Covers the level / XP / streak values surfaced on the Profile screen. All of them are
 /// computed properties on `BryqoAppState`, so they're tested directly against the state the
 /// view renders.
+@MainActor
 @Suite("Profile stats", .tags(.gamification))
 struct ProfileStatsTests {
 

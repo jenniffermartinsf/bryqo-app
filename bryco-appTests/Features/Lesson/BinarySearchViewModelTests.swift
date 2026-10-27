@@ -2,6 +2,7 @@ import BryqoDomain
 import Testing
 @testable import bryco_app
 
+@MainActor
 @Suite("BinarySearchViewModel", .tags(.gamification))
 struct BinarySearchViewModelTests {
 
