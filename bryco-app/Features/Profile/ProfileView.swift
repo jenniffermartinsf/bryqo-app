@@ -28,12 +28,12 @@ struct ProfileView: View {
             .padding(BryqoTheme.Spacing.xl)
         }
         .background(BryqoTheme.background)
-        .onChange(of: selectedPhotoItem) { _, item in
-            Task {
-                if let data = try? await item?.loadTransferable(type: Data.self) {
-                    appState.avatarImageData = data
-                }
-            }
+        .task { await appState.loadAvatar() }
+        // Tied to the selection: picking another photo cancels the one still loading.
+        .task(id: selectedPhotoItem) {
+            guard let item = selectedPhotoItem,
+                  let photo = try? await item.loadTransferable(type: Data.self) else { return }
+            try? await appState.setAvatar(photo)
         }
     }
 
@@ -76,7 +76,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private var avatarCircle: some View {
-        if let data = appState.avatarImageData, let uiImage = UIImage(data: data) {
+        if let uiImage = appState.avatarImage {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
