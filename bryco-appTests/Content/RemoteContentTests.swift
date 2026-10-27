@@ -4,20 +4,22 @@ import Testing
 
 // MARK: - Test doubles
 
-/// Answers every request with a canned response and records what was asked.
-private final class FakeHTTPClient: HTTPClient, @unchecked Sendable {
+/// Answers requests with canned responses, in order (the last one repeats), and records them.
+final class FakeHTTPClient: HTTPClient, @unchecked Sendable {
     enum Reply {
         case response(status: Int, body: Data = Data(), headers: [String: String] = [:])
         case failure(URLError.Code)
     }
 
-    var reply: Reply
+    var replies: [Reply]
     private(set) var requests: [URLRequest] = []
 
-    init(_ reply: Reply) { self.reply = reply }
+    init(_ reply: Reply) { replies = [reply] }
+    init(sequence: [Reply]) { replies = sequence }
 
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
         requests.append(request)
+        let reply = replies.count > 1 ? replies.removeFirst() : replies[0]
         switch reply {
         case .failure(let code):
             throw URLError(code)
@@ -28,19 +30,19 @@ private final class FakeHTTPClient: HTTPClient, @unchecked Sendable {
     }
 }
 
-private func encoded(_ catalog: ContentCatalogDTO) -> Data {
+func encoded(_ catalog: ContentCatalogDTO) -> Data {
     try! JSONEncoder().encode(catalog)
 }
 
-private func tempCache() -> ContentCache {
+func tempCache() -> ContentCache {
     ContentCache(directory: FileManager.default.temporaryDirectory
         .appendingPathComponent("bryqo-content-tests-\(UUID().uuidString)", isDirectory: true))
 }
 
-private let bundled = BryqoContent.allUnits
+let bundled = BryqoContent.allUnits
 
 /// A small valid catalog: the first bundled unit with an edited title.
-private func catalog(version: Int, title: String = "Lógica (atualizada)") -> ContentCatalogDTO {
+func catalog(version: Int, title: String = "Lógica (atualizada)") -> ContentCatalogDTO {
     let unit = bundled[0]
     let edited = LearningUnit(id: unit.id, title: title, subtitle: unit.subtitle, lessons: unit.lessons)
     return ContentCatalogDTO(version: version, content: [edited])
@@ -144,13 +146,19 @@ struct ContentServiceTests {
         #expect(client.requests.first?.value(forHTTPHeaderField: "If-None-Match") == "\"v2\"")
     }
 
-    @Test("Errors are told apart: status, decoding and transport", arguments: [
-        (FakeHTTPClient.Reply.response(status: 500), ContentFetchError.badStatus(500)),
-        (.response(status: 200, body: Data("not json".utf8)), .decoding),
-        (.failure(.notConnectedToInternet), .transport(.notConnectedToInternet)),
-        (.failure(.timedOut), .transport(.timedOut))
+    @Test("Each failure is classified by what to do about it", arguments: [
+        (FakeHTTPClient.Reply.response(status: 500), NetworkFailure.server(status: 500)),
+        (.response(status: 503), .server(status: 503)),
+        (.response(status: 408), .server(status: 408)),
+        (.response(status: 429, headers: ["Retry-After": "12"]), .rateLimited(retryAfter: 12)),
+        (.response(status: 404), .client(status: 404)),
+        (.response(status: 403), .client(status: 403)),
+        (.response(status: 200, body: Data("not json".utf8)), .invalidResponse),
+        (.failure(.notConnectedToInternet), .offline),
+        (.failure(.networkConnectionLost), .offline),
+        (.failure(.timedOut), .timeout)
     ])
-    fileprivate func errors(reply: FakeHTTPClient.Reply, expected: ContentFetchError) async {
+    func errors(reply: FakeHTTPClient.Reply, expected: NetworkFailure) async {
         await #expect(throws: expected) {
             try await ContentService(client: FakeHTTPClient(reply)).fetchCatalog(ifNoneMatch: nil)
         }
@@ -164,7 +172,8 @@ struct ContentServiceTests {
 struct ContentRepositoryTests {
 
     private func makeRepository(_ client: FakeHTTPClient, cache: ContentCache = tempCache()) -> ContentRepository {
-        ContentRepository(service: ContentService(client: client), cache: cache, bundled: bundled, bundledVersion: 1)
+        ContentRepository(service: ContentService(client: client), cache: cache, bundled: bundled, bundledVersion: 1,
+                          sleep: { _ in }, report: { _ in })
     }
 
     @Test("Starts with the bundled content before any network call")
@@ -199,12 +208,12 @@ struct ContentRepositoryTests {
         .response(status: 503),
         .response(status: 200, body: Data("{".utf8))
     ])
-    fileprivate func failureKeepsContent(reply: FakeHTTPClient.Reply) async {
+    func failureKeepsContent(reply: FakeHTTPClient.Reply) async {
         let repository = makeRepository(FakeHTTPClient(reply))
         await repository.refresh()
 
         #expect(repository.units == bundled)
-        #expect(repository.lastRefreshError != nil)
+        #expect(repository.lastFailure != nil)
     }
 
     @Test("An older catalog, or one with no valid lessons, is ignored")

@@ -8,11 +8,6 @@ enum ContentFetchResult: Equatable {
     case notModified
 }
 
-enum ContentFetchError: Error, Equatable {
-    case transport(URLError.Code)
-    case badStatus(Int)
-    case decoding
-}
 
 /// Downloads the lesson catalog. Pure request/response handling; caching and fallback live in
 /// `ContentRepository`.
@@ -23,7 +18,7 @@ struct ContentService {
     var url: URL = ContentService.catalogURL
     var timeout: TimeInterval = 10
 
-    func fetchCatalog(ifNoneMatch etag: String?) async throws(ContentFetchError) -> ContentFetchResult {
+    func fetchCatalog(ifNoneMatch etag: String?) async throws(NetworkFailure) -> ContentFetchResult {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: timeout)
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         if let etag {
@@ -35,9 +30,9 @@ struct ContentService {
         do {
             (data, response) = try await client.data(for: request)
         } catch let error as URLError {
-            throw .transport(error.code)
+            throw .from(urlError: error.code)
         } catch {
-            throw .transport(.unknown)
+            throw .server(status: 0)
         }
 
         switch response.statusCode {
@@ -46,12 +41,15 @@ struct ContentService {
                 let catalog = try JSONDecoder().decode(ContentCatalogDTO.self, from: data)
                 return .updated(catalog, etag: response.value(forHTTPHeaderField: "ETag"))
             } catch {
-                throw .decoding
+                throw .invalidResponse
             }
         case 304:
             return .notModified
         default:
-            throw .badStatus(response.statusCode)
+            throw .from(
+                status: response.statusCode,
+                retryAfter: NetworkFailure.retryAfter(header: response.value(forHTTPHeaderField: "Retry-After"))
+            )
         }
     }
 }

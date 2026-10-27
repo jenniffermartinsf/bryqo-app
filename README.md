@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-120%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-130%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -56,7 +56,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **120 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **130 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -220,6 +220,19 @@ API (JSON) → HTTPClient (URLSession) → DTO Decodable → mapeamento + valida
 - **DTOs separados dos models**: os structs `Decodable` espelham o JSON; o mapeamento para os models do app valida o conteúdo. Uma lição com um passo inválido é descartada; tipos de passo desconhecidos (enviados por um servidor mais novo) não derrubam a decodificação.
 - **Offline-first**: o app abre com o último catálogo salvo ou, se nunca houve conexão, com o conteúdo que vem dentro dele (`BryqoContent`). A atualização roda em segundo plano na abertura e ao voltar para o primeiro plano, e nunca troca o conteúdo por uma versão mais antiga ou vazia.
 - **Cache com ETag**: o catálogo e o ETag ficam em disco; se nada mudou, o servidor responde `304` e nada é baixado de novo.
+- **Erros tratados por tipo** ([`NetworkFailure`](bryco-app/Core/Networking/NetworkFailure.swift)), nunca como "Erro ao carregar":
+
+  | Falha | Nova tentativa | Quem fica sabendo |
+  |---|---|---|
+  | Sem internet | Quando a conexão volta (`NWPathMonitor`) | Ninguém: o app funciona offline |
+  | Tempo esgotado | Sim, espera crescente (1 s, 2 s…) com variação aleatória | Ninguém, se recuperar |
+  | 5xx, 408 | Sim, espera crescente | Crashlytics, se todas falharem |
+  | 429 | Sim, respeitando o `Retry-After` | Crashlytics, se todas falharem |
+  | 4xx | Não | Crashlytics |
+  | JSON inválido | Não | Crashlytics |
+  | Lição inválida no catálogo | — (só ela é descartada) | Crashlytics, com o id da lição |
+
+  A única coisa que a pessoa vê é um aviso discreto na trilha se o app passar 7 dias sem conseguir falar com o servidor.
 - **Catálogo sempre em sincronia**: um teste garante que o JSON publicado é idêntico ao conteúdo embutido. Para regenerá-lo depois de editar `BryqoContent`, rode os testes com `TEST_RUNNER_BRYQO_WRITE_CATALOG=1`.
 
 ---
@@ -342,7 +355,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**120 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 107 no app e 13 no pacote `BryqoDomain`.
+**130 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 117 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -356,7 +369,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `LessonViewModel` · `BinarySearchViewModel` · `VariableTraceViewModel` | Seleção, verificação, corações, XP e progressão de passos |
 | `Persistence health` | Banco que não abre (fallback em memória com aviso e registro do erro) e mensagens do aviso |
 | `Offline sync` | Backup indisponível não grava nada, backup ausente é criado, backup existente é mesclado, e nada vai para a nuvem antes da reconciliação |
-| `Content catalog` · `Content service` · `Content repository` | JSON publicado igual ao conteúdo embutido, validação de lições, status 200/304/erro, ETag, cache e fallback offline |
+| `Content catalog` · `Content service` · `Content repository` · `Network error handling` | JSON publicado igual ao conteúdo embutido, validação de lições, status 200/304/erro, ETag, cache, fallback offline, backoff, Retry-After, espera pela conexão e o que é reportado |
 | `Account link state` | Estados do vínculo com Apple, incluindo cancelamento tratado como não-erro |
 | `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 

@@ -41,6 +41,15 @@ enum BryqoAnalytics {
         Crashlytics.crashlytics().record(error: error, userInfo: ["operation": operation])
     }
 
+    /// Records a content problem only the team can fix (wrong URL, broken JSON, invalid
+    /// lessons, server down after every retry) as a non-fatal error.
+    nonisolated static func recordContentIssue(_ issue: ContentIssue) {
+        Crashlytics.crashlytics().record(error: NSError(
+            domain: "bryqo.content", code: 0,
+            userInfo: ["issue": issue.code, NSLocalizedDescriptionKey: issue.details]
+        ))
+    }
+
     static func identifyUser(_ uid: String) {
         Crashlytics.crashlytics().setUserID(uid)
     }
