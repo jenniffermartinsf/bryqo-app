@@ -2,6 +2,7 @@ import BryqoDomain
 import SwiftUI
 import Observation
 import SwiftData
+import UserNotifications
 import WidgetKit
 
 @Observable
@@ -13,7 +14,9 @@ final class BryqoAppState {
     /// SwiftData fetches are not observed by the Observation framework on their own.
     private var reviewsRevision = 0
     @ObservationIgnored private var persistedState: PersistedUserState
-    @ObservationIgnored let notificationManager = BryqoNotificationManager()
+    @ObservationIgnored let notificationManager: BryqoNotificationManager
+    /// Where preferences (theme, reminder) are stored.
+    @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored let authManager = BryqoAuthManager()
     /// Lesson catalog: bundled content, replaced by a newer remote catalog when one arrives.
     let content: ContentRepository
@@ -37,7 +40,7 @@ final class BryqoAppState {
     var progress = UserProgress()
 
     var isLightMode: Bool = true {
-        didSet { UserDefaults.standard.set(isLightMode, forKey: "bryqo.isLightMode") }
+        didSet { defaults.set(isLightMode, forKey: "bryqo.isLightMode") }
     }
     var notificationsEnabled: Bool = false
     /// Whether progress is reaching disk; drives the warning banner.
@@ -56,6 +59,9 @@ final class BryqoAppState {
     ///   - openStore: opens the on-disk store. Injected so tests can simulate a store that fails
     ///     to open (for example, a migration error).
     ///   - reportPersistenceError: where persistence failures are reported (Crashlytics by default).
+    ///   - notificationManager: schedules the daily reminder. In memory, it gets a center that
+    ///     schedules nothing, so tests never touch the system's notifications.
+    ///   - defaults: where preferences are stored. In memory, a throwaway suite.
     init(
         inMemory: Bool = false,
         openStore: (() throws -> ModelContainer)? = nil,
@@ -63,8 +69,13 @@ final class BryqoAppState {
         cloudStore: (any UserCloudStore)? = nil,
         signedInUID: (() -> String?)? = nil,
         content: ContentRepository? = nil,
-        avatarStore: AvatarStore? = nil
+        avatarStore: AvatarStore? = nil,
+        notificationManager: BryqoNotificationManager? = nil,
+        defaults: UserDefaults? = nil
     ) {
+        self.notificationManager = notificationManager
+            ?? (inMemory ? BryqoNotificationManager(center: NoNotifications()) : BryqoNotificationManager())
+        self.defaults = defaults ?? (inMemory ? UserDefaults(suiteName: "bryqo-tests-\(UUID().uuidString)")! : .standard)
         self.avatarStore = avatarStore ?? (inMemory
             ? AvatarStore(fileURL: FileManager.default.temporaryDirectory
                 .appendingPathComponent("bryqo-avatar-\(UUID().uuidString).jpg"))
@@ -159,10 +170,10 @@ final class BryqoAppState {
             )
         }
 
-        if let saved = UserDefaults.standard.object(forKey: "bryqo.isLightMode") as? Bool {
+        if let saved = self.defaults.object(forKey: "bryqo.isLightMode") as? Bool {
             isLightMode = saved
         }
-        notificationsEnabled = UserDefaults.standard.bool(forKey: "bryqo.notifications.enabled")
+        notificationsEnabled = self.defaults.bool(forKey: "bryqo.notifications.enabled")
 
         applyStreakDecay()
         applyHeartRegeneration()
@@ -561,20 +572,20 @@ final class BryqoAppState {
 
     func setNotificationsEnabled(_ enabled: Bool) {
         notificationsEnabled = enabled
-        UserDefaults.standard.set(enabled, forKey: "bryqo.notifications.enabled")
+        defaults.set(enabled, forKey: "bryqo.notifications.enabled")
         if enabled {
-            Task {
-                let granted = await notificationManager.requestAndSchedule()
-                if !granted {
-                    await MainActor.run {
-                        self.notificationsEnabled = false
-                        UserDefaults.standard.set(false, forKey: "bryqo.notifications.enabled")
-                    }
-                }
-            }
+            Task { await scheduleReminderIfAllowed() }
         } else {
             notificationManager.cancel()
         }
+    }
+
+    /// Asks for permission and schedules the reminder. If the person says no, the switch goes
+    /// back off: a reminder that can never arrive shouldn't look enabled.
+    func scheduleReminderIfAllowed() async {
+        guard await !notificationManager.requestAndSchedule() else { return }
+        notificationsEnabled = false
+        defaults.set(false, forKey: "bryqo.notifications.enabled")
     }
 
     // MARK: - Spaced Repetition (SM-2)
@@ -722,4 +733,12 @@ final class BryqoAppState {
         if progress.earnedMaterials.count >= 5 { progress.earnedAchievementIds.insert("materials_5") }
         if currentLevel >= 3 { progress.earnedAchievementIds.insert("level_3") }
     }
+}
+
+/// A notification center that schedules nothing: the default for in-memory app states.
+private final class NoNotifications: NotificationScheduling {
+    func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool { false }
+    func schedule(_ request: UNNotificationRequest) {}
+    func removePendingNotificationRequests(withIdentifiers identifiers: [String]) {}
+    func pendingNotificationRequests() async -> [UNNotificationRequest] { [] }
 }
