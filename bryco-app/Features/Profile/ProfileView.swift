@@ -2,16 +2,16 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileView: View {
-    let appState: BryqoAppState
+    @State private var model: ProfileModel
 
+    // Presentation only: which picker or dialog is open.
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var isPickingPhoto = false
-    @State private var linkState: AccountLinkState = .idle
     @State private var isConfirmingReviewReset = false
-    /// Which provider the current link attempt uses, so only its button shows progress.
-    @State private var linkingProvider: AccountProvider?
 
-    private enum AccountProvider { case apple, google }
+    init(appState: BryqoAppState) {
+        _model = State(initialValue: ProfileModel(appState: appState))
+    }
 
     var body: some View {
         ScrollView {
@@ -28,13 +28,9 @@ struct ProfileView: View {
             .padding(BryqoTheme.Spacing.xl)
         }
         .background(BryqoTheme.background)
-        .task { await appState.loadAvatar() }
+        .task { await model.loadAvatar() }
         // Tied to the selection: picking another photo cancels the one still loading.
-        .task(id: selectedPhotoItem) {
-            guard let item = selectedPhotoItem,
-                  let photo = try? await item.loadTransferable(type: Data.self) else { return }
-            try? await appState.setAvatar(photo)
-        }
+        .task(id: selectedPhotoItem) { await model.usePhoto(selectedPhotoItem) }
     }
 
     // MARK: - Avatar Section
@@ -61,11 +57,11 @@ struct ProfileView: View {
             .accessibilityLabel("Alterar foto de perfil")
 
             VStack(spacing: BryqoTheme.Spacing.sm) {
-                Text(appState.profile?.displayName ?? "construtor")
+                Text(model.displayName)
                     .bryqoFont(26, relativeTo: .title2, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
 
-                Text("Construindo desde \(creationMonth) · Nível \(appState.levelName)")
+                Text(model.subtitle)
                     .font(.body)
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
@@ -76,7 +72,7 @@ struct ProfileView: View {
 
     @ViewBuilder
     private var avatarCircle: some View {
-        if let uiImage = appState.avatarImage {
+        if let uiImage = model.avatarImage {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
@@ -103,31 +99,24 @@ struct ProfileView: View {
         }
     }
 
-    private var creationMonth: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "pt_BR")
-        formatter.dateFormat = "MMMM"
-        return formatter.string(from: appState.profile?.accountCreatedDate ?? Date())
-    }
-
     // MARK: - Stats
 
     private var statsSection: some View {
         HStack(spacing: BryqoTheme.Spacing.md) {
             statCard(
-                value: "\(appState.progress.streakDays)",
+                value: "\(model.streakDays)",
                 label: "dias",
                 icon: "flame.fill",
                 color: BryqoTheme.coral
             )
             statCard(
-                value: "\(appState.progress.xp)",
+                value: "\(model.xp)",
                 label: "XP",
                 icon: "star.fill",
                 color: BryqoTheme.sun
             )
             statCard(
-                value: "\(appState.completedLessonCount)",
+                value: "\(model.completedLessons)",
                 label: "lições",
                 icon: "checkmark.circle.fill",
                 color: BryqoTheme.primary
@@ -162,18 +151,14 @@ struct ProfileView: View {
     // MARK: - Settings
 
     private var settingsSection: some View {
-        VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
+        @Bindable var model = model
+        return VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             BryqoSectionTitle(title: "Aparência")
 
             settingToggle(
                 title: "Tema escuro",
-                subtitle: appState.isLightMode
-                    ? "Ativa a interface escura."
-                    : "Interface usando o tema escuro.",
-                isOn: Binding(
-                    get: { !appState.isLightMode },
-                    set: { appState.isLightMode = !$0 }
-                )
+                subtitle: model.themeSubtitle,
+                isOn: $model.isDarkMode
             )
 
             BryqoSectionTitle(title: "Notificações")
@@ -182,10 +167,7 @@ struct ProfileView: View {
             settingToggle(
                 title: "Lembrete diário",
                 subtitle: "Brix te avisa às 19h se você ainda não estudou.",
-                isOn: Binding(
-                    get: { appState.notificationsEnabled },
-                    set: { appState.setNotificationsEnabled($0) }
-                )
+                isOn: $model.remindersEnabled
             )
 
             BryqoSectionTitle(title: "Conta")
@@ -219,14 +201,14 @@ struct ProfileView: View {
                 titleVisibility: .visible
             ) {
                 Button("Recomeçar revisões", role: .destructive) {
-                    appState.resetReviews()
+                    model.resetReviews()
                 }
             } message: {
                 Text("A agenda de revisões será apagada. Suas lições concluídas e seu XP não mudam.")
             }
 
             Button {
-                appState.resetOnboarding()
+                model.restartOnboarding()
             } label: {
                 HStack {
                     VStack(alignment: .leading, spacing: BryqoTheme.Spacing.sm) {
@@ -248,26 +230,16 @@ struct ProfileView: View {
         }
     }
 
-    /// The card's displayed state. `.linked` comes straight from the auth manager (the source
-    /// of truth for the account); every other case reflects the current link attempt.
-    private var accountState: AccountLinkState {
-        let auth = appState.authManager
-        return auth.isSignedIn && !auth.isAnonymous ? .linked : linkState
-    }
-
     @ViewBuilder
     private var accountAuthCard: some View {
-        switch accountState {
-        case .linked:
+        if model.accountState == .linked {
             linkedAccountCard
-        case .idle, .failed:
-            unlinkedAccountCard(isLinking: false)
-        case .linking:
-            unlinkedAccountCard(isLinking: true)
+        } else {
+            unlinkedAccountCard(model.accountState)
         }
     }
 
-    private func unlinkedAccountCard(isLinking: Bool) -> some View {
+    private func unlinkedAccountCard(_ state: AccountLinkState) -> some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             HStack(spacing: BryqoTheme.Spacing.md) {
                 Image(systemName: "exclamationmark.icloud.fill")
@@ -286,27 +258,27 @@ struct ProfileView: View {
 
             BryqoAuthButton(
                 provider: .apple,
-                isLoading: isLinking && linkingProvider == .apple,
-                isDisabled: isLinking,
-                action: linkWithApple
+                isLoading: state.isLinking(with: .apple),
+                isDisabled: state.isLinking,
+                action: { link(with: .apple) }
             )
 
-            if appState.authManager.isGoogleSignInAvailable {
+            if model.isGoogleSignInAvailable {
                 BryqoAuthButton(
                     provider: .google,
-                    isLoading: isLinking && linkingProvider == .google,
-                    isDisabled: isLinking,
-                    action: linkWithGoogle
+                    isLoading: state.isLinking(with: .google),
+                    isDisabled: state.isLinking,
+                    action: { link(with: .google) }
                 )
             }
         }
         .bryqoCard()
         .alert("Erro ao vincular conta", isPresented: .init(
-            get: { linkState.errorMessage != nil },
-            set: { if !$0 { linkState = .idle } }
+            get: { state.errorMessage != nil },
+            set: { if !$0 { model.dismissError() } }
         )) {
         } message: {
-            Text(linkState.errorMessage ?? "")
+            Text(state.errorMessage ?? "")
         }
     }
 
@@ -319,7 +291,7 @@ struct ProfileView: View {
                 Text("Conta vinculada")
                     .font(.headline.bold())
                     .foregroundStyle(BryqoTheme.textPrimary)
-                Text("Progresso salvo com sua conta \(appState.authManager.linkedProviderName ?? "vinculada").")
+                Text("Progresso salvo com sua conta \(model.linkedProviderName).")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
@@ -328,28 +300,10 @@ struct ProfileView: View {
         .bryqoCard()
     }
 
-    private func linkWithApple() {
-        link(.apple) { try await appState.authManager.signInWithApple() }
-    }
-
-    private func linkWithGoogle() {
-        link(.google) { try await appState.authManager.signInWithGoogle() }
-    }
-
-    private func link(_ provider: AccountProvider, signIn: @escaping () async throws -> Void) {
-        linkingProvider = provider
-        linkState = .linking
-        Task {
-            do {
-                try await signIn()
-                linkState = .idle
-                // The account may have switched to an existing user: reconcile with its backup.
-                await appState.syncWithCloud()
-            } catch {
-                linkState = .afterFailure(error)
-            }
-            linkingProvider = nil
-        }
+    /// Not tied to the view's lifetime on purpose: once the account is linked, the backup
+    /// sync that follows should finish even if the person switches tabs.
+    private func link(with provider: AccountProvider) {
+        Task { await model.link(with: provider) }
     }
 
     private func settingToggle(title: String, subtitle: String, isOn: Binding<Bool>) -> some View {

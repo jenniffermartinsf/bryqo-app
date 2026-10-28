@@ -33,7 +33,7 @@ struct AccountLinkStateTests {
     }
 
     @Test("Only the failed state carries an error message", arguments: [
-        AccountLinkState.idle, .linking, .linked
+        AccountLinkState.idle, .linking(.apple), .linked
     ])
     func nonFailedStatesHaveNoMessage(state: AccountLinkState) {
         #expect(state.errorMessage == nil)
