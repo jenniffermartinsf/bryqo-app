@@ -50,6 +50,27 @@ enum LessonFixtures {
         )
     }
 
+    /// A "Pense como a máquina" step with `predictions` questions about `x`.
+    static func traceStep(id: String = "trace", predictions: Int = 3) -> LessonStep {
+        LessonStep(
+            id: id,
+            kind: .concept,
+            title: "Pense como a máquina",
+            body: "",
+            variableTrace: VariableTraceExercise(
+                intro: "Execute linha por linha.",
+                codeLines: ["x = 0", "x = x + 1"],
+                language: .generic,
+                steps: (0..<predictions).map { n in
+                    VariableTraceStep(
+                        highlightedLine: 1, prompt: "Quanto vale x?", variable: "x",
+                        options: ["\(n)", "\(n + 1)"], correctAnswer: "\(n + 1)", explanation: "explicação"
+                    )
+                }
+            )
+        )
+    }
+
     static func lesson(
         id: String = "fixture-lesson",
         xpReward: Int = 20,
