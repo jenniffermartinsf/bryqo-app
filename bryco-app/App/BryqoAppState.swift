@@ -45,20 +45,9 @@ final class BryqoAppState {
     @ObservationIgnored private let reportPersistenceError: (Error, String) -> Void
     var pendingStreakMilestone: Int? = nil
 
-    var avatarImageData: Data? = nil {
-        didSet {
-            if let data = avatarImageData {
-                try? data.write(to: BryqoAppState.avatarFileURL)
-            } else {
-                try? FileManager.default.removeItem(at: BryqoAppState.avatarFileURL)
-            }
-        }
-    }
-
-    private static var avatarFileURL: URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("bryqo_avatar.jpg")
-    }
+    /// Decoded once, off the main thread, so the profile never decodes a photo while rendering.
+    private(set) var avatarImage: UIImage?
+    @ObservationIgnored private let avatarStore: AvatarStore
 
     /// - Parameters:
     ///   - inMemory: when `true`, uses a throwaway in-memory store instead of the on-disk one.
@@ -73,8 +62,13 @@ final class BryqoAppState {
         reportPersistenceError: @escaping (Error, String) -> Void = BryqoAnalytics.recordPersistenceError,
         cloudStore: (any UserCloudStore)? = nil,
         signedInUID: (() -> String?)? = nil,
-        content: ContentRepository? = nil
+        content: ContentRepository? = nil,
+        avatarStore: AvatarStore? = nil
     ) {
+        self.avatarStore = avatarStore ?? (inMemory
+            ? AvatarStore(fileURL: FileManager.default.temporaryDirectory
+                .appendingPathComponent("bryqo-avatar-\(UUID().uuidString).jpg"))
+            : AvatarStore())
         // Tests (inMemory) get a throwaway cache so they never read content saved by the app.
         self.content = content ?? (inMemory
             ? ContentRepository(cache: ContentCache(directory: FileManager.default.temporaryDirectory
@@ -169,7 +163,6 @@ final class BryqoAppState {
             isLightMode = saved
         }
         notificationsEnabled = UserDefaults.standard.bool(forKey: "bryqo.notifications.enabled")
-        avatarImageData = try? Data(contentsOf: BryqoAppState.avatarFileURL)
 
         applyStreakDecay()
         applyHeartRegeneration()
@@ -226,6 +219,22 @@ final class BryqoAppState {
     /// Signs in if needed and reconciles local progress with the cloud backup. Called on launch
     /// and every time the app comes back to the foreground, so a launch without internet
     /// catches up as soon as the connection returns.
+    // MARK: - Avatar
+
+    func loadAvatar() async {
+        guard avatarImage == nil, let data = await avatarStore.load() else { return }
+        avatarImage = await UIImage(data: data)?.byPreparingForDisplay()
+    }
+
+    /// Shrinks and stores a picked photo. The work happens off the main actor; only the
+    /// final assignment runs here. Throws `CancellationError` if a newer photo replaced it.
+    func setAvatar(_ photo: Data) async throws {
+        let avatar = try await avatarStore.save(photo)
+        let image = await UIImage(data: avatar)?.byPreparingForDisplay()
+        try Task.checkCancellation()
+        avatarImage = image
+    }
+
     func syncWithCloud() async {
         guard !isSyncing else { return }
         isSyncing = true
