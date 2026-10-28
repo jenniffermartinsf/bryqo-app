@@ -2,11 +2,16 @@ import AuthenticationServices
 import Foundation
 import GoogleSignIn
 
-/// Every state the "Salvar com Apple" card can be in. A single enum instead of separate
-/// flags makes impossible combinations (e.g. linking *and* failed) unrepresentable.
+enum AccountProvider: Equatable {
+    case apple, google
+}
+
+/// Every state the account card can be in. A single enum instead of separate flags makes
+/// impossible combinations (e.g. linking *and* failed, or linking with no provider)
+/// unrepresentable.
 enum AccountLinkState: Equatable {
     case idle
-    case linking
+    case linking(AccountProvider)
     case linked
     case failed(message: String)
 
@@ -26,5 +31,13 @@ enum AccountLinkState: Equatable {
 
     var errorMessage: String? {
         if case .failed(let message) = self { message } else { nil }
+    }
+
+    var isLinking: Bool {
+        if case .linking = self { true } else { false }
+    }
+
+    func isLinking(with provider: AccountProvider) -> Bool {
+        self == .linking(provider)
     }
 }

@@ -221,3 +221,14 @@ enum BryqoAuthError: LocalizedError {
         }
     }
 }
+
+extension BryqoAuthManager: AccountLinking {
+    var isLinked: Bool { isSignedIn && !isAnonymous }
+
+    func signIn(with provider: AccountProvider) async throws {
+        switch provider {
+        case .apple: try await signInWithApple()
+        case .google: try await signInWithGoogle()
+        }
+    }
+}
