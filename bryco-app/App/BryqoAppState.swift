@@ -563,9 +563,10 @@ final class BryqoAppState {
         }
     }
 
-    func loseHeart() {
-        guard progress.hearts > 0 else { return }
-        progress.hearts -= 1
+    func loseHearts(_ count: Int = 1) {
+        let lost = min(count, progress.hearts)
+        guard lost > 0 else { return }
+        progress.hearts -= lost
         progress.heartsUpdatedAt = Date()
         save()
     }

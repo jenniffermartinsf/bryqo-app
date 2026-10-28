@@ -18,7 +18,11 @@ struct LessonView: View {
         self.appState = appState
         self.lesson = lesson
         self.mode = mode
-        _viewModel = State(wrappedValue: LessonViewModel(lesson: lesson, initialHearts: appState.progress.hearts))
+        _viewModel = State(wrappedValue: LessonViewModel(
+            lesson: lesson,
+            initialHearts: appState.progress.hearts,
+            loseHearts: { appState.loseHearts($0) }
+        ))
     }
 
     var body: some View {
@@ -73,18 +77,15 @@ struct LessonView: View {
             }
         }
         .overlay {
-            if viewModel.hearts == 0 && !viewModel.hasAnswered && !showCompletion {
+            if viewModel.isOutOfHearts {
                 NoHeartsView {
                     dismiss()
                 }
                 .transition(.opacity)
             }
         }
-        .animation(.easeOut(duration: 0.3), value: viewModel.hearts == 0 && !viewModel.hasAnswered)
+        .animation(.easeOut(duration: 0.3), value: viewModel.isOutOfHearts)
         .animation(.spring(response: 0.45, dampingFraction: 0.8), value: showCompletion)
-        .onChange(of: viewModel.hearts) { old, new in
-            if new < old { appState.loseHeart() }
-        }
         .onChange(of: viewModel.isComplete) { _, complete in
             guard complete else { return }
             showCompletion = true

@@ -16,6 +16,9 @@ final class LessonViewModel {
     private(set) var shakeTrigger: Int = 0
     private(set) var xpFloatTrigger: Int = 0
 
+    /// Charges the app for hearts lost in this lesson, with how many were lost at once.
+    @ObservationIgnored private let loseHearts: (Int) -> Void
+
     var currentStep: LessonStep {
         lesson.steps[stepIndex]
     }
@@ -39,9 +42,16 @@ final class LessonViewModel {
         return !selectedOptionIds.isEmpty
     }
 
-    init(lesson: Lesson, initialHearts: Int) {
+    /// Out of hearts with nothing left to read: the lesson stops here. While the feedback of
+    /// the answer that cost the last heart is on screen, the learner can still read it.
+    var isOutOfHearts: Bool {
+        hearts == 0 && !hasAnswered && !isComplete
+    }
+
+    init(lesson: Lesson, initialHearts: Int, loseHearts: @escaping (Int) -> Void = { _ in }) {
         self.lesson = lesson
         self.hearts = initialHearts
+        self.loseHearts = loseHearts
     }
 
     func selectOption(_ option: ExerciseOption) {
@@ -62,7 +72,7 @@ final class LessonViewModel {
         guard currentStep.exercise != nil, !hasAnswered else { return }
         hasAnswered = true
         if !isAnswerCorrect {
-            hearts = max(0, hearts - 1)
+            spendHearts(1)
             mistakeCount += 1
             shakeTrigger += 1
         } else {
@@ -93,8 +103,16 @@ final class LessonViewModel {
         mistakeCount += mistakes
         correctCount += correct
         xpEarned += correct * 10
-        hearts = max(0, hearts - mistakes)
+        spendHearts(mistakes)
         advance()
+    }
+
+    /// Takes up to `count` hearts and reports the ones actually lost, never below zero.
+    private func spendHearts(_ count: Int) {
+        let lost = min(count, hearts)
+        guard lost > 0 else { return }
+        hearts -= lost
+        loseHearts(lost)
     }
 
     var isVariableTraceStep: Bool { currentStep.variableTrace != nil }
