@@ -49,6 +49,7 @@ struct ValleyView: View {
                     constructions
                 }
                 .padding(BryqoTheme.Spacing.xl)
+                .bryqoReadableWidth()
             }
             .background(BryqoTheme.background)
             .learnRouteDestinations(appState: appState)
@@ -367,7 +368,7 @@ private struct DailyGoalRing: View {
                         .contentTransition(.numericText())
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: earnedXp)
                     Text("XP")
-                        .bryqoFont(10, weight: .bold)
+                        .bryqoFont(11, weight: .bold)
                         .foregroundStyle(BryqoTheme.textSecondary)
                 }
                 .transition(.scale.combined(with: .opacity))

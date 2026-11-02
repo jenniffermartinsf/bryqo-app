@@ -24,6 +24,7 @@ struct BackpackView: View {
                 reviewSection
             }
             .padding(BryqoTheme.Spacing.xl)
+            .bryqoReadableWidth()
         }
     }
 

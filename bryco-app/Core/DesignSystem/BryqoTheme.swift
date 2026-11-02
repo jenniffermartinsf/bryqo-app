@@ -48,6 +48,12 @@ nonisolated enum BryqoTheme {
         static let xxxl: CGFloat = 40
     }
 
+    enum Layout {
+        /// Widest a column of text and cards gets. On iPhone the screen is narrower, so it
+        /// changes nothing; on iPad it keeps lines short enough to read and buttons in reach.
+        static let readableWidth: CGFloat = 640
+    }
+
     enum Radius {
         static let card: CGFloat = 20
         static let button: CGFloat = 18
@@ -106,6 +112,7 @@ struct BryqoScreen<Content: View>: View {
                 .ignoresSafeArea()
 
             content
+                .bryqoReadableWidth()
         }
     }
 }
@@ -196,6 +203,12 @@ struct BryqoCard: ViewModifier {
 }
 
 extension View {
+    /// Centers the content in a column no wider than `Layout.readableWidth`.
+    func bryqoReadableWidth() -> some View {
+        frame(maxWidth: BryqoTheme.Layout.readableWidth)
+            .frame(maxWidth: .infinity)
+    }
+
     func bryqoCard(
         padding: CGFloat = BryqoTheme.Spacing.lg,
         fill: Color = BryqoTheme.surface,

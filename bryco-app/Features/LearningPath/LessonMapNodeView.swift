@@ -46,7 +46,7 @@ struct LessonMapNodeView: View {
         .overlay(alignment: .topTrailing) {
             if status == .completed {
                 Text("+\(lesson.xpReward) XP")
-                    .bryqoFont(9, weight: .black, design: .rounded)
+                    .bryqoFont(11, weight: .black, design: .rounded)
                     .foregroundStyle(BryqoTheme.sun)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)

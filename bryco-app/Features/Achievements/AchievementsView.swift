@@ -28,6 +28,7 @@ struct AchievementsView: View {
             }
             .padding(BryqoTheme.Spacing.xl)
             .padding(.bottom, BryqoTheme.Spacing.xxxl)
+            .bryqoReadableWidth()
             .animation(.easeInOut(duration: 0.2), value: selectedTab)
         }
     }
@@ -179,7 +180,7 @@ struct AchievementsView: View {
 
     private func rarityPill(_ label: String, color: Color) -> some View {
         Text(label)
-            .bryqoFont(9, weight: .black)
+            .bryqoFont(11, weight: .black)
             .tracking(0.8)
             .foregroundStyle(color)
             .padding(.horizontal, 6)

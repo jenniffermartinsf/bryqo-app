@@ -207,6 +207,8 @@ flowchart TD
 | **Foto de perfil num `actor`** | `AvatarStore` é o único dono do arquivo; a redução (ImageIO, até 512 px) roda em uma função `@concurrent`, e `.task(id:)` cancela a foto anterior. 4,1 MB → 135 KB no disco e −50 MB de memória no Perfil | Reentrância: o actor confere, depois do `await`, se uma foto mais nova não chegou antes de gravar |
 | **`ProfileModel` separado da `ProfileView`** | A View só desenha e repassa toques; vínculo de conta, loading, erro, backup e textos ficam num `@Observable` testável, com a conta (Firebase) atrás do protocolo `AccountLinking`. 22 → 0 acessos ao estado global na View, e o fluxo de vínculo ganhou testes | Mais um arquivo por tela; vale quando a tela tem decisões, não para Views só de layout |
 | **Lembrete com dependências injetadas** | `BryqoNotificationManager` recebe o centro de notificações (protocolo `NotificationScheduling`), o calendário e o relógio; `BryqoAppState` recebe o `UserDefaults`. Os testes usam um centro falso e qualquer data, e acharam o bug do "dia 32": no último dia do mês o lembrete de amanhã nunca disparava | Mais parâmetros no `init`; todos têm o valor real como padrão, então o app não muda |
+| **`TabView` do sistema no lugar da barra flutuante** | A cápsula feita à mão se esticava pelos 1032 pt do iPad, tinha rótulos de 10 pt que podiam encolher até 7,5 pt e exigia um `padding(.bottom, 96)` em todas as abas. A `TabView` com `.sidebarAdaptable` traz a barra do iOS no iPhone e a barra no topo, com sidebar, no iPad | Perde a animação própria de seleção; o visual da barra passa a ser o do sistema |
+| **Coluna de leitura no iPad** | Telas e abas usam `.bryqoReadableWidth()` (até 640 pt). No iPhone a tela é mais estreita, então nada muda; no iPad, cards e botões deixam de ocupar a largura inteira | Sobra margem dos lados no iPad, preenchida pelo fundo do tema |
 | **Corações cobrados pelo `LessonViewModel`** | O ViewModel recebe `loseHearts: (Int) -> Void` e informa quantos corações perdeu de uma vez. Antes, a `LessonView` repassava a perda num `onChange(of: hearts)`, que roda uma vez por mudança: um passo com 3 erros tirava 3 corações na lição e 1 no app | Uma closure a mais no `init`, com padrão vazio, então os testes antigos não mudam |
 | **Meta diária zerada em qualquer começo de dia** | `startNewDayIfNeeded()` roda ao voltar para o app (`appBecameActive()`), a cada minuto com o app aberto e antes de uma revisão. Antes, só o `init` e a primeira lição do dia zeravam: com o app em memória durante a noite, a meta aparecia cumprida na manhã seguinte, e uma revisão somava no XP de ontem | Uma checagem de data a mais por minuto; ela só salva quando o dia realmente mudou |
 | **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
@@ -248,7 +250,8 @@ API (JSON) → HTTPClient (URLSession) → DTO Decodable → mapeamento + valida
 A navegação vive no [`AppRouter`](bryco-app/App/AppRouter.swift), um objeto `@Observable` que guarda a aba selecionada e uma pilha de rotas tipadas ([`LearnRoute`](bryco-app/App/LearnRoute.swift)) para cada aba com navegação.
 
 - **A pilha sobrevive à troca de abas**: como o estado não fica dentro das Views, a pessoa troca de aba e volta exatamente onde estava.
-- **A barra de abas some durante a lição**: o roteador sabe quando uma lição está no topo da pilha da aba visível.
+- **Barra de abas do sistema**: `TabView` com `.sidebarAdaptable`. No iPhone é a barra de abas do iOS; no iPad, uma barra no topo que vira sidebar.
+- **A barra de abas some durante a lição**: o roteador sabe quando uma lição está no topo da pilha da aba visível, e a aba aplica `toolbarVisibility(.hidden, for: .tabBar)`.
 - **Destinos centralizados**: `learnRouteDestinations(appState:)` registra todas as telas que podem ser empilhadas.
 
 | Deep link | Efeito |
@@ -297,7 +300,7 @@ Todo o visual é centralizado em [`BryqoTheme`](bryco-app/Core/DesignSystem/Bryq
 | `BryqoCard` / `.bryqoCard()` | Cartão padrão com borda e cantos contínuos |
 | `BryqoStatPill` | Pílula de estatística (XP, streak…) |
 | `BrixAvatar` / `BrixSpeechBubble` | Mascote Brix com balão de fala (via `Shape` customizado) |
-| `FloatingTabBar` | Barra de navegação flutuante com `matchedGeometryEffect` |
+| `.bryqoReadableWidth()` | Coluna de no máximo 640 pt (`BryqoTheme.Layout.readableWidth`): não muda nada no iPhone e deixa o conteúdo legível no iPad |
 | `.bryqoFont(_:relativeTo:…)` | Fonte de tamanho fixo que **escala com Dynamic Type** (`@ScaledMetric`) |
 
 ---
