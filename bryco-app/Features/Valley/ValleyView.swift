@@ -102,56 +102,74 @@ struct ValleyView: View {
         .transition(.move(edge: .top).combined(with: .opacity))
     }
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var progress: UserProgress { appState.progress }
 
     // MARK: - Daily Goal Card
 
+    /// Ring beside the text; stacked from XXXL, where the side-by-side card broke "META · REGULAR".
     private var dailyGoalCard: some View {
-        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.xl) {
-            DailyGoalRing(
-                earnedXp: progress.dailyXpEarned,
-                goalXp: appState.dailyGoalXp,
-                progress: appState.dailyGoalProgress
-            )
-
-            VStack(alignment: .leading, spacing: 5) {
-                Text("META · \(appState.dailyGoalTier.uppercased())")
-                    .font(.caption.weight(.black))
-                    .kerning(1.2)
-                    .foregroundStyle(BryqoTheme.textSecondary)
-
-                Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
-                    .bryqoFont(22, relativeTo: .title2, weight: .black, design: .rounded)
-                    .foregroundStyle(BryqoTheme.textPrimary)
-                    .contentTransition(.numericText())
-                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progress.dailyXpEarned)
-
-                if appState.dailyGoalProgress >= 1.0 {
-                    Label("Meta atingida hoje!", systemImage: "checkmark.circle.fill")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(BryqoTheme.Ink.success)
-                        .transition(.scale.combined(with: .opacity))
-                } else {
-                    let remaining = appState.dailyGoalXp - progress.dailyXpEarned
-                    Text("Faltam \(remaining) XP")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(BryqoTheme.textSecondary)
-                        .contentTransition(.numericText())
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: remaining)
-                }
-            }
-
-            Spacer()
+        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.xl, stacksFrom: .xxxLarge) {
+            goalRing
+            goalText
+            if dynamicTypeSize < .xxxLarge { Spacer() }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .bryqoCard()
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appState.dailyGoalProgress >= 1.0)
     }
 
+    private var goalRing: some View {
+        DailyGoalRing(
+            earnedXp: progress.dailyXpEarned,
+            goalXp: appState.dailyGoalXp,
+            progress: appState.dailyGoalProgress
+        )
+    }
+
+    private var goalText: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("META · \(appState.dailyGoalTier.uppercased())")
+                .font(.caption.weight(.black))
+                .kerning(1.2)
+                .foregroundStyle(BryqoTheme.textSecondary)
+
+            Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
+                .bryqoFont(22, relativeTo: .title2, weight: .black, design: .rounded)
+                .foregroundStyle(BryqoTheme.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progress.dailyXpEarned)
+
+            if appState.dailyGoalProgress >= 1.0 {
+                Label("Meta atingida hoje!", systemImage: "checkmark.circle.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(BryqoTheme.Ink.success)
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                let remaining = appState.dailyGoalXp - progress.dailyXpEarned
+                Text("Faltam \(remaining) XP")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(BryqoTheme.textSecondary)
+                    .contentTransition(.numericText())
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: remaining)
+            }
+        }
+    }
+
     // MARK: - Header
 
+    /// Greeting and pills side by side; stacked from XXXL, where the pills broke "30 XP" in two.
     private var header: some View {
-        BryqoAdaptiveStack(verticalAlignment: .top) {
+        BryqoAdaptiveStack(verticalAlignment: .top, stacksFrom: .xxxLarge) {
+            greeting
+            if dynamicTypeSize < .xxxLarge { Spacer() }
+            // The greeting wraps before a pill does: "30 XP" is one value.
+            statPills.layoutPriority(1)
+        }
+    }
+
+    private var greeting: some View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Bom te ver de volta")
                     .font(.subheadline.weight(.semibold))
@@ -161,9 +179,9 @@ struct ValleyView: View {
                     .bryqoFont(30, relativeTo: .largeTitle, weight: .black)
                     .foregroundStyle(BryqoTheme.textPrimary)
             }
+    }
 
-            Spacer()
-
+    private var statPills: some View {
             HStack(spacing: BryqoTheme.Spacing.sm) {
                 BryqoStatPill(
                     value: "\(appState.progress.streakDays)",
@@ -177,7 +195,6 @@ struct ValleyView: View {
                     tint: BryqoTheme.sun
                 )
             }
-        }
     }
 
     // MARK: - Continue Card

@@ -93,12 +93,16 @@ struct AchievementsView: View {
     }
 
     // 3 stat pills
+    /// Three cards across; stacked from XXXL, where "Sequência" broke mid-word.
     private var statsRow: some View {
-        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.md) {
-            statCard(icon: "flame.fill",          value: "\(appState.progress.streakDays)", label: "Sequência",  tint: Color(hex: 0xFF7A20))
-            statCard(icon: "bolt.fill",            value: "\(appState.progress.xp)",         label: "XP total",   tint: BryqoTheme.sun)
-            statCard(icon: "checkmark.seal.fill",  value: "\(appState.completedLessonCount)", label: "Lições",     tint: BryqoTheme.success)
-        }
+        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.md, stacksFrom: .xxxLarge) { statCards }
+    }
+
+    @ViewBuilder
+    private var statCards: some View {
+        statCard(icon: "flame.fill",          value: "\(appState.progress.streakDays)", label: "Sequência",  tint: Color(hex: 0xFF7A20))
+        statCard(icon: "bolt.fill",            value: "\(appState.progress.xp)",         label: "XP total",   tint: BryqoTheme.sun)
+        statCard(icon: "checkmark.seal.fill",  value: "\(appState.completedLessonCount)", label: "Lições",     tint: BryqoTheme.success)
     }
 
     // Activity heatmap
