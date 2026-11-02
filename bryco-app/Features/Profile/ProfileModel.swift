@@ -12,12 +12,40 @@ protocol AccountLinking: AnyObject {
     func signIn(with provider: AccountProvider) async throws
 }
 
+/// A picked photo on its way to becoming the avatar. The avatar itself (`avatarImage`) is the
+/// success state; no photo yet is the empty one.
+enum AvatarUpdate: Equatable {
+    case idle
+    case loading
+    case failed(AvatarFailure)
+}
+
+enum AvatarFailure: Equatable {
+    /// The library didn't hand the photo over (an iCloud photo offline, for one).
+    case couldNotLoad
+    /// The data isn't an image the app can read.
+    case unreadable
+    /// The shrunk photo couldn't be written to disk.
+    case couldNotSave
+
+    var message: String {
+        switch self {
+        case .couldNotLoad: "A foto não carregou. Se ela está no iCloud, confira a conexão e tente de novo."
+        case .unreadable: "Não consegui ler essa imagem. Escolha outra foto."
+        case .couldNotSave: "Não consegui salvar a foto. Tente de novo."
+        }
+    }
+}
+
 /// The Profile screen's data and behaviour. `ProfileView` only draws it and forwards taps.
 @Observable
 final class ProfileModel {
     private let appState: BryqoAppState
     @ObservationIgnored private let account: AccountLinking
     @ObservationIgnored private let syncWithCloud: () async -> Void
+
+    private(set) var avatarUpdate: AvatarUpdate = .idle
+    @ObservationIgnored private var latestPick = 0
 
     /// The current link attempt. Whether the account *is* linked comes from `account`.
     private(set) var linkAttempt: AccountLinkState = .idle
@@ -54,8 +82,44 @@ final class ProfileModel {
     }
 
     func usePhoto(_ item: PhotosPickerItem?) async {
-        guard let item, let photo = try? await item.loadTransferable(type: Data.self) else { return }
-        try? await appState.setAvatar(photo)
+        guard let item else { return }
+        await usePhoto { try await item.loadTransferable(type: Data.self) }
+    }
+
+    /// `loadPhoto` reads the picked photo; tests pass the data straight in.
+    func usePhoto(_ loadPhoto: () async throws -> Data?) async {
+        latestPick += 1
+        let pick = latestPick
+        avatarUpdate = .loading
+
+        // Only the newest pick may change the state: an older one that finishes late is stale.
+        func finish(_ update: AvatarUpdate) {
+            if pick == latestPick { avatarUpdate = update }
+        }
+
+        let photo: Data?
+        do {
+            photo = try await loadPhoto()
+        } catch is CancellationError {
+            finish(.idle)  // left the screen mid-load; a newer pick has already moved on
+            return
+        } catch {
+            photo = nil
+        }
+        guard let photo else {
+            finish(.failed(.couldNotLoad))
+            return
+        }
+        do {
+            try await appState.setAvatar(photo)
+            finish(.idle)
+        } catch is CancellationError {
+            finish(.idle)
+        } catch AvatarError.unreadableImage {
+            finish(.failed(.unreadable))
+        } catch {
+            finish(.failed(.couldNotSave))
+        }
     }
 
     // MARK: - Settings
