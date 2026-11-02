@@ -124,13 +124,17 @@ final class ProfileModel {
 
     // MARK: - Settings
 
-    var isDarkMode: Bool {
-        get { !appState.isLightMode }
-        set { appState.isLightMode = !newValue }
+    var appearance: AppearancePreference {
+        get { appState.appearance }
+        set { appState.appearance = newValue }
     }
 
-    var themeSubtitle: String {
-        isDarkMode ? "Interface usando o tema escuro." : "Ativa a interface escura."
+    var appearanceSubtitle: String {
+        switch appearance {
+        case .system: "Segue o iPhone: claro de dia, escuro se o sistema estiver no escuro."
+        case .light: "Sempre claro, mesmo com o iPhone no modo escuro."
+        case .dark: "Sempre escuro, mesmo com o iPhone no modo claro."
+        }
     }
 
     var remindersEnabled: Bool {

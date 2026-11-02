@@ -101,18 +101,16 @@ struct ProfileModelTests {
         #expect(model.subtitle == "Construindo desde março · Nível \(appState.levelName)")
     }
 
-    @Test("The dark theme switch flips the app's light mode")
-    func darkModeSwitch() {
+    @Test("The appearance picker sets the app's theme and explains it")
+    func appearancePicker() {
         let model = makeModel()
-        let original = appState.isLightMode
-        defer { appState.isLightMode = original }
 
-        model.isDarkMode = true
-        #expect(!appState.isLightMode)
-        #expect(model.themeSubtitle == "Interface usando o tema escuro.")
+        model.appearance = .dark
+        #expect(appState.appearance == .dark)
+        #expect(model.appearanceSubtitle == "Sempre escuro, mesmo com o iPhone no modo claro.")
 
-        model.isDarkMode = false
-        #expect(appState.isLightMode)
+        model.appearance = .system
+        #expect(appState.preferredColorScheme == nil)
     }
 
     @Test("Without a profile, the name falls back to \"construtor\"")

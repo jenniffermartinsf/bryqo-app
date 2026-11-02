@@ -39,8 +39,9 @@ final class BryqoAppState {
     var profile: OnboardingProfile?
     var progress = UserProgress()
 
-    var isLightMode: Bool = true {
-        didSet { defaults.set(isLightMode, forKey: "bryqo.isLightMode") }
+    /// The system's appearance unless the learner picked one in Perfil › Aparência.
+    var appearance: AppearancePreference = .system {
+        didSet { defaults.set(appearance.rawValue, forKey: "bryqo.appearance") }
     }
     var notificationsEnabled: Bool = false
     /// Whether progress is reaching disk; drives the warning banner.
@@ -170,8 +171,11 @@ final class BryqoAppState {
             )
         }
 
-        if let saved = self.defaults.object(forKey: "bryqo.isLightMode") as? Bool {
-            isLightMode = saved
+        if let saved = self.defaults.string(forKey: "bryqo.appearance").flatMap(AppearancePreference.init) {
+            appearance = saved
+        } else if let wasLight = self.defaults.object(forKey: "bryqo.isLightMode") as? Bool {
+            // The old on/off switch: whoever flipped it made a choice, so keep it.
+            appearance = wasLight ? .light : .dark
         }
         notificationsEnabled = self.defaults.bool(forKey: "bryqo.notifications.enabled")
 
@@ -448,7 +452,15 @@ final class BryqoAppState {
 
     var hasCompletedOnboarding: Bool { profile != nil }
     var completedLessonCount: Int { progress.completedLessonIds.count }
-    var preferredColorScheme: ColorScheme { isLightMode ? .light : .dark }
+    /// `nil` hands the choice to the system, which also follows its schedule (light by day,
+    /// dark at night) and Control Center.
+    var preferredColorScheme: ColorScheme? {
+        switch appearance {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
 
     var currentLevel: Int {
         for (i, threshold) in BryqoAppState.levelThresholds.enumerated().reversed() {
@@ -777,6 +789,20 @@ final class BryqoAppState {
         if progress.perfectLessonCount >= 1 { progress.earnedAchievementIds.insert("perfect") }
         if progress.earnedMaterials.count >= 5 { progress.earnedAchievementIds.insert("materials_5") }
         if currentLevel >= 3 { progress.earnedAchievementIds.insert("level_3") }
+    }
+}
+
+enum AppearancePreference: String, CaseIterable, Identifiable {
+    case system, light, dark
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .system: "Automático"
+        case .light: "Claro"
+        case .dark: "Escuro"
+        }
     }
 }
 
