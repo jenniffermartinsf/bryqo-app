@@ -183,6 +183,26 @@ final class BryqoAppState {
         self.signedInUID = signedInUID ?? { authManager.currentUID }
     }
 
+    // MARK: - New day
+
+    /// Everything that depends on the day, for when the app comes back to the foreground.
+    func appBecameActive() {
+        startNewDayIfNeeded()
+        applyStreakDecay()
+        applyHeartRegeneration()
+    }
+
+    /// Zeroes the daily goal once the last activity was before today. `init` only covers a cold
+    /// launch: iOS often keeps the app in memory overnight, and a review doesn't touch the streak.
+    func startNewDayIfNeeded() {
+        guard let last = progress.lastActivityDate,
+              !Calendar.current.isDateInToday(last),
+              progress.dailyXpEarned > 0 || progress.dailyMinutesStudied > 0 else { return }
+        progress.dailyXpEarned = 0
+        progress.dailyMinutesStudied = 0
+        save()
+    }
+
     // MARK: - Streak Decay
 
     /// Consume a streak freeze (or reset) when the user missed more than one day.
@@ -676,6 +696,7 @@ final class BryqoAppState {
     /// Called when the user finishes a *review* session (a lesson already completed).
     /// Reschedules via SM-2 and awards a small XP bonus, without re-adding to completed lessons.
     func completeReview(_ lesson: Lesson, mistakeCount: Int = 0) {
+        startNewDayIfNeeded()
         scheduleReview(lessonId: lesson.id, mistakeCount: mistakeCount)
         if mistakeCount == 0 {
             progress.xp += 5

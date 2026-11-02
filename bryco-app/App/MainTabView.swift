@@ -34,9 +34,10 @@ struct MainTabView: View {
         }
         .animation(.easeOut(duration: 0.3), value: appState.pendingStreakMilestone != nil)
         .task {
-            // Check heart regeneration every minute while the app is active
+            // Check heart regeneration and midnight every minute while the app is active
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(60))
+                appState.startNewDayIfNeeded()
                 appState.applyHeartRegeneration()
             }
         }

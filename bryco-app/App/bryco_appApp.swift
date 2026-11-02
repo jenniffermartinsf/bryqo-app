@@ -32,8 +32,7 @@ struct bryco_appApp: App {
             guard phase == .active else { return }
             Task { await appState.syncWithCloud() }
             Task { await appState.content.refresh() }
-            appState.applyStreakDecay()
-            appState.applyHeartRegeneration()
+            appState.appBecameActive()
             if appState.notificationsEnabled {
                 Task { await appState.notificationManager.ensureScheduledIfNeeded() }
             }
