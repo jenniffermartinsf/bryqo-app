@@ -41,6 +41,7 @@ struct BackpackView: View {
                             Image(systemName: materialIcon(material))
                                 .font(.title)
                                 .foregroundStyle(BryqoTheme.sun)
+                                .accessibilityHidden(true)  // the name below says it all
 
                             Text(material)
                                 .font(.headline)

@@ -17,6 +17,7 @@ struct LessonMapNodeView: View {
     var entranceDelay: Double = 0
     let onTap: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var pulsing = false
     @State private var appeared = false
 
@@ -33,7 +34,8 @@ struct LessonMapNodeView: View {
                     )
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .frame(width: 96)
+                    // At the accessibility sizes the map is a single column, so the name can be wide.
+                    .frame(width: dynamicTypeSize.isAccessibilitySize ? 280 : 120)
             }
         }
         .buttonStyle(PressScaleButtonStyle())
@@ -47,7 +49,7 @@ struct LessonMapNodeView: View {
             if status == .completed {
                 Text("+\(lesson.xpReward) XP")
                     .bryqoFont(11, weight: .black, design: .rounded)
-                    .foregroundStyle(BryqoTheme.sun)
+                    .foregroundStyle(BryqoTheme.Ink.sun)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(BryqoTheme.sun.opacity(0.18))

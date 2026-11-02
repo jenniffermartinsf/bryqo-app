@@ -55,8 +55,13 @@ struct LessonView: View {
         .sensoryFeedback(.error, trigger: viewModel.shakeTrigger)
         // XP float badge overlay
         .overlay(alignment: .bottom) {
-            xpFloatBadge
+            // Only in the view tree while it shows: at opacity 0 VoiceOver could still land on it.
+            if xpFloatVisible {
+                xpFloatBadge
+                    .transition(.scale(scale: 0.5).combined(with: .opacity).combined(with: .offset(y: 40)))
+            }
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: xpFloatVisible)
         // Lesson completion screen overlay
         .overlay {
             if showCompletion {
@@ -162,7 +167,7 @@ struct LessonView: View {
         Label(stepLabel, systemImage: stepIcon)
             .font(.subheadline.weight(.black))
             .tracking(1.2)
-            .foregroundStyle(BryqoTheme.river)
+            .foregroundStyle(BryqoTheme.Ink.river)
             .padding(.horizontal, BryqoTheme.Spacing.lg)
             .padding(.vertical, BryqoTheme.Spacing.md)
             .background(BryqoTheme.river.opacity(0.14))
@@ -174,16 +179,13 @@ struct LessonView: View {
     private var xpFloatBadge: some View {
         Label("+10 XP", systemImage: "bolt.fill")
             .bryqoFont(16, weight: .black, design: .rounded)
-            .foregroundStyle(BryqoTheme.sun)
+            .foregroundStyle(BryqoTheme.Ink.sun)
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .background(BryqoTheme.sun.opacity(0.15))
             .clipShape(Capsule())
             .overlay(Capsule().stroke(BryqoTheme.sun.opacity(0.35), lineWidth: 1.5))
-            .scaleEffect(xpFloatVisible ? 1.0 : 0.5)
-            .opacity(xpFloatVisible ? 1.0 : 0.0)
-            .offset(y: xpFloatVisible ? -140 : -100)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: xpFloatVisible)
+            .offset(y: -140)
     }
 
     // MARK: - Bottom Bar
@@ -384,7 +386,7 @@ private struct NoHeartsView: View {
                 VStack(spacing: BryqoTheme.Spacing.sm) {
                     Text("Sem vidas! 💀")
                         .bryqoFont(28, relativeTo: .largeTitle, weight: .black, design: .rounded)
-                        .foregroundStyle(BryqoTheme.error)
+                        .foregroundStyle(BryqoTheme.Ink.error)
 
                     Text("Você ficou sem corações nessa lição.\nPratique outra para continuar.")
                         .font(.body)

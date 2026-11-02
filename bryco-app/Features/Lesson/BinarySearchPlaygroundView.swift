@@ -48,7 +48,7 @@ struct BinarySearchPlaygroundView: View {
     private var badge: some View {
         Label("VISUALIZAR · BUSCA BINÁRIA", systemImage: "chart.bar.xaxis")
             .font(.subheadline.weight(.black)).tracking(1)
-            .foregroundStyle(BryqoTheme.river)
+            .foregroundStyle(BryqoTheme.Ink.river)
             .padding(.horizontal, BryqoTheme.Spacing.lg)
             .padding(.vertical, BryqoTheme.Spacing.md)
             .background(BryqoTheme.river.opacity(0.14))
@@ -95,7 +95,7 @@ struct BinarySearchPlaygroundView: View {
         return VStack(spacing: 4) {
             Text(isMid ? "meio" : " ")
                 .bryqoFont(11, weight: .black)
-                .foregroundStyle(BryqoTheme.river)
+                .foregroundStyle(BryqoTheme.Ink.river)
 
             Text("\(value)")
                 .font(.system(.subheadline, design: .rounded).weight(.bold).monospacedDigit())
@@ -131,7 +131,7 @@ struct BinarySearchPlaygroundView: View {
             if vm.lastWasWrong {
                 Label("Compare o alvo com o valor do meio de novo.", systemImage: "lightbulb.fill")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(BryqoTheme.sun)
+                    .foregroundStyle(BryqoTheme.Ink.sun)
                     .transition(.opacity)
             }
         }

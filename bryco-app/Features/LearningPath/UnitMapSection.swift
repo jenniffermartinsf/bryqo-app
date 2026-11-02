@@ -4,15 +4,26 @@ struct UnitMapSection: View {
     let unit: LearningUnit
     let icon: String
     let tint: Color
+    /// `tint` for text: darker in light mode so it stays readable.
+    let ink: Color
     let appState: BryqoAppState
     let onSelectLesson: (Lesson) -> Void
     let onLockedTap: () -> Void
 
-    // Zigzag: left → center → right → center → repeat
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    // Zigzag: left → center → right → center → repeat. At the accessibility sizes the path is a
+    // straight column instead, so each lesson name gets the full width.
     private let xRatios: [CGFloat] = [0.22, 0.50, 0.78, 0.50]
-    private let rowHeight: CGFloat = 128
+    /// Room for two lines of the lesson name; grows with Dynamic Type, so the rows grow too.
+    @ScaledMetric(relativeTo: .body) private var nameHeight: CGFloat = 36
+    private var rowHeight: CGFloat { 92 + nameHeight }   // 128 at the default size
+    private var isStraightPath: Bool { dynamicTypeSize.isAccessibilitySize }
 
     // MARK: - Computed
+
+    /// Two lines fit beside the icon; stacked at the accessibility sizes, the text gets every line it needs.
+    private var headerLineLimit: Int? { dynamicTypeSize.isAccessibilitySize ? nil : 2 }
 
     private var completedCount: Int {
         unit.lessons.filter { appState.isLessonCompleted($0) }.count
@@ -30,11 +41,11 @@ struct UnitMapSection: View {
     // MARK: - Layout
 
     private func nodeX(_ index: Int, width: CGFloat) -> CGFloat {
-        xRatios[index % xRatios.count] * width
+        (isStraightPath ? 0.5 : xRatios[index % xRatios.count]) * width
     }
 
     private func nodeY(_ index: Int) -> CGFloat {
-        rowHeight * CGFloat(index) + 64
+        rowHeight * CGFloat(index) + rowHeight / 2
     }
 
     // MARK: - Status
@@ -58,7 +69,7 @@ struct UnitMapSection: View {
 
     private var unitHeader: some View {
         VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
-            HStack(alignment: .top, spacing: BryqoTheme.Spacing.lg) {
+            BryqoAdaptiveStack(verticalAlignment: .top, spacing: BryqoTheme.Spacing.lg) {
                 // Icon
                 Image(systemName: icon)
                     .font(.title2.bold())
@@ -72,17 +83,17 @@ struct UnitMapSection: View {
                     Text("UNIDADE")
                         .bryqoFont(11, weight: .black)
                         .tracking(1.5)
-                        .foregroundStyle(tint)
+                        .foregroundStyle(ink)
 
                     Text(unit.title)
-                        .bryqoFont(17, weight: .black, design: .rounded)
+                        .bryqoFont(17, relativeTo: .title3, weight: .black, design: .rounded)
                         .foregroundStyle(BryqoTheme.textPrimary)
-                        .lineLimit(2)
+                        .lineLimit(headerLineLimit)
 
                     Text(unit.subtitle)
                         .font(.caption)
                         .foregroundStyle(BryqoTheme.textSecondary)
-                        .lineLimit(2)
+                        .lineLimit(headerLineLimit)
                 }
 
                 Spacer()
@@ -91,7 +102,7 @@ struct UnitMapSection: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("\(completedCount)/\(unit.lessons.count)")
                         .bryqoFont(20, relativeTo: .title2, weight: .black, design: .rounded)
-                        .foregroundStyle(tint)
+                        .foregroundStyle(ink)
                     Text("lições")
                         .font(.caption.bold())
                         .foregroundStyle(BryqoTheme.textSecondary)
@@ -110,7 +121,7 @@ struct UnitMapSection: View {
                     Label("PRATICAR NOVAMENTE", systemImage: "arrow.counterclockwise")
                         .bryqoFont(13, weight: .black)
                         .tracking(0.8)
-                        .foregroundStyle(tint)
+                        .foregroundStyle(ink)
                         .frame(maxWidth: .infinity)
                         .frame(height: 42)
                         .background(tint.opacity(0.14))
@@ -200,6 +211,7 @@ struct UnitMapSection: View {
             unit: BryqoContent.sampleUnit,
             icon: "wifi",
             tint: BryqoTheme.sun,
+            ink: BryqoTheme.Ink.sun,
             appState: {
                 let s = BryqoAppState()
                 s.completeLesson(BryqoContent.sampleUnit.lessons[0])

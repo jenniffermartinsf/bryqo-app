@@ -9,7 +9,7 @@ nonisolated enum BryqoTheme {
     static let elevatedSurface = Color(light: 0xF4F6F1, dark: 0x1C1F22)
 
     // Brand colours — adaptive in dark mode per spec
-    static let primary = Color(light: 0x3F8F5A, dark: 0x4CAF6A)
+    static let primary = Color(light: 0x367A4D, dark: 0x4CAF6A)   // 5.2:1 behind white text
     static let river = Color(light: 0x4EA9E8, dark: 0x58A6FF)
     static let wood = Color(light: 0x8C6445, dark: 0xB08258)
 
@@ -23,7 +23,19 @@ nonisolated enum BryqoTheme {
 
     // Text — updated per design spec
     static let textPrimary = Color(light: 0x1A1C1E, dark: 0xF1F3EE)
-    static let textSecondary = Color(light: 0x6B7280, dark: 0x9AA1A8)
+    static let textSecondary = Color(light: 0x5B616D, dark: 0x9AA1A8)   // 5.5:1 on background
+
+    /// Accent colours for text. In light mode they're darkened to about 5.5:1 on the background:
+    /// WCAG AA asks for 4.5:1, and the extra margin covers the tinted pills they sit on; in dark mode the accent already passes, so it's used as is. Icons and fills
+    /// keep the accent itself.
+    enum Ink {
+        static let sun = Color(light: 0x825907, dark: 0xF5B83D)
+        static let river = Color(light: 0x14659D, dark: 0x58A6FF)
+        static let coral = Color(light: 0xBC2200, dark: 0xFF6B4A)
+        static let success = Color(light: 0x2F6C42, dark: 0x4CAF6A)
+        static let warning = Color(light: 0x8A5300, dark: 0xFFB545)
+        static let error = Color(light: 0xC11512, dark: 0xEF5350)
+    }
 
     // Border — semi-transparent per spec: rgba(0,0,0,.08) / rgba(255,255,255,.10)
     static let border = Color(UIColor { traits in
@@ -218,15 +230,34 @@ extension View {
     }
 }
 
+/// Side by side at the usual text sizes; stacked at the accessibility sizes, where two columns
+/// leave each one a word per line.
+struct BryqoAdaptiveStack<Content: View>: View {
+    var horizontalAlignment: HorizontalAlignment = .leading
+    var verticalAlignment: VerticalAlignment = .center
+    var spacing: CGFloat?
+    @ViewBuilder var content: Content
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: horizontalAlignment, spacing: spacing))
+            : AnyLayout(HStackLayout(alignment: verticalAlignment, spacing: spacing))
+        layout { content }
+    }
+}
+
 struct BryqoStatPill: View {
     let value: String
     let icon: String
     var tint: Color = BryqoTheme.sun
+    var ink: Color = BryqoTheme.Ink.sun
 
     var body: some View {
         Label(value, systemImage: icon)
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(tint)
+            .foregroundStyle(ink)
             .padding(.horizontal, BryqoTheme.Spacing.md)
             .padding(.vertical, BryqoTheme.Spacing.sm)
             .background(tint.opacity(0.12))
