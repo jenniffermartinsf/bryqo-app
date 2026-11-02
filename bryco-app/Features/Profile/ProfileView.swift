@@ -42,6 +42,15 @@ struct ProfileView: View {
             // label closure must be Sendable, which a view built from main-actor state isn't.
             Button { isPickingPhoto = true } label: {
                 avatarCircle
+                    .overlay {
+                        if model.avatarUpdate == .loading {
+                            // Opaque enough to hide the old picture: it's about to be replaced.
+                            Circle()
+                                .fill(.regularMaterial)
+                                .overlay { ProgressView().controlSize(.large) }
+                                .transition(.opacity)
+                        }
+                    }
                     .overlay(alignment: .bottomTrailing) {
                         Image(systemName: "camera.fill")
                             .bryqoFont(13, weight: .bold)
@@ -56,6 +65,7 @@ struct ProfileView: View {
             .buttonStyle(.plain)
             .photosPicker(isPresented: $isPickingPhoto, selection: $selectedPhotoItem, matching: .images)
             .accessibilityLabel("Alterar foto de perfil")
+            .accessibilityValue(model.avatarUpdate == .loading ? "Carregando foto" : "")
 
             VStack(spacing: BryqoTheme.Spacing.sm) {
                 Text(model.displayName)
@@ -66,9 +76,35 @@ struct ProfileView: View {
                     .font(.body)
                     .foregroundStyle(BryqoTheme.textSecondary)
             }
+            .multilineTextAlignment(.center)
+
+            avatarStatus
+        }
+        .animation(.easeOut(duration: 0.2), value: model.avatarUpdate)
+        .onChange(of: model.avatarUpdate) { _, update in
+            // The message appears under the avatar; VoiceOver hears it without going looking.
+            if case .failed(let failure) = update {
+                AccessibilityNotification.Announcement(failure.message).post()
+            }
         }
         .frame(maxWidth: .infinity)
         .bryqoCard()
+    }
+
+    /// Under the name: why the last photo didn't work, or, before there's any photo, how to add one.
+    @ViewBuilder
+    private var avatarStatus: some View {
+        if case .failed(let failure) = model.avatarUpdate {
+            Label(failure.message, systemImage: "exclamationmark.triangle.fill")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(BryqoTheme.Ink.error)
+                .multilineTextAlignment(.center)
+                .transition(.opacity)
+        } else if model.avatarImage == nil, model.avatarUpdate == .idle {
+            Text("Toque no Brix para escolher sua foto.")
+                .font(.footnote)
+                .foregroundStyle(BryqoTheme.textSecondary)
+        }
     }
 
     @ViewBuilder

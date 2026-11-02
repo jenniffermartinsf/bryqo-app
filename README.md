@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-173%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-179%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -56,7 +56,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **173 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **179 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -213,6 +213,7 @@ flowchart TD
 | **Mapa de lições em coluna nos tamanhos de acessibilidade** | No zigue-zague, um nome de lição no maior tamanho não cabe ao lado do nó e quebrava no meio da palavra. Em coluna, cada nome tem a largura inteira | Nesses tamanhos o caminho perde o desenho em zigue-zague |
 | **Imagens no tamanho em que aparecem** | O mascote `BrixNeutro` tinha 1536×1024 px e aparece com no máximo 96 pt (288 px a 3x); quatro imagens (`BrixCansado`, `BrixChateado`, `BryqoLogoV1`, `BryqoLogoV2`) não eram usadas. Num build de Release limpo, o `Assets.car` caiu de 6,09 MB para 3,54 MB e o app de 80,1 MB para 77,6 MB. [`PerformanceTests`](bryco-appUITests/PerformanceTests.swift) mede a memória com `XCTMemoryMetric`; a diferença ficou dentro da variação | Um mascote maior no futuro precisa de uma imagem nova, no tamanho dele |
 | **Desbloqueio revelado no mapa** | A lição é concluída com o mapa escondido atrás da tela de conclusão, então ele voltava já no estado final. Agora `BryqoAppState.justUnlockedLessonId` mantém a lição liberada trancada até o mapa estar na tela; o `LearnView` rola até ela e revela: o caminho cresce (`trim` num `Shape`), o cadeado vira estrela (`symbolEffect(.replace)`), com háptica e anúncio ao VoiceOver. Com Reduzir Movimento, o estado muda sem animação | O caminho passou de um `Canvas` para `Shape`s, para que `trim` anime |
+| **Os quatro estados da foto do perfil** | `ProfileModel.avatarUpdate` (`idle`, `loading`, `failed`) mais a própria foto cobrem vazio, carregando, erro e sucesso. Antes, os dois `try?` em `usePhoto` engoliam qualquer falha: com uma foto do iCloud sem conexão, nada acontecia na tela. Só a escolha mais recente muda o estado, e o erro é anunciado ao VoiceOver | Três mensagens de erro para manter em português |
 | **Corações cobrados pelo `LessonViewModel`** | O ViewModel recebe `loseHearts: (Int) -> Void` e informa quantos corações perdeu de uma vez. Antes, a `LessonView` repassava a perda num `onChange(of: hearts)`, que roda uma vez por mudança: um passo com 3 erros tirava 3 corações na lição e 1 no app | Uma closure a mais no `init`, com padrão vazio, então os testes antigos não mudam |
 | **Meta diária zerada em qualquer começo de dia** | `startNewDayIfNeeded()` roda ao voltar para o app (`appBecameActive()`), a cada minuto com o app aberto e antes de uma revisão. Antes, só o `init` e a primeira lição do dia zeravam: com o app em memória durante a noite, a meta aparecia cumprida na manhã seguinte, e uma revisão somava no XP de ontem | Uma checagem de data a mais por minuto; ela só salva quando o dia realmente mudou |
 | **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
@@ -370,7 +371,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**173 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 160 no app e 13 no pacote `BryqoDomain`.
+**179 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 166 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -390,6 +391,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `Lesson hearts` | Acerto não cobra coração; cada erro cobra um; um "Pense como a máquina" com vários erros cobra todos de uma vez; a lição para sem corações só depois do feedback; o app termina com os mesmos corações que a lição mostra |
 | `Daily goal` | A meta diária volta a zero num dia novo: ao voltar para o app, com o app aberto na virada da meia-noite e numa revisão; no mesmo dia, o XP continua somando |
 | `Lesson unlock` | Qual lição uma conclusão libera: a próxima da unidade, a primeira da unidade seguinte; nenhuma ao repetir uma lição ou fazer uma revisão; a revelação acontece uma vez só |
+| `Avatar update` | Foto do perfil: indicador enquanto carrega, mensagem para foto que não chega da galeria e para arquivo que não é imagem, nova foto em caso de sucesso, nenhum indicador preso ao sair da tela no meio |
 | `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 
 Os testes usam um **banco SwiftData em memória** (`BryqoAppState(inMemory:)`) e datas/calendário injetados, então cada caso parte de um estado limpo e é determinístico.
