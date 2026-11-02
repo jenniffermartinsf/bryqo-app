@@ -62,6 +62,14 @@ struct LessonMapNodeView: View {
             guard status == .current || status == .available else { return }
             pulsing = true
         }
+        // Unlocked while on screen: start pulsing like a lesson that was open from the start.
+        .onChange(of: status) { old, new in
+            if old == .locked, new == .current || new == .available { pulsing = true }
+        }
+        .sensoryFeedback(trigger: status) { old, new in
+            old == .locked && new != .locked ? .impact(weight: .medium) : nil
+        }
+        .accessibilityValue(accessibilityStatus)
     }
 
     // MARK: - Node Stack
@@ -111,12 +119,22 @@ struct LessonMapNodeView: View {
             // Icon
             Image(systemName: iconName)
                 .font(.system(size: nodeSize * 0.30, weight: .bold))
+                .contentTransition(.symbolEffect(.replace))
                 .foregroundStyle(iconColor)
                 .shadow(color: .black.opacity(0.12), radius: 1, x: 0, y: 1)
         }
     }
 
     // MARK: - Computed Properties
+
+    private var accessibilityStatus: String {
+        switch status {
+        case .locked:    return "Bloqueada"
+        case .available: return "Disponível"
+        case .current:   return "Próxima lição"
+        case .completed: return "Concluída"
+        }
+    }
 
     private var nodeSize: CGFloat {
         switch status {

@@ -544,11 +544,34 @@ final class BryqoAppState {
         return isLessonCompleted(unit.lessons[index - 1])
     }
 
+    /// The lesson the last completion opened up, for the map to reveal. Read it with
+    /// `takeJustUnlockedLesson()`, so the reveal plays once.
+    private(set) var justUnlockedLessonId: String?
+
+    func takeJustUnlockedLesson() -> String? {
+        defer { justUnlockedLessonId = nil }
+        return justUnlockedLessonId
+    }
+
+    /// Lessons the learner can open now and hasn't finished, across every unlocked unit.
+    func startableLessonIds() -> [String] {
+        var ids: [String] = []
+        for (index, unit) in content.units.enumerated() {
+            if index > 0, !content.units[index - 1].lessons.allSatisfy(isLessonCompleted) { break }
+            ids += unit.lessons
+                .filter { !isLessonCompleted($0) && canStartLesson($0, in: unit) }
+                .map(\.id)
+        }
+        return ids
+    }
+
     func completeLesson(_ lesson: Lesson, mistakeCount: Int = 0) {
         guard !isLessonCompleted(lesson) else { return }
 
+        let startableBefore = Set(startableLessonIds())
         let hasMistakes = mistakeCount > 0
         progress.completedLessonIds.insert(lesson.id)
+        justUnlockedLessonId = startableLessonIds().first { !startableBefore.contains($0) }
         progress.xp += lesson.xpReward
         progress.earnedMaterials.append(lesson.materialReward)
 
