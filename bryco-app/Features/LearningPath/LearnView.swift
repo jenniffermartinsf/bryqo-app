@@ -34,6 +34,7 @@ struct LearnView: View {
                         }
                         .padding(BryqoTheme.Spacing.xl)
                     }
+                    .bryqoReadableWidth()
                 }
                 .background(BryqoTheme.background)
                 .learnRouteDestinations(appState: appState)

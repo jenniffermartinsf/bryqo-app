@@ -209,7 +209,7 @@ struct ValleyProgressView: View {
                             .frame(width: 18, height: 5)
                     }
                     Text("\(Int(progress * 100))%")
-                        .bryqoFont(10, weight: .bold)
+                        .bryqoFont(11, weight: .bold)
                         .foregroundStyle(BryqoTheme.textSecondary)
                         .padding(.leading, 2)
                 }

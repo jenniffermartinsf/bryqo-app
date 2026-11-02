@@ -9,7 +9,16 @@ struct bryco_appApp: App {
 
     init() {
         FirebaseApp.configure()
-        _appState = State(wrappedValue: BryqoAppState())
+        let appState = BryqoAppState()
+        #if DEBUG
+        // Screenshots and UI tests: `-BryqoSkipOnboarding` starts on the tabs with a sample profile.
+        if ProcessInfo.processInfo.arguments.contains("-BryqoSkipOnboarding"), appState.profile == nil {
+            appState.completeOnboarding(
+                displayName: "Jenni", experience: "Iniciante", goal: "Construir uma base", dailyGoalMinutes: 10
+            )
+        }
+        #endif
+        _appState = State(wrappedValue: appState)
     }
 
     var body: some Scene {

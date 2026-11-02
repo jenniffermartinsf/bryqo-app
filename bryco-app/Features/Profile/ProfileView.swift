@@ -26,6 +26,7 @@ struct ProfileView: View {
                 supportSection
             }
             .padding(BryqoTheme.Spacing.xl)
+            .bryqoReadableWidth()
         }
         .background(BryqoTheme.background)
         .task { await model.loadAvatar() }

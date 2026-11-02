@@ -94,7 +94,7 @@ struct BinarySearchPlaygroundView: View {
 
         return VStack(spacing: 4) {
             Text(isMid ? "meio" : " ")
-                .font(.system(size: 9, weight: .black))
+                .bryqoFont(11, weight: .black)
                 .foregroundStyle(BryqoTheme.river)
 
             Text("\(value)")
