@@ -5,6 +5,8 @@ struct LearnView: View {
     @Bindable var router: AppRouter
     let units: [LearningUnit]
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private var nextLesson: Lesson? {
         for unit in units {
             if let lesson = unit.lessons.first(where: { !appState.isLessonCompleted($0) }) {
@@ -45,9 +47,25 @@ struct LearnView: View {
                         withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                             proxy.scrollTo(id, anchor: .center)
                         }
+                        await revealUnlockedLesson()
                     }
                 }
             }
+        }
+    }
+
+    /// Plays the unlock that the last completion caused, now that the map is on screen and
+    /// scrolled to it: the path grows into the lesson, the lock turns into a star.
+    private func revealUnlockedLesson() async {
+        guard let id = appState.justUnlockedLessonId else { return }
+        if !reduceMotion {
+            try? await Task.sleep(for: .milliseconds(350))
+        }
+        withAnimation(reduceMotion ? nil : .spring(response: 0.55, dampingFraction: 0.62)) {
+            _ = appState.takeJustUnlockedLesson()
+        }
+        if let title = units.lazy.flatMap(\.lessons).first(where: { $0.id == id })?.title {
+            AccessibilityNotification.Announcement("\(title) desbloqueada").post()
         }
     }
 

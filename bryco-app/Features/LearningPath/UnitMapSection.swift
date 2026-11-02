@@ -48,10 +48,22 @@ struct UnitMapSection: View {
         rowHeight * CGFloat(index) + rowHeight / 2
     }
 
+    /// The curve from lesson `index` to the next one.
+    private func segment(_ index: Int, width: CGFloat) -> Path {
+        let from = CGPoint(x: nodeX(index, width: width), y: nodeY(index))
+        let to = CGPoint(x: nodeX(index + 1, width: width), y: nodeY(index + 1))
+        var path = Path()
+        path.move(to: from)
+        path.addQuadCurve(to: to, control: CGPoint(x: to.x, y: from.y + (to.y - from.y) * 0.42))
+        return path
+    }
+
     // MARK: - Status
 
     private func lessonStatus(for lesson: Lesson) -> LessonStatus {
         if appState.isLessonCompleted(lesson) { return .completed }
+        // Just unlocked but not revealed yet: it stays locked until the map is on screen.
+        if lesson.id == appState.justUnlockedLessonId { return .locked }
         if !appState.canStartLesson(lesson, in: unit) { return .locked }
         return .current
     }
@@ -163,26 +175,24 @@ struct UnitMapSection: View {
             GeometryReader { geo in
                 let w = geo.size.width
                 ZStack(alignment: .top) {
+                    // The dashed track to every lesson…
                     Canvas { context, size in
                         for i in 0..<(unit.lessons.count - 1) {
-                            let from = CGPoint(x: nodeX(i, width: size.width), y: nodeY(i))
-                            let to   = CGPoint(x: nodeX(i + 1, width: size.width), y: nodeY(i + 1))
-
-                            var path = Path()
-                            path.move(to: from)
-                            let control = CGPoint(x: to.x, y: from.y + (to.y - from.y) * 0.42)
-                            path.addQuadCurve(to: to, control: control)
-
-                            if completed[i] {
-                                context.stroke(path, with: .color(BryqoTheme.success), lineWidth: 5)
-                            } else {
-                                context.stroke(
-                                    path,
-                                    with: .color(BryqoTheme.border),
-                                    style: StrokeStyle(lineWidth: 4, dash: [8, 6])
-                                )
-                            }
+                            context.stroke(
+                                segment(i, width: size.width),
+                                with: .color(BryqoTheme.border),
+                                style: StrokeStyle(lineWidth: 4, dash: [8, 6])
+                            )
                         }
+                    }
+
+                    // …and the solid path drawn over it up to every unlocked lesson. A Shape, not
+                    // the Canvas, so `trim` animates: the path grows toward a lesson as it unlocks.
+                    ForEach(0..<(unit.lessons.count - 1), id: \.self) { i in
+                        let reached = completed[i] && lessonStatus(for: unit.lessons[i + 1]) != .locked
+                        segment(i, width: w)
+                            .trim(from: 0, to: reached ? 1 : 0)
+                            .stroke(BryqoTheme.success, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     }
 
                     ForEach(Array(unit.lessons.enumerated()), id: \.offset) { index, lesson in
