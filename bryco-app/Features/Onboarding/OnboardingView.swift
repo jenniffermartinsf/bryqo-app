@@ -274,7 +274,7 @@ struct OnboardingView: View {
                     if didAttemptContinue && !isNameValid {
                         Label("Digite seu nome para continuar.", systemImage: "exclamationmark.circle.fill")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(BryqoTheme.error)
+                            .foregroundStyle(BryqoTheme.Ink.error)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                 }

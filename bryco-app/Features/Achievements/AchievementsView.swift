@@ -94,7 +94,7 @@ struct AchievementsView: View {
 
     // 3 stat pills
     private var statsRow: some View {
-        HStack(spacing: BryqoTheme.Spacing.md) {
+        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.md) {
             statCard(icon: "flame.fill",          value: "\(appState.progress.streakDays)", label: "Sequência",  tint: Color(hex: 0xFF7A20))
             statCard(icon: "bolt.fill",            value: "\(appState.progress.xp)",         label: "XP total",   tint: BryqoTheme.sun)
             statCard(icon: "checkmark.seal.fill",  value: "\(appState.completedLessonCount)", label: "Lições",     tint: BryqoTheme.success)
@@ -171,9 +171,9 @@ struct AchievementsView: View {
             case .common:
                 EmptyView()
             case .rare:
-                rarityPill("RARO", color: BryqoTheme.river)
+                rarityPill("RARO", color: BryqoTheme.Ink.river)
             case .epic:
-                rarityPill("ÉPICO", color: BryqoTheme.sun)
+                rarityPill("ÉPICO", color: BryqoTheme.Ink.sun)
             }
         }
     }
@@ -301,8 +301,7 @@ struct AchievementsView: View {
                 .foregroundStyle(BryqoTheme.textSecondary)
                 .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 100)
+        .frame(maxWidth: .infinity, minHeight: 100)
         .bryqoCard(padding: BryqoTheme.Spacing.md)
     }
 

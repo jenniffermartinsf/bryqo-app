@@ -8,11 +8,12 @@ struct LessonMapView: View {
     @State private var showLockedToast = false
     @State private var showNoHeartsSheet = false
 
-    private let unitConfig: [(icon: String, tint: Color)] = [
-        ("wifi",          BryqoTheme.sun),
-        ("terminal.fill", BryqoTheme.river),
-        ("cpu",           BryqoTheme.primary),
-        ("bolt.fill",     Color(hex: 0xCE82FF))
+    /// `tint` fills icons and bars; `ink` is the same hue for text, readable in light mode.
+    private let unitConfig: [(icon: String, tint: Color, ink: Color)] = [
+        ("wifi",          BryqoTheme.sun,         BryqoTheme.Ink.sun),
+        ("terminal.fill", BryqoTheme.river,       BryqoTheme.Ink.river),
+        ("cpu",           BryqoTheme.primary,     BryqoTheme.primary),
+        ("bolt.fill",     Color(hex: 0xCE82FF),   Color(light: 0x9000EC, dark: 0xCE82FF))
     ]
 
     var body: some View {
@@ -24,6 +25,7 @@ struct LessonMapView: View {
                         unit: unit,
                         icon: cfg.icon,
                         tint: cfg.tint,
+                        ink: cfg.ink,
                         appState: appState,
                         onSelectLesson: { lesson in
                             if appState.progress.hearts == 0 {
@@ -96,7 +98,7 @@ private struct LockedUnitCard: View {
 
                 Text("Conclua a unidade anterior para desbloquear")
                     .font(.caption)
-                    .foregroundStyle(BryqoTheme.textSecondary.opacity(0.7))
+                    .foregroundStyle(BryqoTheme.textSecondary)
             }
 
             Spacer()
@@ -108,7 +110,8 @@ private struct LockedUnitCard: View {
             RoundedRectangle(cornerRadius: BryqoTheme.Radius.card, style: .continuous)
                 .stroke(BryqoTheme.border, lineWidth: 1.5)
         }
-        .opacity(0.6)
+        // No .opacity on the whole card: the lock and the grey text already say "locked", and
+        // the hint below has to stay readable.
     }
 }
 

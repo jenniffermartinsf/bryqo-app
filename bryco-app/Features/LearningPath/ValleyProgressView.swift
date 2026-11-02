@@ -217,12 +217,18 @@ struct ValleyProgressView: View {
         }
         .padding(.horizontal, BryqoTheme.Spacing.md)
         .padding(.vertical, BryqoTheme.Spacing.sm)
-        .background(.ultraThinMaterial)
+        // Opaque: over the valley's light sky a translucent material left the dark theme's light
+        // text on a light background.
+        .background(BryqoTheme.surface.opacity(0.92))
         .clipShape(Capsule())
         .overlay {
             Capsule()
                 .stroke(BryqoTheme.border, lineWidth: 1)
         }
+        // One element for VoiceOver: "A Grande Barragem, 66%", not an icon name and five bars.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("A Grande Barragem")
+        .accessibilityValue("\(Int(progress * 100))%")
     }
 }
 

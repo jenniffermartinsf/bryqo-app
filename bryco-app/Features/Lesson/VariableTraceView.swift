@@ -42,7 +42,7 @@ struct VariableTraceView: View {
         Label("PENSE COMO A MÁQUINA", systemImage: "cpu.fill")
             .font(.subheadline.weight(.black))
             .tracking(1.1)
-            .foregroundStyle(BryqoTheme.river)
+            .foregroundStyle(BryqoTheme.Ink.river)
             .padding(.horizontal, BryqoTheme.Spacing.lg)
             .padding(.vertical, BryqoTheme.Spacing.md)
             .background(BryqoTheme.river.opacity(0.14))

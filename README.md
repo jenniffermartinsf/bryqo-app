@@ -209,6 +209,8 @@ flowchart TD
 | **Lembrete com dependências injetadas** | `BryqoNotificationManager` recebe o centro de notificações (protocolo `NotificationScheduling`), o calendário e o relógio; `BryqoAppState` recebe o `UserDefaults`. Os testes usam um centro falso e qualquer data, e acharam o bug do "dia 32": no último dia do mês o lembrete de amanhã nunca disparava | Mais parâmetros no `init`; todos têm o valor real como padrão, então o app não muda |
 | **`TabView` do sistema no lugar da barra flutuante** | A cápsula feita à mão se esticava pelos 1032 pt do iPad, tinha rótulos de 10 pt que podiam encolher até 7,5 pt e exigia um `padding(.bottom, 96)` em todas as abas. A `TabView` com `.sidebarAdaptable` traz a barra do iOS no iPhone e a barra no topo, com sidebar, no iPad | Perde a animação própria de seleção; o visual da barra passa a ser o do sistema |
 | **Coluna de leitura no iPad** | Telas e abas usam `.bryqoReadableWidth()` (até 640 pt). No iPhone a tela é mais estreita, então nada muda; no iPad, cards e botões deixam de ocupar a largura inteira | Sobra margem dos lados no iPad, preenchida pelo fundo do tema |
+| **Cor de texto separada da cor da marca (`BryqoTheme.Ink`)** | No tema claro, amarelo, azul e coral usados como texto ficavam entre 1,6:1 e 2,5:1. Escurecer a marca inteira mudaria botões e ilustrações; só o texto usa a versão escura. No tema escuro a cor é a mesma | Duas cores por destaque para manter: quem escreve um texto colorido precisa lembrar de usar `Ink` |
+| **Mapa de lições em coluna nos tamanhos de acessibilidade** | No zigue-zague, um nome de lição no maior tamanho não cabe ao lado do nó e quebrava no meio da palavra. Em coluna, cada nome tem a largura inteira | Nesses tamanhos o caminho perde o desenho em zigue-zague |
 | **Corações cobrados pelo `LessonViewModel`** | O ViewModel recebe `loseHearts: (Int) -> Void` e informa quantos corações perdeu de uma vez. Antes, a `LessonView` repassava a perda num `onChange(of: hearts)`, que roda uma vez por mudança: um passo com 3 erros tirava 3 corações na lição e 1 no app | Uma closure a mais no `init`, com padrão vazio, então os testes antigos não mudam |
 | **Meta diária zerada em qualquer começo de dia** | `startNewDayIfNeeded()` roda ao voltar para o app (`appBecameActive()`), a cada minuto com o app aberto e antes de uma revisão. Antes, só o `init` e a primeira lição do dia zeravam: com o app em memória durante a noite, a meta aparecia cumprida na manhã seguinte, e uma revisão somava no XP de ontem | Uma checagem de data a mais por minuto; ela só salva quando o dia realmente mudou |
 | **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
@@ -353,7 +355,9 @@ sequenceDiagram
 
 O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
-- **Dynamic Type**: todo texto escala com a preferência do usuário via `.bryqoFont` (`@ScaledMetric`); a tela UIKit usa estilos de texto do sistema.
+- **Auditoria automática**: [`AccessibilityAuditTests`](bryco-appUITests/AccessibilityAuditTests.swift) roda o `performAccessibilityAudit()` da Apple em todas as abas e numa lição, nos temas claro e escuro, no tamanho de texto padrão e no maior tamanho de acessibilidade. Na primeira execução encontrou 66 problemas; hoje encontra 0.
+- **Contraste (WCAG AA)**: textos ficam acima de 4,5:1. No tema claro as cores de destaque viram texto pela versão `BryqoTheme.Ink`, mais escura (cerca de 5,5:1); ícones e preenchimentos continuam com a cor da marca.
+- **Dynamic Type**: todo texto escala com a preferência do usuário via `.bryqoFont` (`@ScaledMetric`); a tela UIKit usa estilos de texto do sistema. Nos tamanhos de acessibilidade, o que fica lado a lado passa a empilhar (`BryqoAdaptiveStack`) e o mapa de lições vira uma coluna reta, com linhas que crescem junto com o texto.
 - **Áreas de toque de 44 pt** em botões de ícone.
 - **VoiceOver**: rótulos em botões de ícone e imagens; corações anunciados como "Vidas: N de 5"; imagens decorativas ocultas.
 - **Reduce Motion**: animações contínuas (confete, mascote flutuante, cena do vale) são desativadas quando o usuário pede menos movimento.
@@ -494,7 +498,7 @@ bundle exec fastlane ci
 - [x] Pacote de domínio (SPM) e pipeline de CI com Fastlane
 - [ ] Extrair uma camada de repositório do `BryqoAppState`
 - [ ] Extrair `OnboardingViewModel` para testar a navegação do wizard
-- [ ] Testes de UI de acessibilidade (XCUITest validando rótulos de VoiceOver)
+- [x] Testes de UI de acessibilidade (auditoria do XCUITest em todas as abas, nos dois temas e em dois tamanhos de texto)
 - [ ] Sincronização em tempo real (listeners do Firestore)
 - [ ] Lane de distribuição para TestFlight
 

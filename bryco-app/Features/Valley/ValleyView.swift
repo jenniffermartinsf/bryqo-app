@@ -65,11 +65,12 @@ struct ValleyView: View {
         HStack(spacing: BryqoTheme.Spacing.lg) {
             Text("🔥")
                 .font(.title2)
+                .accessibilityHidden(true)  // decoration; the title below says it
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("Sequência em risco!")
                     .font(.headline.bold())
-                    .foregroundStyle(BryqoTheme.warning)
+                    .foregroundStyle(BryqoTheme.Ink.warning)
 
                 Text(progress.streakFreezeCount > 0
                      ? "Estude hoje ou seu freeze será usado automaticamente."
@@ -84,7 +85,7 @@ struct ValleyView: View {
             if progress.streakFreezeCount > 0 {
                 Label("\(progress.streakFreezeCount)", systemImage: "snowflake")
                     .font(.caption.weight(.black))
-                    .foregroundStyle(BryqoTheme.river)
+                    .foregroundStyle(BryqoTheme.Ink.river)
                     .padding(.horizontal, BryqoTheme.Spacing.sm)
                     .padding(.vertical, 4)
                     .background(BryqoTheme.river.opacity(0.12))
@@ -106,7 +107,7 @@ struct ValleyView: View {
     // MARK: - Daily Goal Card
 
     private var dailyGoalCard: some View {
-        HStack(spacing: BryqoTheme.Spacing.xl) {
+        BryqoAdaptiveStack(spacing: BryqoTheme.Spacing.xl) {
             DailyGoalRing(
                 earnedXp: progress.dailyXpEarned,
                 goalXp: appState.dailyGoalXp,
@@ -116,7 +117,7 @@ struct ValleyView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text("META · \(appState.dailyGoalTier.uppercased())")
                     .font(.caption.weight(.black))
-                    .tracking(1.2)
+                    .kerning(1.2)
                     .foregroundStyle(BryqoTheme.textSecondary)
 
                 Text("\(progress.dailyXpEarned) / \(appState.dailyGoalXp) XP")
@@ -128,7 +129,7 @@ struct ValleyView: View {
                 if appState.dailyGoalProgress >= 1.0 {
                     Label("Meta atingida hoje!", systemImage: "checkmark.circle.fill")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(BryqoTheme.success)
+                        .foregroundStyle(BryqoTheme.Ink.success)
                         .transition(.scale.combined(with: .opacity))
                 } else {
                     let remaining = appState.dailyGoalXp - progress.dailyXpEarned
@@ -142,6 +143,7 @@ struct ValleyView: View {
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .bryqoCard()
         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appState.dailyGoalProgress >= 1.0)
     }
@@ -149,7 +151,7 @@ struct ValleyView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(alignment: .top) {
+        BryqoAdaptiveStack(verticalAlignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Bom te ver de volta")
                     .font(.subheadline.weight(.semibold))
@@ -166,7 +168,8 @@ struct ValleyView: View {
                 BryqoStatPill(
                     value: "\(appState.progress.streakDays)",
                     icon: "flame.fill",
-                    tint: BryqoTheme.coral
+                    tint: BryqoTheme.coral,
+                    ink: BryqoTheme.Ink.coral
                 )
                 BryqoStatPill(
                     value: "\(appState.progress.xp) XP",
@@ -193,7 +196,7 @@ struct ValleyView: View {
                 Text(nextLessonUnit.map { "TRACK · \($0.title.uppercased())" } ?? "UNIDADE COMPLETA")
                     .font(.caption.weight(.black))
                     .tracking(1.4)
-                    .foregroundStyle(BryqoTheme.river)
+                    .foregroundStyle(BryqoTheme.Ink.river)
 
                 Text(nextLesson?.title ?? "Toda a trilha foi concluída!")
                     .bryqoFont(22, relativeTo: .title2, weight: .black)
@@ -311,7 +314,7 @@ extension ValleyView {
                             .foregroundStyle(BryqoTheme.textSecondary)
                         Text(String(format: "%d:%02d", mins, secs))
                             .bryqoFont(18, weight: .black, design: .monospaced)
-                            .foregroundStyle(BryqoTheme.warning)
+                            .foregroundStyle(BryqoTheme.Ink.warning)
                             .contentTransition(.numericText())
                     }
                 }
@@ -332,6 +335,9 @@ private struct DailyGoalRing: View {
     let earnedXp: Int
     let goalXp: Int
     let progress: Double
+
+    /// Grows with the number inside it.
+    @ScaledMetric(relativeTo: .title2) private var size: CGFloat = 78
 
     private var isDone: Bool { progress >= 1.0 }
     private var ringColor: Color { isDone ? BryqoTheme.success : BryqoTheme.primary }
@@ -374,7 +380,7 @@ private struct DailyGoalRing: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .frame(width: 78, height: 78)
+        .frame(width: size, height: size)
         .animation(.spring(response: 0.4, dampingFraction: 0.75), value: isDone)
     }
 }
