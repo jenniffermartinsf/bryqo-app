@@ -13,7 +13,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-162%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-168%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -56,7 +56,7 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **162 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **168 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
 | **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
@@ -208,6 +208,7 @@ flowchart TD
 | **`ProfileModel` separado da `ProfileView`** | A View só desenha e repassa toques; vínculo de conta, loading, erro, backup e textos ficam num `@Observable` testável, com a conta (Firebase) atrás do protocolo `AccountLinking`. 22 → 0 acessos ao estado global na View, e o fluxo de vínculo ganhou testes | Mais um arquivo por tela; vale quando a tela tem decisões, não para Views só de layout |
 | **Lembrete com dependências injetadas** | `BryqoNotificationManager` recebe o centro de notificações (protocolo `NotificationScheduling`), o calendário e o relógio; `BryqoAppState` recebe o `UserDefaults`. Os testes usam um centro falso e qualquer data, e acharam o bug do "dia 32": no último dia do mês o lembrete de amanhã nunca disparava | Mais parâmetros no `init`; todos têm o valor real como padrão, então o app não muda |
 | **Corações cobrados pelo `LessonViewModel`** | O ViewModel recebe `loseHearts: (Int) -> Void` e informa quantos corações perdeu de uma vez. Antes, a `LessonView` repassava a perda num `onChange(of: hearts)`, que roda uma vez por mudança: um passo com 3 erros tirava 3 corações na lição e 1 no app | Uma closure a mais no `init`, com padrão vazio, então os testes antigos não mudam |
+| **Meta diária zerada em qualquer começo de dia** | `startNewDayIfNeeded()` roda ao voltar para o app (`appBecameActive()`), a cada minuto com o app aberto e antes de uma revisão. Antes, só o `init` e a primeira lição do dia zeravam: com o app em memória durante a noite, a meta aparecia cumprida na manhã seguinte, e uma revisão somava no XP de ontem | Uma checagem de data a mais por minuto; ela só salva quando o dia realmente mudou |
 | **UIKit onde faz sentido** | Listas com seções e atualizações animadas são naturais em `UICollectionView` com diffable data source | Exige uma ponte (`UIViewControllerRepresentable`) |
 
 ---
@@ -360,7 +361,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ## 🧪 Testes
 
-**162 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 149 no app e 13 no pacote `BryqoDomain`.
+**168 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 155 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -378,6 +379,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `Account link state` · `Profile model` | Estados do vínculo com Apple e Google (cancelamento não é erro), sucesso com backup, falha sem backup, progresso só no botão escolhido, toque duplo ignorado, tema e textos do Perfil |
 | `Daily reminder` | Lembrete às 19h, "amanhã" na virada de mês, ano e 29 de fevereiro, sem lembrete duplicado, permissão negada desliga o toggle e concluir uma lição move o lembrete |
 | `Lesson hearts` | Acerto não cobra coração; cada erro cobra um; um "Pense como a máquina" com vários erros cobra todos de uma vez; a lição para sem corações só depois do feedback; o app termina com os mesmos corações que a lição mostra |
+| `Daily goal` | A meta diária volta a zero num dia novo: ao voltar para o app, com o app aberto na virada da meia-noite e numa revisão; no mesmo dia, o XP continua somando |
 | `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 
 Os testes usam um **banco SwiftData em memória** (`BryqoAppState(inMemory:)`) e datas/calendário injetados, então cada caso parte de um estado limpo e é determinístico.
