@@ -192,11 +192,18 @@ struct ProfileView: View {
         return VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
             BryqoSectionTitle(title: "Aparência")
 
-            settingToggle(
-                title: "Tema escuro",
-                subtitle: model.themeSubtitle,
-                isOn: $model.isDarkMode
-            )
+            VStack(alignment: .leading, spacing: BryqoTheme.Spacing.md) {
+                Picker("Tema", selection: $model.appearance) {
+                    ForEach(AppearancePreference.allCases) { Text($0.title).tag($0) }
+                }
+                .pickerStyle(.segmented)
+
+                Text(model.appearanceSubtitle)
+                    .font(.body)
+                    .foregroundStyle(BryqoTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .bryqoCard()
 
             BryqoSectionTitle(title: "Notificações")
                 .padding(.top, BryqoTheme.Spacing.md)

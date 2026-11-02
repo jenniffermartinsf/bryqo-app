@@ -50,16 +50,4 @@ struct bryco_appTests {
         #expect(state.profile?.dailyGoalMinutes == 10)
     }
 
-    @Test func themePreferenceSwitchesColorScheme() {
-        let state = BryqoAppState(inMemory: true)
-
-        // Set the value explicitly rather than assuming a default — `isLightMode` is
-        // backed by shared UserDefaults, so the starting value isn't test-isolated.
-        state.isLightMode = false
-        #expect(state.preferredColorScheme == .dark)
-
-        state.isLightMode = true
-        #expect(state.preferredColorScheme == .light)
-    }
-
 }

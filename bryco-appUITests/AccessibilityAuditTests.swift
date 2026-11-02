@@ -38,9 +38,8 @@ final class AccessibilityAuditTests: XCTestCase {
     @MainActor
     private func audit(lightMode: Bool, contentSize: String?) throws {
         let app = XCUIApplication()
-        // The app picks its own theme (Perfil › Aparência); the argument domain overrides it. The
-        // value is a property list, so the app reads a Bool (a plain "NO" would arrive as a String).
-        app.launchArguments = ["-BryqoSkipOnboarding", "-bryqo.isLightMode", lightMode ? "<true/>" : "<false/>"]
+        // Perfil › Aparência; the argument domain overrides whatever the simulator has stored.
+        app.launchArguments = ["-BryqoSkipOnboarding", "-bryqo.appearance", lightMode ? "light" : "dark"]
         if let contentSize {
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", contentSize]
         }

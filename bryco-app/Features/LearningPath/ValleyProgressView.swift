@@ -5,6 +5,7 @@ struct ValleyProgressView: View {
     let totalLessons: Int
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var wheelRotation: Double = 0
     @State private var brixFloat: CGFloat = 0
@@ -48,37 +49,38 @@ struct ValleyProgressView: View {
 
     private var scene: some View {
         ZStack(alignment: .bottom) {
-            // Sky gradient
+            // Sky gradient. In the dark theme the valley is at night: a bright daytime card would
+            // be the loudest thing on a dark screen.
             LinearGradient(
-                colors: [Color(hex: 0xC5E8F7), Color(hex: 0xA8D8A0), Color(hex: 0x6BAB6B)],
+                colors: [Self.skyTop, Self.skyMiddle, Self.skyBottom],
                 startPoint: .top,
                 endPoint: .bottom
             )
 
-            // Sun
-            Circle()
-                .fill(BryqoTheme.sun.opacity(0.9))
-                .frame(width: 46, height: 46)
-                .shadow(color: BryqoTheme.sun.opacity(0.5), radius: 12, x: 0, y: 0)
-                .offset(x: 90, y: -190)
+            if colorScheme == .dark {
+                stars
+                moon
+            } else {
+                sun
+            }
 
             // Clouds
             clouds
 
             // Background hills (farthest layer)
             Capsule()
-                .fill(Color(hex: 0x8DC87A).opacity(0.55))
+                .fill(Self.hill.opacity(0.55))
                 .frame(width: 260, height: 110)
                 .offset(x: -90, y: -60)
 
             Capsule()
-                .fill(Color(hex: 0x8DC87A).opacity(0.4))
+                .fill(Self.hill.opacity(0.4))
                 .frame(width: 240, height: 100)
                 .offset(x: 110, y: -52)
 
             // Ground layer
             RoundedRectangle(cornerRadius: 0)
-                .fill(Color(hex: 0x5A9E52))
+                .fill(Self.ground)
                 .frame(maxWidth: .infinity)
                 .frame(height: 90)
                 .offset(y: 10)
@@ -120,7 +122,7 @@ struct ValleyProgressView: View {
 
     private func cloudShape(width: CGFloat, height: CGFloat) -> some View {
         Capsule()
-            .fill(Color.white.opacity(0.82))
+            .fill(Self.cloud)
             .frame(width: width, height: height)
     }
 
@@ -136,7 +138,7 @@ struct ValleyProgressView: View {
             path.addLine(to: CGPoint(x: 0, y: 270))
             path.closeSubpath()
         }
-        .fill(BryqoTheme.river.opacity(0.65))
+        .fill(Self.water.opacity(0.65))
     }
 
     private var damBlocks: some View {
@@ -176,10 +178,59 @@ struct ValleyProgressView: View {
         .rotationEffect(.degrees(wheelRotation))
     }
 
+    private var sun: some View {
+        Circle()
+            .fill(BryqoTheme.sun.opacity(0.9))
+            .frame(width: 46, height: 46)
+            .shadow(color: BryqoTheme.sun.opacity(0.5), radius: 12, x: 0, y: 0)
+            .offset(x: 90, y: -190)
+    }
+
+    /// A crescent: a disc with a second, sky-colored disc over one side.
+    private var moon: some View {
+        Circle()
+            .fill(Color(hex: 0xF1EEDC))
+            .frame(width: 40, height: 40)
+            .overlay(alignment: .topTrailing) {
+                Circle().fill(Self.skyTop).frame(width: 32, height: 32).offset(x: 10, y: -6)
+            }
+            .shadow(color: Color(hex: 0xF1EEDC).opacity(0.35), radius: 10)
+            .offset(x: 90, y: -190)
+    }
+
+    private var stars: some View {
+        ZStack {
+            ForEach(Array(Self.starPositions.enumerated()), id: \.offset) { _, point in
+                Circle()
+                    .fill(.white.opacity(0.7))
+                    .frame(width: 2.5, height: 2.5)
+                    .offset(x: point.x, y: point.y)
+            }
+        }
+    }
+
+    private static let starPositions: [CGPoint] = [
+        CGPoint(x: -140, y: -205), CGPoint(x: -95, y: -175), CGPoint(x: -40, y: -215),
+        CGPoint(x: 10, y: -185), CGPoint(x: 45, y: -220), CGPoint(x: 140, y: -165),
+        CGPoint(x: -120, y: -150), CGPoint(x: 20, y: -150),
+    ]
+
+    // Day / night palette for the scene.
+    private static let skyTop = Color(light: 0xC5E8F7, dark: 0x182238)
+    private static let skyMiddle = Color(light: 0xA8D8A0, dark: 0x22324A)
+    private static let skyBottom = Color(light: 0x6BAB6B, dark: 0x2A4A3C)
+    private static let water = Color(light: 0x4EA9E8, dark: 0x2E6594)
+    private static let hill = Color(light: 0x8DC87A, dark: 0x3E6B48)
+    private static let ground = Color(light: 0x5A9E52, dark: 0x2F5636)
+    private static let treeTop = Color(light: 0x4A9640, dark: 0x2C5A33)
+    private static let cloud = Color(UIColor { $0.userInterfaceStyle == .dark
+        ? UIColor.white.withAlphaComponent(0.16)
+        : UIColor.white.withAlphaComponent(0.82) })
+
     private func tree(xOffset: CGFloat) -> some View {
         VStack(spacing: 0) {
             Circle()
-                .fill(Color(hex: 0x4A9640))
+                .fill(Self.treeTop)
                 .frame(width: 26, height: 26)
             Rectangle()
                 .fill(BryqoTheme.wood)
