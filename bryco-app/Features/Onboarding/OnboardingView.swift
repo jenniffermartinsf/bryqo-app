@@ -269,7 +269,12 @@ struct OnboardingView: View {
                                     lineWidth: 1.5
                                 )
                         }
-                        .onChange(of: displayName) { _, _ in didAttemptContinue = false }
+                        .onChange(of: displayName) { _, name in
+                            didAttemptContinue = false
+                            // Stop typing at the limit instead of cutting the name later.
+                            let limited = BryqoAppState.limitedName(name)
+                            if limited != name { displayName = limited }
+                        }
 
                     if didAttemptContinue && !isNameValid {
                         Label("Digite seu nome para continuar.", systemImage: "exclamationmark.circle.fill")

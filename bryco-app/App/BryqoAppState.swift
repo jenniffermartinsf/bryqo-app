@@ -308,7 +308,8 @@ final class BryqoAppState {
     func mergeRemote(_ remote: FirestoreUserSnapshot) {
         progress.xp = max(progress.xp, remote.xp)
         progress.streakDays = max(progress.streakDays, remote.streakDays)
-        progress.hearts = remote.hearts
+        // The cloud copy is input like any other: keep it inside what the app can show.
+        progress.hearts = min(max(remote.hearts, 0), BryqoAppState.heartsMax)
         progress.heartsUpdatedAt = remote.heartsUpdatedAt
         progress.completedLessonIds.formUnion(remote.completedLessonIds)
 
@@ -528,9 +529,25 @@ final class BryqoAppState {
 
     // MARK: - Onboarding
 
+    /// Longest name kept. The cloud rules (firestore.rules) reject a longer one, which would stop
+    /// the whole backup from saving.
+    static let maxDisplayNameLength = 40
+
+    /// At most `maxDisplayNameLength` characters, and never more Unicode scalars than that: the
+    /// rules count scalars, and one emoji can be several of them.
+    static func limitedName(_ name: String) -> String {
+        var result = ""
+        for character in name.prefix(maxDisplayNameLength) {
+            guard result.unicodeScalars.count + character.unicodeScalars.count <= maxDisplayNameLength else { break }
+            result.append(character)
+        }
+        return result
+    }
+
     func completeOnboarding(displayName: String, experience: String, goal: String, dailyGoalMinutes: Int) {
+        let name = Self.limitedName(displayName.trimmingCharacters(in: .whitespacesAndNewlines))
         profile = OnboardingProfile(
-            displayName: displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "construtor" : displayName,
+            displayName: name.isEmpty ? "construtor" : name,
             experience: experience,
             goal: goal,
             dailyGoalMinutes: dailyGoalMinutes,

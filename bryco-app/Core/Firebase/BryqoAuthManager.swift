@@ -70,9 +70,10 @@ final class BryqoAuthManager: NSObject {
     func signInWithApple() async throws {
         guard appleSignIn == nil else { throw BryqoAuthError.signInInProgress }
 
-        let nonce = randomNonce()
+        let nonce = try randomNonce()
         let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
+        // Only what the app uses: the name. It never reads the email, so it doesn't ask for it.
+        request.requestedScopes = [.fullName]
         request.nonce = sha256(nonce)
 
         defer { appleSignIn = nil }
@@ -162,9 +163,14 @@ final class BryqoAuthManager: NSObject {
 
     // MARK: - Helpers
 
-    private func randomNonce(length: Int = 32) -> String {
+    /// A one-time value that ties the Apple credential to this request, so a captured token can't
+    /// be replayed. If the system can't produce random bytes, signing in fails rather than
+    /// continuing with a predictable nonce.
+    private func randomNonce(length: Int = 32) throws -> String {
         var bytes = [UInt8](repeating: 0, count: length)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            throw BryqoAuthError.invalidCredential
+        }
         let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         return String(bytes.map { charset[Int($0) % charset.count] })
     }
