@@ -486,6 +486,7 @@ Modules/
 bryco-appTests/             # Suites Swift Testing do app
 bryco-appUITests/           # Auditoria de acessibilidade, layout com Dynamic Type e memória
 firestore.rules             # Regras de segurança do Firestore (publicadas com o Firebase CLI)
+firebase.json, .firebaserc  # Configuração do Firebase CLI: arquivo de regras e projeto padrão
 fastlane/                   # Lanes de teste, build e CI
 .github/workflows/          # Pipeline do GitHub Actions
 ci/                         # Configuração de exemplo usada no CI
@@ -520,7 +521,7 @@ open bryco-app.xcodeproj
 
 4. Selecione o scheme **bryco-app** e um simulador, e rode com **⌘R**.
 
-> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo, Apple e Google), crie o banco do **Firestore** e publique as regras do repositório com `firebase deploy --only firestore:rules` (veja [Segurança e privacidade](#-segurança-e-privacidade)). O login com Google também precisa do `REVERSED_CLIENT_ID` do seu `GoogleService-Info.plist` como URL scheme em `bryco-app-Info.plist`. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
+> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo, Apple e Google), crie o banco do **Firestore** e publique as regras do repositório com `firebase deploy --only firestore:rules` (num projeto seu, acrescente `--project <id-do-projeto>`; veja [Segurança e privacidade](#-segurança-e-privacidade)). O login com Google também precisa do `REVERSED_CLIENT_ID` do seu `GoogleService-Info.plist` como URL scheme em `bryco-app-Info.plist`. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
 
 Para rodar as lanes do Fastlane:
 
