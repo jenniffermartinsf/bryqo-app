@@ -1,0 +1,75 @@
+rules_version = '2';
+
+// Bryqo's cloud backup. Each learner reads and writes only their own document, and only the
+// fields the app writes (BryqoFirestoreService). Everything else is denied.
+//
+// The Firebase API key ships inside the app, so anyone can call Firestore with it: these rules,
+// not the key, are what keep one person's progress away from everyone else.
+//
+// Deploy: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isCount(value, max) {
+      return value is int && value >= 0 && value <= max;
+    }
+
+    function isShortString(value, max) {
+      return value is string && value.size() <= max;
+    }
+
+    function isIdList(value) {
+      return value is list && value.size() <= 500;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly([
+          'xp', 'streakDays', 'hearts', 'heartsUpdatedAt', 'lastActivityDate',
+          'completedLessonIds', 'earnedMaterials', 'earnedAchievementIds',
+          'perfectLessonCount', 'streakFreezeCount', 'dailyMinutesStudied', 'dailyXpEarned',
+          'displayName', 'experience', 'goal', 'dailyGoalMinutes', 'accountCreatedDate',
+          'updatedAt'
+        ])
+        && (!('xp' in data) || isCount(data.xp, 1000000))
+        && (!('streakDays' in data) || isCount(data.streakDays, 100000))
+        && (!('hearts' in data) || isCount(data.hearts, 5))
+        && (!('perfectLessonCount' in data) || isCount(data.perfectLessonCount, 100000))
+        && (!('streakFreezeCount' in data) || isCount(data.streakFreezeCount, 100))
+        && (!('dailyMinutesStudied' in data) || isCount(data.dailyMinutesStudied, 1440))
+        && (!('dailyXpEarned' in data) || isCount(data.dailyXpEarned, 100000))
+        && (!('dailyGoalMinutes' in data) || isCount(data.dailyGoalMinutes, 1440))
+        && (!('completedLessonIds' in data) || isIdList(data.completedLessonIds))
+        && (!('earnedMaterials' in data) || isIdList(data.earnedMaterials))
+        && (!('earnedAchievementIds' in data) || isIdList(data.earnedAchievementIds))
+        && (!('displayName' in data) || isShortString(data.displayName, 60))
+        && (!('experience' in data) || isShortString(data.experience, 60))
+        && (!('goal' in data) || isShortString(data.goal, 120))
+        && (!('heartsUpdatedAt' in data) || data.heartsUpdatedAt is timestamp)
+        && (!('lastActivityDate' in data) || data.lastActivityDate is timestamp)
+        && (!('accountCreatedDate' in data) || data.accountCreatedDate is timestamp)
+        && (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      // setData(merge: true) arrives as create or update; check the resulting document.
+      allow create, update: if isOwner(uid) && isValidUser(request.resource.data);
+      allow delete: if false;
+
+      match /lessonProgress/{lessonId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['completedAt', 'mistakes'])
+          && request.resource.data.completedAt is timestamp
+          && isCount(request.resource.data.mistakes, 1000);
+        allow delete: if false;
+      }
+    }
+
+    // Anything not matched above, including other people's documents, is denied.
+  }
+}

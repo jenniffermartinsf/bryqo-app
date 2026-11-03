@@ -380,7 +380,7 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: BryqoTheme.Spacing.lg) {
                 Label("Login anônimo, Apple ou Google", systemImage: "person.badge.shield.checkmark.fill")
                 Label("Backup na nuvem quando há internet", systemImage: "icloud")
-                Label("Dados não são compartilhados com terceiros", systemImage: "lock.fill")
+                Label("Seus dados não são vendidos nem usados para anúncios", systemImage: "lock.fill")
             }
             .font(.body.weight(.semibold))
             .foregroundStyle(BryqoTheme.textSecondary)

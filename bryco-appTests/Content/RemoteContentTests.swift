@@ -116,6 +116,23 @@ struct ContentCatalogTests {
         #expect(mapped.lessons.count == unit.lessons.count - 1)
     }
 
+    @Test("A lesson with an id or numbers the app can't use is dropped", arguments: [
+        ("users/x", 15, 4),               // "/" in a Firestore document id is a path
+        ("", 15, 4),
+        ("..", 15, 4),
+        ("ok-id", Int.max, 4),            // would overflow the XP total
+        ("ok-id", -5, 4),
+        ("ok-id", 15, 0),
+    ])
+    func unusableLessonIsDropped(id: String, xpReward: Int, minutes: Int) throws {
+        let first = try #require(ContentCatalogDTO(version: 1, content: [bundled[0]]).units.first?.lessons.first)
+        let lesson = LessonDTO(id: id, title: first.title, subtitle: first.subtitle,
+                               estimatedMinutes: minutes, xpReward: xpReward,
+                               materialReward: first.materialReward, steps: first.steps)
+
+        #expect(lesson.toDomain() == nil)
+    }
+
     @Test("Invalid exercises and unknown step kinds are rejected")
     func invalidStepsAreRejected() {
         let wrongAnswer = ExerciseDTO(prompt: "?", options: [OptionDTO(id: "a", text: "A")],

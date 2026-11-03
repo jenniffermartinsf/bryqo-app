@@ -30,7 +30,22 @@ nonisolated extension UnitDTO {
 }
 
 nonisolated extension LessonDTO {
+    /// Highest XP a lesson can award. The bundled lessons give 15 to 30.
+    static let maxXpReward = 100
+    static let maxIdLength = 100
+
+    /// The id becomes a Firestore document id: a "/" there would be read as a path and crash.
+    var hasValidId: Bool {
+        !id.isEmpty && id.count <= Self.maxIdLength && !id.contains("/")
+            && id != "." && id != ".." && !(id.hasPrefix("__") && id.hasSuffix("__"))
+    }
+
     func toDomain() -> Lesson? {
+        // The catalog comes from the network: numbers out of range would overflow the XP total
+        // or push it past what the cloud rules accept.
+        guard hasValidId, (0...Self.maxXpReward).contains(xpReward), (1...60).contains(estimatedMinutes) else {
+            return nil
+        }
         let mapped = steps.map { $0.toDomain() }
         // Every step must be valid: skipping one silently could leave a lesson that no
         // longer makes sense, so the whole lesson is dropped instead.

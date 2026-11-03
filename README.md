@@ -8,12 +8,16 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 
 <br/>
 
+> **Status:** projeto de portfólio, concluído. O app não foi publicado na App Store, mas é completo e roda no simulador e em dispositivo a partir deste repositório. Foi construído de julho a novembro de 2026, em 26 pull requests, documentados numa série de posts no LinkedIn.
+
+<br/>
+
 [![CI](https://github.com/jenniffermartinsf/bryqo-app/actions/workflows/ci.yml/badge.svg)](https://github.com/jenniffermartinsf/bryqo-app/actions/workflows/ci.yml)
 ![Platform](https://img.shields.io/badge/Platform-iOS%2026.5-000000?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20UIKit-F05138?logo=swift&logoColor=white)
 ![SwiftData](https://img.shields.io/badge/Persistence-SwiftData-blue)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tests](https://img.shields.io/badge/Swift%20Testing-182%20testes-brightgreen)
+![Tests](https://img.shields.io/badge/Swift%20Testing-187%20testes-brightgreen)
 ![Fastlane](https://img.shields.io/badge/CI%2FCD-Fastlane%20%2B%20GitHub%20Actions-00F200?logo=fastlane&logoColor=white)
 
 </div>
@@ -35,6 +39,7 @@ App iOS nativo, no estilo Duolingo, que ensina **fundamentos da ciência da comp
 - [Persistência e sincronização](#-persistência-e-sincronização)
 - [Gamificação](#-gamificação)
 - [Acessibilidade](#-acessibilidade)
+- [Segurança e privacidade](#-segurança-e-privacidade)
 - [Testes](#-testes)
 - [CI/CD](#-cicd)
 - [Estrutura de pastas](#-estrutura-de-pastas)
@@ -56,10 +61,11 @@ Para quem quer avaliar o projeto rapidamente:
 | **Navegação** | `AppRouter` com rotas tipadas por aba (`NavigationStack(path:)`), pilha preservada entre abas e deep links `bryqo://` |
 | **UIKit + SwiftUI** | Tela de agenda em **View Code** (Auto Layout em código, `UICollectionView` com diffable data source) integrada via `UIViewControllerRepresentable` |
 | **Persistência** | SwiftData offline-first com **migração de schema versionada** (V1 → V6), consultas com `#Predicate` e `@Query`, e sincronização com Firestore |
-| **Testes** | **182 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
+| **Testes** | **187 testes** com Swift Testing: regras de negócio, ViewModels, navegação e o algoritmo de revisão espaçada |
 | **CI/CD** | **Fastlane** (`test`, `build`, `ci`) executado pelo **GitHub Actions** a cada push e pull request |
 | **Extensões** | Widget (WidgetKit) que lê um espelho do progresso via App Group e abre o app direto nas revisões |
-| **Acessibilidade** | Dynamic Type, VoiceOver, Reduce Motion, áreas de toque de 44 pt e háptica |
+| **Acessibilidade** | Auditoria automática da Apple (0 problemas) em dois temas e dois tamanhos de texto, layout testado em cinco tamanhos, VoiceOver, Reduce Motion e háptica |
+| **Segurança** | Regras do Firestore versionadas no repositório (cada pessoa só lê e grava o próprio documento, com campos validados), nonce criptográfico no Sign in with Apple e dados mínimos |
 
 ---
 
@@ -71,11 +77,11 @@ O conteúdo está organizado em **12 unidades** e **41 lições** que vão de l�
 
 | | |
 |---|---|
-| **Plataforma** | iOS 26.5+ (iPhone) |
+| **Plataforma** | iOS 26.5+ (iPhone e iPad) |
 | **Linguagem** | Swift, com concorrência moderna e isolamento padrão no `MainActor` |
 | **UI** | SwiftUI declarativo, com uma tela em UIKit (View Code); sem Storyboards |
 | **Conteúdo** | 12 unidades · 41 lições · pt-BR |
-| **Código** | ~8,4 mil linhas de Swift no app, widget e pacote, mais ~1,4 mil linhas de testes |
+| **Código** | ~10,4 mil linhas de Swift no app, widget e pacote, mais ~3,3 mil linhas de testes |
 
 ---
 
@@ -83,7 +89,11 @@ O conteúdo está organizado em **12 unidades** e **41 lições** que vão de l�
 
 O app suporta **light mode** e **dark mode** e segue a aparência do iPhone por padrão; em Perfil › Aparência dá para fixar Claro ou Escuro.
 
-### Trilha de aprendizado e lições
+### Vale, trilha de aprendizado e lições
+
+| Vale (Light) | Vale (Dark) |
+|:---:|:---:|
+| ![Valley Light](docs/screenshots/00-valley-light.png) | ![Valley Dark](docs/screenshots/00-valley-dark.png) |
 
 | Aprender (Light) | Aprender (Dark) |
 |:---:|:---:|
@@ -334,7 +344,7 @@ sequenceDiagram
 - **Dois modelos `@Model`**: `PersistedUserState` (progresso e perfil, um registro por usuário) e `LessonReview` (um registro por lição em revisão espaçada, com `#Unique` em `lessonId` e `#Index` em `nextReviewAt`). Veja [`PersistedUserState.swift`](bryco-app/Domain/Models/PersistedUserState.swift).
 - **Consultas no banco**: as revisões vencidas vêm de um `FetchDescriptor` com `#Predicate` (`nextReviewAt <= agora`) e `SortDescriptor`; o aviso da trilha usa `fetchCount`, sem carregar as linhas; as telas de Revisão e Agenda usam `@Query`, sobre o mesmo `mainContext` do app.
 - **Migração de schema versionada**: 6 versões (`BryqoSchemaV1…V6`). Os estágios até a V5 são *lightweight*; a V6 tem uma etapa personalizada que lê as revisões guardadas como JSON na V5 e cria uma linha `LessonReview` para cada uma. A migração é testada com um banco V5 real gravado em disco.
-- **Merge sem perda de progresso**: campos numéricos usam `max()` e coleções usam união de conjuntos.
+- **Merge sem perda de progresso**: campos numéricos usam `max()` e coleções usam união de conjuntos. O que vem da nuvem é tratado como entrada: os corações ficam sempre entre 0 e 5.
 - **Sem bloqueio de rede**: se o login falhar, o app continua funcional com os dados locais.
 - **Voltar para a rede sem destruir nada**: a leitura do backup distingue três casos (encontrado, não existe e "não deu para saber"). Só um "não existe" confirmado pelo servidor cria o backup a partir do progresso local, e o app só espelha gravações na nuvem depois de se reconciliar com ela na sessão. Assim, um app reinstalado e aberto sem internet nunca sobrescreve o backup com progresso vazio. A sincronização roda na abertura e sempre que o app volta ao primeiro plano.
 - **Falhas nunca são silenciosas**: erros ao abrir, ler ou salvar o banco são registrados no Crashlytics. Se o banco não abrir (por exemplo, numa migração com erro), o app continua usável num armazenamento temporário e mostra um aviso de que o progresso não será guardado ao fechar.
@@ -371,9 +381,29 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
 ---
 
+## 🔒 Segurança e privacidade
+
+O repositório é público e o app fala com o Firebase, então a revisão de segurança partiu de uma pergunta: o que alguém consegue fazer só com o que está aqui?
+
+- **Regras do Firestore no repositório** ([`firestore.rules`](firestore.rules)): cada pessoa lê e grava só `users/{seu uid}` e a subcoleção `lessonProgress`; os campos aceitos são exatamente os que o app grava, com tipos e limites (corações de 0 a 5, nome com até 60 caracteres, listas com até 500 itens); apagar e qualquer outro caminho são negados. A chave de API do Firebase vai dentro de todo app iOS e qualquer pessoa pode extraí-la, então são as regras, não a chave, que protegem os dados. Publique com `firebase deploy --only firestore:rules`.
+- **`GoogleService-Info.plist` fora do git**: o arquivo real fica só na máquina (está no `.gitignore`); o CI usa um placeholder em `ci/`.
+- **Sign in with Apple com nonce**: um valor aleatório de 32 bytes (`SecRandomCopyBytes`), enviado à Apple como SHA-256 e conferido pelo Firebase, para que um token capturado não possa ser reutilizado. Se o sistema não gerar bytes aleatórios, o login falha em vez de seguir com um nonce previsível.
+- **Dados mínimos**: o login com Apple pede só o nome, não o e-mail; o Analytics recebe ids de lição e números, nunca nome ou e-mail; o Crashlytics usa o `uid` anônimo do Firebase.
+- **Entrada validada**: o catálogo de lições baixado da rede é validado lição por lição (uma lição quebrada é descartada, um catálogo vazio é ignorado) e nenhum texto vindo dele é interpretado como Markdown ou link; o nome digitado é limitado a 40 caracteres, dentro do que as regras aceitam; deep links só aceitam `bryqo://learn` e `bryqo://review`.
+- **Atalho de testes só em Debug**: o argumento `-BryqoSkipOnboarding` está dentro de `#if DEBUG` e não existe no build de Release.
+- **Catálogo remoto com limites**: além dos passos, cada lição precisa de um id válido como documento do Firestore (sem `/`, até 100 caracteres) e de XP e duração dentro de faixas razoáveis; uma lição fora disso é descartada em vez de derrubar o app ou estourar o total de XP.
+
+**Pendências conhecidas** (registradas na revisão final, fora do escopo de um projeto que não foi publicado):
+
+- **Chave do Firebase no histórico do git**: o `GoogleService-Info.plist` real esteve no repositório de julho a outubro. A chave não dá acesso sozinha (veja as regras acima), mas o recomendado é restringi-la no Google Cloud Console ao bundle id do app e ativar o App Check.
+- **Excluir conta**: não há opção de apagar a conta e os dados no app, e as regras negam exclusão. A App Store exige isso para apps com login; seria o primeiro item antes de uma publicação.
+- **Trocar de conta num aparelho com progresso**: entrar numa conta Apple ou Google que já existe mescla o progresso local nela, sem perguntar.
+
+---
+
 ## 🧪 Testes
 
-**182 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 169 no app e 13 no pacote `BryqoDomain`.
+**187 testes** escritos com **Swift Testing** (`@Test`, `@Suite`, testes parametrizados): 174 no app e 13 no pacote `BryqoDomain`.
 
 | Suite | Cobre |
 |---|---|
@@ -387,7 +417,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `LessonViewModel` · `BinarySearchViewModel` · `VariableTraceViewModel` | Seleção, verificação, corações, XP e progressão de passos |
 | `Persistence health` | Banco que não abre (fallback em memória com aviso e registro do erro) e mensagens do aviso |
 | `Offline sync` | Backup indisponível não grava nada, backup ausente é criado, backup existente é mesclado, e nada vai para a nuvem antes da reconciliação |
-| `Content catalog` · `Content service` · `Content repository` · `Network error handling` | JSON publicado igual ao conteúdo embutido, validação de lições, status 200/304/erro, ETag, cache, fallback offline, backoff, Retry-After, espera pela conexão e o que é reportado |
+| `Content catalog` · `Content service` · `Content repository` · `Network error handling` | JSON publicado igual ao conteúdo embutido, validação de lições (incluindo ids e XP fora da faixa), status 200/304/erro, ETag, cache, fallback offline, backoff, Retry-After, espera pela conexão e o que é reportado |
 | `Account link state` · `Profile model` | Estados do vínculo com Apple e Google (cancelamento não é erro), sucesso com backup, falha sem backup, progresso só no botão escolhido, toque duplo ignorado, tema e textos do Perfil |
 | `Daily reminder` | Lembrete às 19h, "amanhã" na virada de mês, ano e 29 de fevereiro, sem lembrete duplicado, permissão negada desliga o toggle e concluir uma lição move o lembrete |
 | `Lesson hearts` | Acerto não cobra coração; cada erro cobra um; um "Pense como a máquina" com vários erros cobra todos de uma vez; a lição para sem corações só depois do feedback; o app termina com os mesmos corações que a lição mostra |
@@ -395,6 +425,7 @@ O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 | `Lesson unlock` | Qual lição uma conclusão libera: a próxima da unidade, a primeira da unidade seguinte; nenhuma ao repetir uma lição ou fazer uma revisão; a revelação acontece uma vez só |
 | `Avatar update` | Foto do perfil: indicador enquanto carrega, mensagem para foto que não chega da galeria e para arquivo que não é imagem, nova foto em caso de sucesso, nenhum indicador preso ao sair da tela no meio |
 | `Appearance` | Tema: instalação nova segue o sistema; Automático, Claro e Escuro viram o esquema de cores certo; a escolha sobrevive a reabrir o app; quem usou a chave antiga de tema escuro mantém a escolha |
+| `Cloud input` | Corações vindos da nuvem ficam entre 0 e 5; nome longo cortado no limite das regras, contado em escalares Unicode (um emoji pode valer vários); espaços aparados e nome vazio com valor padrão |
 | `Onboarding outcome` · `Profile stats` | Resultado do onboarding, níveis, contagem de lições e streak em risco |
 
 Os testes usam um **banco SwiftData em memória** (`BryqoAppState(inMemory:)`) e datas/calendário injetados, então cada caso parte de um estado limpo e é determinístico.
@@ -453,6 +484,9 @@ BryqoWidget/                # Extensão WidgetKit
 Modules/
 └── BryqoDomain/            # Pacote SPM local: SM-2 e busca binária, com testes próprios
 bryco-appTests/             # Suites Swift Testing do app
+bryco-appUITests/           # Auditoria de acessibilidade, layout com Dynamic Type e memória
+firestore.rules             # Regras de segurança do Firestore (publicadas com o Firebase CLI)
+firebase.json, .firebaserc  # Configuração do Firebase CLI: arquivo de regras e projeto padrão
 fastlane/                   # Lanes de teste, build e CI
 .github/workflows/          # Pipeline do GitHub Actions
 ci/                         # Configuração de exemplo usada no CI
@@ -487,7 +521,7 @@ open bryco-app.xcodeproj
 
 4. Selecione o scheme **bryco-app** e um simulador, e rode com **⌘R**.
 
-> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo, Apple e Google) e crie o banco do **Firestore**, com regras que deixem cada usuário ler e gravar só o próprio `users/{uid}`. O login com Google também precisa do `REVERSED_CLIENT_ID` do seu `GoogleService-Info.plist` como URL scheme em `bryco-app-Info.plist`. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
+> Para usar a nuvem, habilite no Firebase Console **Authentication** (Anônimo, Apple e Google), crie o banco do **Firestore** e publique as regras do repositório com `firebase deploy --only firestore:rules` (num projeto seu, acrescente `--project <id-do-projeto>`; veja [Segurança e privacidade](#-segurança-e-privacidade)). O login com Google também precisa do `REVERSED_CLIENT_ID` do seu `GoogleService-Info.plist` como URL scheme em `bryco-app-Info.plist`. Com o arquivo de exemplo, o progresso fica salvo localmente via SwiftData.
 
 Para rodar as lanes do Fastlane:
 
@@ -508,7 +542,9 @@ bundle exec fastlane ci
 - [ ] Extrair `OnboardingViewModel` para testar a navegação do wizard
 - [x] Testes de UI de acessibilidade (auditoria do XCUITest em todas as abas, nos dois temas e em dois tamanhos de texto)
 - [ ] Sincronização em tempo real (listeners do Firestore)
-- [ ] Lane de distribuição para TestFlight
+- [ ] Excluir conta e dados pelo app (requisito da App Store para apps com login)
+- [ ] Perguntar antes de mesclar o progresso ao entrar numa conta que já existe
+- [ ] Lane de distribuição para TestFlight e publicação na App Store (pede uma conta paga do Apple Developer Program)
 
 ---
 
