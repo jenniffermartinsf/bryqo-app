@@ -230,18 +230,20 @@ extension View {
     }
 }
 
-/// Side by side at the usual text sizes; stacked at the accessibility sizes, where two columns
-/// leave each one a word per line.
+/// Side by side at the usual text sizes; stacked from `stacksFrom` up, where two columns leave
+/// each one a word per line. The accessibility sizes by default; content that breaks earlier
+/// (three cards across, a ring beside a label) passes `.xxxLarge`.
 struct BryqoAdaptiveStack<Content: View>: View {
     var horizontalAlignment: HorizontalAlignment = .leading
     var verticalAlignment: VerticalAlignment = .center
     var spacing: CGFloat?
+    var stacksFrom: DynamicTypeSize = .accessibility1
     @ViewBuilder var content: Content
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        let layout = dynamicTypeSize.isAccessibilitySize
+        let layout = dynamicTypeSize >= stacksFrom
             ? AnyLayout(VStackLayout(alignment: horizontalAlignment, spacing: spacing))
             : AnyLayout(HStackLayout(alignment: verticalAlignment, spacing: spacing))
         layout { content }

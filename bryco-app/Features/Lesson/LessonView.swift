@@ -167,6 +167,9 @@ struct LessonView: View {
         Label(stepLabel, systemImage: stepIcon)
             .font(.subheadline.weight(.black))
             .tracking(1.2)
+            // One word: shrink a little before breaking it ("ESCOL-HA") at the largest sizes.
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(BryqoTheme.Ink.river)
             .padding(.horizontal, BryqoTheme.Spacing.lg)
             .padding(.vertical, BryqoTheme.Spacing.md)
@@ -500,7 +503,39 @@ private struct HeartsView: View {
     @State private var lostScale: CGFloat = 1.0
     @State private var lostOpacity: Double = 1.0
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
+        Group {
+            // Five hearts grow five times as text grows and squeezed the progress bar beside them
+            // to 12 pt at the largest size. From XXXL up, one heart and a count say the same thing.
+            if dynamicTypeSize >= .xxxLarge {
+                compactHearts
+            } else {
+                heartRow
+            }
+        }
+        // VoiceOver reads a single "Vidas: N de 5" instead of ten separate heart images.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Vidas")
+        .accessibilityValue("\(hearts) de \(maxHearts)")
+    }
+
+    private var compactHearts: some View {
+        HStack(spacing: 4) {
+            Image(systemName: hearts > 0 ? "heart.fill" : "heart")
+                .bryqoFont(17)
+                .foregroundStyle(hearts > 0 ? BryqoTheme.error : BryqoTheme.textSecondary)
+            Text("\(hearts)")
+                .bryqoFont(17, weight: .black, design: .rounded)
+                .foregroundStyle(BryqoTheme.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: hearts)
+        }
+        .fixedSize()
+    }
+
+    private var heartRow: some View {
         HStack(spacing: 3) {
             ForEach(0..<maxHearts, id: \.self) { index in
                 ZStack {
@@ -520,10 +555,6 @@ private struct HeartsView: View {
                 }
             }
         }
-        // VoiceOver reads a single "Vidas: N de 5" instead of ten separate heart images.
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Vidas")
-        .accessibilityValue("\(hearts) de \(maxHearts)")
         .onChange(of: hearts) { oldValue, newValue in
             guard newValue < oldValue else { return }
             lostIndex = newValue

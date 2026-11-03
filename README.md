@@ -359,9 +359,10 @@ sequenceDiagram
 
 O app foi auditado com base nas **Human Interface Guidelines** da Apple:
 
+- **Layout em toda a faixa de tamanhos**: [`DynamicTypeLayoutTests`](bryco-appUITests/DynamicTypeLayoutTests.swift) abre uma lição em cinco tamanhos, do XS ao maior, e confere que a barra de progresso mantém pelo menos um terço da tela e que os corações cabem. Do XXXL para cima, os cinco corações viram um coração e um número.
 - **Auditoria automática**: [`AccessibilityAuditTests`](bryco-appUITests/AccessibilityAuditTests.swift) roda o `performAccessibilityAudit()` da Apple em todas as abas e numa lição, nos temas claro e escuro, no tamanho de texto padrão e no maior tamanho de acessibilidade. Na primeira execução encontrou 66 problemas; hoje encontra 0.
 - **Contraste (WCAG AA)**: textos ficam acima de 4,5:1. No tema claro as cores de destaque viram texto pela versão `BryqoTheme.Ink`, mais escura (cerca de 5,5:1); ícones e preenchimentos continuam com a cor da marca.
-- **Dynamic Type**: todo texto escala com a preferência do usuário via `.bryqoFont` (`@ScaledMetric`); a tela UIKit usa estilos de texto do sistema. Nos tamanhos de acessibilidade, o que fica lado a lado passa a empilhar (`BryqoAdaptiveStack`) e o mapa de lições vira uma coluna reta, com linhas que crescem junto com o texto.
+- **Dynamic Type**: todo texto escala com a preferência do usuário via `.bryqoFont` (`@ScaledMetric`); a tela UIKit usa estilos de texto do sistema. Nos tamanhos de acessibilidade, o que fica lado a lado passa a empilhar (`BryqoAdaptiveStack`; o cabeçalho do Vale, o card da meta e os cards de Conquistas empilham já no XXXL, onde quebravam antes) e o mapa de lições vira uma coluna reta, com linhas que crescem junto com o texto.
 - **Áreas de toque de 44 pt** em botões de ícone.
 - **VoiceOver**: rótulos em botões de ícone e imagens; corações anunciados como "Vidas: N de 5"; imagens decorativas ocultas.
 - **Reduce Motion**: animações contínuas (confete, mascote flutuante, cena do vale) são desativadas quando o usuário pede menos movimento.
